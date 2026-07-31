@@ -39,7 +39,7 @@ work/
 │   └── search.test.js           # functional tests of the search engine
 ├── scripts/
 │   ├── verify_codebase_sync.sh  # sync verification (see README)
-│   ├── bump-version.sh          # wrap-up: version bump helper
+│   ├── bump-version.sh          # wrap-up: version bump helper (VERSION + index.html footer)
 │   └── validate-changelog.sh    # wrap-up: changelog validation
 ├── package.json                 # dev-only: test runner config + jsdom + prettier
 └── package-lock.json
@@ -120,7 +120,7 @@ together; all behavior follows BLUEPRINT §7.2 derived visibility rules.
 | Concern                | Choice                                                                                                                                                                                                                       |
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Languages              | HTML5, CSS3, JavaScript (ES modules)                                                                                                                                                                                         |
-| Runtime dependencies   | none (NHI.no attribution hyperlink only; fonts are the platform's native system stack)                                                                                                                                       |
+| Runtime dependencies   | none (footer attribution hyperlinks to NHI.no and NKFM only; fonts are the platform's native system stack)                                                                                                                   |
 | Dev dependencies       | `jsdom` (DOM emulation for tests), pinned exact version                                                                                                                                                                      |
 | Test runner            | Node built-in `node --test` (Node ≥ 20; environment has v26)                                                                                                                                                                 |
 | Full-browser testing   | Playwright, available in this environment via the `playwright-cli` skill (automated browser interactions and page checks)                                                                                                    |

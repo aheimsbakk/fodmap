@@ -267,9 +267,13 @@ mobile label. They are excluded from filtering.
 
 ### 5.8 Footer
 
-Top border 2 px solid black, centered, small text. Line 1: bold "01 //
-FODMAP | Kilde:" + external source link (underlined, red on hover, opens in
-a new tab). Line 2: gray disclaimer text.
+Top border 2 px solid black, centered, small text. Line 1: bold
+"FODMAP v<version> // Kilder:" followed by two external source links
+(underlined, red on hover, open in a new tab): Norsk Helseinformatikk
+(NHI.no) and NKFM – Lav FODMAP-mat ved IBS. The version text follows the
+`VERSION` file. Line 2: gray disclaimer text. The source line replaces the
+origin's "01 // FODMAP | Kilde:" line (user decision; see §12.2
+deviation 6).
 
 ## 6. Content Data Model
 
@@ -462,13 +466,15 @@ content needed for restoration.
 
 ## 11. External Dependencies
 
-| Dependency         | Type               | Rationale                            |
-| ------------------ | ------------------ | ------------------------------------ |
-| NHI.no source page | external hyperlink | footer attribution, opens in new tab |
+| Dependency                      | Type               | Rationale                            |
+| ------------------------------- | ------------------ | ------------------------------------ |
+| NHI.no source page              | external hyperlink | footer attribution, opens in new tab |
+| NKFM source page (Helse Bergen) | external hyperlink | footer attribution, opens in new tab |
 
 No runtime JavaScript libraries and no remote assets. Typography uses the
 platform's native system font stack (§4.2), so the page is fully functional
-offline; the only external reference is the attribution link in the footer.
+offline; the only external references are the two attribution links in the
+footer.
 
 ## 12. Fidelity
 
@@ -531,6 +537,11 @@ Reviewed and confirmed unchanged: `Nøtte` (§8), `Banos` (§8),
    Neue's narrow display face is not reproducible with system fonts, so
    the masthead title renders wider. This is the same platform-variability
    trade-off already accepted for emoji (deviation 2).
+6. The footer source line is replaced per user request (2026-07-31):
+   "01 // FODMAP | Kilde:" with one NHI.no link becomes
+   "FODMAP v0.3.0 // Kilder:" with two links (NHI.no and NKFM – Lav
+   FODMAP-mat ved IBS). The disclaimer line below is unchanged. The
+   version text must track the `VERSION` file.
 
 ### 12.3 Negative contracts
 

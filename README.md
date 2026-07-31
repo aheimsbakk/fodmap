@@ -43,6 +43,16 @@ npm run format    # formater kildefilene med Prettier
 
 Tilstandskode 0 betyr at alle stier finnes. Ved en annen tilstandskode viser skriptet hvilke stier som mangler.
 
+`scripts/bump-version.sh` øker versjonen i `VERSION` og oppdaterer versjonsmerket i footeren på siden (`FODMAP vX.Y.Z // Kilder:` i `src/index.html`). Standard trinn er patch. Skriptet feiler hvis markøren i footeren mangler, så versjonen aldri endres uten at footeren oppdateres:
+
+```bash
+./scripts/bump-version.sh        # patch: 0.3.0 → 0.3.1
+./scripts/bump-version.sh minor  # minor: 0.3.0 → 0.4.0
+./scripts/bump-version.sh major  # major: 0.3.0 → 1.0.0
+```
+
+Skriptet skriver den nye versjonen til `VERSION` og skriver den ut på slutten.
+
 ## Konfigurasjon
 
 - Utviklingsavhengigheter (eksakte versjoner i `package.json`): `jsdom` for DOM-emulering i tester, `prettier` for formatering.

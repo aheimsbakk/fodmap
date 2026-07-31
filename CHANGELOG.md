@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.4.0] - 2026-07-31
+
+- **why:** Add NKFM as a second footer source and keep the footer version in sync with VERSION
+- **model:** opencode/deepseek-v4-flash-free
+- **tags:** footer, versioning, sources, scripts
+
+### Added
+
+- Footer source line lists NKFM – Lav FODMAP-mat ved IBS (Helse Bergen) as a second attribution link alongside NHI.no
+- `scripts/bump-version.sh` updates the `FODMAP vX.Y.Z` marker in `src/index.html` together with `VERSION`; it fails before any write when the marker is missing, so the two can never drift apart
+
+### Changed
+
+- `src/index.html` footer source line is now `FODMAP v0.4.0 // Kilder:` with both links; the disclaimer line is unchanged
+- `BLUEPRINT.md` §5.8, §11, and §12.2 (deviation 6) document the new footer and the added external dependency
+- `README.md` Skript section documents `bump-version.sh` usage
+- `CODEBASE.md` script description reflects the footer sync
+
 ## [0.3.0] - 2026-07-31
 
 - **why:** Remove the Google Fonts dependency so the page needs no remote assets and works fully offline
