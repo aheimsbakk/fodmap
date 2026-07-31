@@ -106,7 +106,7 @@ Support colors:
 | Halftone dot A   | `#c43838`            | left decoration                 |
 | Halftone dot B   | `#a0c49d`            | right decoration                |
 | Halftone dot C   | `#e6a147`            | both decorations                |
-| Banner text      | `#4b5563` (gray)     | info banner text                |
+| Banner text      | `#374151` (gray-700) | info banner text                |
 | Placeholder text | gray-400             | search input placeholder        |
 | Footer secondary | gray-600             | disclaimer text                 |
 | Hover link       | `#dc2626` (red-600)  | source link hover               |

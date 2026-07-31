@@ -13,6 +13,9 @@ work/
 ├── BLUEPRINT.md                 # language-agnostic architecture (source of truth)
 ├── CHANGELOG.md                 # wrap-up changelog (versioned milestones)
 ├── CODEBASE.md                  # this file
+├── .github/
+│   └── workflows/
+│       └── deploy-pages.yml     # GitHub Pages deploy of src/ (on push to main)
 ├── opencode.json
 ├── .opencode/                   # agent configuration and skills
 ├── .gitignore
