@@ -46,7 +46,7 @@ Tilstandskode 0 betyr at alle stier finnes. Ved en annen tilstandskode viser skr
 ## Konfigurasjon
 
 - Utviklingsavhengigheter (eksakte versjoner i `package.json`): `jsdom` for DOM-emulering i tester, `prettier` for formatering.
-- Fonter lastes fra Google Fonts (Oswald, Bebas Neue, Open Sans), med systemfonter som reserve. Ikoner er emoji-tegn; tegn med dobbel fremstilling (⚖️ ℹ️ ⚠️ ☕ 🌶️) har variasjonsvelger.
+- Ingen eksterne fonter: siden bruker plattformens innebygde systemfont (system-ui), så typografien er avhengig av skrifttypene som allerede finnes på enheten. Siden laster ingen eksterne ressurser og fungerer helt uten nett. Ikoner er emoji-tegn; tegn med dobbel fremstilling (⚖️ ℹ️ ⚠️ ☕ 🌶️) har variasjonsvelger.
 - Innholdet følger `BLUEPRINT.md` §12.1: ordrett fra originalen, med unntak av de godkjente rettelsene som er listet der.
 
 ## Kilde og oppdateringer

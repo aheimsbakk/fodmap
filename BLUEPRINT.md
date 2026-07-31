@@ -12,7 +12,8 @@ Reimplement the origin as a static, dependency-free single-page app that:
 2. Behaves identically to the origin: full content rendering without scripts,
    plus the interactive food search with live filtering and highlighting.
 3. Uses only a plain markup document, stylesheets, and one vanilla script.
-   No frameworks, no runtime library downloads, no build step.
+   No frameworks, no runtime library downloads, no remote assets, no build
+   step. Typography uses the platform's native system fonts.
 4. Keeps the stylesheets clean, token-driven, and mobile-first responsive.
 5. Keeps all Norwegian content verbatim (see section 12, Fidelity).
 
@@ -113,11 +114,20 @@ Support colors:
 
 ### 4.2 Typography
 
-| Role                      | Family     | Weights       | Transform |
-| ------------------------- | ---------- | ------------- | --------- |
-| Body                      | Open Sans  | 400, 600, 700 | none      |
-| Headings, labels, banners | Oswald     | 400, 500, 700 | uppercase |
-| Main title "FODMAP"       | Bebas Neue | 400           | uppercase |
+| Role                      | Family          | Weights       | Transform |
+| ------------------------- | --------------- | ------------- | --------- |
+| Body                      | system-ui stack | 400, 600, 700 | none      |
+| Headings, labels, banners | system-ui stack | 400, 500, 700 | uppercase |
+| Main title "FODMAP"       | system-ui stack | 400           | uppercase |
+
+All three roles share the platform's native sans-serif stack (`system-ui`
+with a generic `sans-serif` fallback). No webfonts are loaded; the page
+renders identically offline. Requested weights map to the installed faces
+of the platform; missing faces are synthesized. Oswald's condensed look is
+approximated by bold weight plus the existing uppercase and letter-spacing
+rules; Bebas Neue's narrow display face cannot be reproduced with system
+fonts, so the masthead title renders wider than the origin (deliberate
+deviation, §12.2).
 
 Letter spacing: main title +2 px, sub-title `tracking-widest`, labels and
 banners `tracking-wider`. Search input text: uppercase, `tracking-wider`.
@@ -180,7 +190,7 @@ below the search widget.
 
 ### 5.1 Page shell
 
-- White background, Open Sans body text, dark gray ink.
+- White background, native system sans-serif body text, dark gray ink.
 - Content container: max width 1280 px, centered, white, sits above the
   decorations, bottom padding 1 rem.
 - Page padding scales per section 4.3.
@@ -382,7 +392,8 @@ A single document (`src/index.html` per user requirement). It must:
 - Render the full page content with scripts disabled (search degrades to
   inert; all content and layout must be intact).
 - Load one stylesheet set and one script at the end.
-- Require no network for the search feature.
+- Require no network at all: no remote assets (fonts are the platform's
+  native system stack).
 
 ### 9.2 Icon set
 
@@ -451,13 +462,13 @@ content needed for restoration.
 
 ## 11. External Dependencies
 
-| Dependency                                   | Type                   | Rationale                            |
-| -------------------------------------------- | ---------------------- | ------------------------------------ |
-| Google Fonts (Oswald, Bebas Neue, Open Sans) | remote stylesheet link | identical rendering to the origin    |
-| NHI.no source page                           | external hyperlink     | footer attribution, opens in new tab |
+| Dependency         | Type               | Rationale                            |
+| ------------------ | ------------------ | ------------------------------------ |
+| NHI.no source page | external hyperlink | footer attribution, opens in new tab |
 
-No runtime JavaScript libraries. Fonts are the only remote asset; the page
-must degrade gracefully (system font fallbacks) when offline.
+No runtime JavaScript libraries and no remote assets. Typography uses the
+platform's native system font stack (§4.2), so the page is fully functional
+offline; the only external reference is the attribution link in the footer.
 
 ## 12. Fidelity
 
@@ -512,6 +523,14 @@ Reviewed and confirmed unchanged: `Nøtte` (§8), `Banos` (§8),
    and the origin's own search removes it anyway.
 4. The clear control in the origin is a button without an explicit type;
    the reimplementation declares an explicit type (non-visual).
+5. Google Fonts (Oswald, Bebas Neue, Open Sans) are replaced by the
+   platform's native system font stack (user decision, 2026-07-31: no
+   third-party font dependency). Rendering varies by platform and by
+   installed faces. Oswald's condensed headings are approximated by bold
+   weight with the existing uppercase and letter-spacing rules; Bebas
+   Neue's narrow display face is not reproducible with system fonts, so
+   the masthead title renders wider. This is the same platform-variability
+   trade-off already accepted for emoji (deviation 2).
 
 ### 12.3 Negative contracts
 
