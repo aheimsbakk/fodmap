@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.3.0] - 2026-07-31
+
+- **why:** Remove the Google Fonts dependency so the page needs no remote assets and works fully offline
+- **model:** opencode/deepseek-v4-flash-free
+- **tags:** fonts, dependencies, offline, typography
+
+### Removed
+
+- Google Fonts stylesheet and preconnect links from `src/index.html` (Oswald, Bebas Neue, Open Sans)
+
+### Changed
+
+- `src/css/tokens.css`: font role tokens (`--font-body`, `--font-heading`, `--font-display`) now alias the native `system-ui` stack through the new `--font-system` token
+- `BLUEPRINT.md` §12.2 deviation 5 documents the font substitution; the masthead title renders wider with system fonts
+- `README.md` configuration section now states that no fonts are downloaded and the page works offline
+
 ## [0.2.0] - 2026-07-31
 
 - **why:** Fix info banner color parity and add automated deployment to GitHub Pages
