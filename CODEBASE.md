@@ -113,12 +113,12 @@ the end of the body.
 
 `src/js/search.js` — the search engine:
 
-| Export                                   | Responsibility                                                                                                                    | BLUEPRINT § |
-| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| `normalizeQuery(value)`                  | lowercase + trim                                                                                                                  | §7.2.1      |
-| `buildMatcher()`                         | pure matcher: query + captured content → visibility/highlight plan for items and category/sub-group headings                      | §8          |
-| `applyPlan(document, plan)`              | executor: applies the plan to the DOM                                                                                             | §8          |
-| `initSearch(document, debounceMs = 300)` | load-time capture (`data-orig-*`), event wiring (input debounce 300 ms, clear control, passive scroll-blur > 50 px), IDLE restore | §7, §9.5    |
+| Export                                   | Responsibility                                                                                                                                                                                                               | BLUEPRINT § |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `normalizeQuery(value)`                  | lowercase + trim                                                                                                                                                                                                             | §7.2.1      |
+| `buildMatcher()`                         | pure matcher: query + captured content → visibility/highlight plan for items and category/sub-group headings                                                                                                                 | §8          |
+| `applyPlan(document, plan)`              | executor: applies the plan to the DOM                                                                                                                                                                                        | §8          |
+| `initSearch(document, debounceMs = 300)` | load-time capture (`data-orig-*`), event wiring (input debounce 300 ms, Escape key clears like the clear control, clear control, passive scroll-blur > 50 px with a 200 ms grace window after each filter run), IDLE restore | §7, §9.5    |
 
 `src/js/text-scale.js` — the text-size toggle:
 

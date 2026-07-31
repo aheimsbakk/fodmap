@@ -268,8 +268,10 @@ Full width, white background, 2 px solid black border, 0.25 rem padding,
   All notes are inline plain text; there is no small-print styling
   (see §12.2 deviation 3).
 - Sub-groups: uppercase bold small heading; separated from the preceding
-  block by a 1 px light border + padding, except when it is the first
-  block in a column.
+  block by a 1 px light border + padding. Every sub-group heading with
+  content above it gets the same separator; a sub-group that opens its
+  column (nothing above it at wide widths, where the mobile label is
+  hidden) stays flush (deviation 11).
 - Footnote banner: white background, 2 px solid black border (top edge
   open), centered bold text, warning icon, small shadow. Wording and icon
   per section: VIKTIG and TIPS notes use the warning emoji; the MARINADER
@@ -364,11 +366,13 @@ Transitions (debounced 300 ms after each input change):
 
 - IDLE → FILTERED: first non-empty query.
 - FILTERED → FILTERED: query changed (recompute).
-- FILTERED → IDLE: query emptied by editing or by the clear control.
-  All stored originals restored exactly.
+- FILTERED → IDLE: query emptied by editing, by the clear control, or by
+  the Escape key while the input is focused. All stored originals restored
+  exactly.
 
-Clear control activation: empty the query, transition to IDLE, return focus
-to the input.
+Clear control activation (button click, or Escape key while the input is
+focused): empty the query, transition to IDLE, keep focus on the input.
+Escape with an empty query and Escape outside the input are no-ops.
 
 ### 7.2 Derived visibility rules (FILTERED state)
 
@@ -431,7 +435,7 @@ input change ──> debounce 300 ms ──> normalize (lowercase + trim)
       ──> match items + headings (category and sub-group) ──> derive visibility plan
       ──> apply plan (hide/show + highlight) ──> toggle clear control
 
-clear control ──> empty input ──> restore originals ──> IDLE
+clear control or Escape ──> empty input ──> restore originals ──> IDLE
 
 toggle ──> next level ──> set data-text-scale on root ──> tokens recompute
       ──> persist level (local storage, failure-safe)
@@ -439,7 +443,8 @@ toggle ──> next level ──> set data-text-scale on root ──> tokens rec
 page load ──> capture item text/markup + heading markup ──> attach listeners
       ──> restore stored text-scale level
 
-scroll ──> if input focused and scrolled past 50 px ──> blur input
+scroll ──> if input focused and scrolled past 50 px, and no filter run
+          in the last 200 ms ──> blur input
 ```
 
 The matcher is a pure function: query + captured content in, visibility
@@ -520,7 +525,12 @@ The script locates elements by stable, semantic identity:
 ### 9.5 Timing and performance
 
 - Debounce: 300 ms after the last input change.
-- Scroll blur: passive listener.
+- Scroll blur: passive listener; blurs when the input is focused and the
+  page is scrolled past 50 px. A 200 ms grace window after each filter
+  run suppresses the blur: filtering collapses the page height, the
+  browser clamps the scroll position and fires a scroll event, and that
+  event must not steal focus from the input mid-search. Only user scrolls
+  may blur.
 - No network requests in the search path; no timers other than the debounce.
 
 ## 10. Persistence
@@ -653,6 +663,21 @@ Reviewed and confirmed unchanged: `Nøtte` (§8), `Banos` (§8),
     user request; the current footer has no separator. Bold weight
     moved from the source line to the disclaimer line on user request
     (2026-07-31); the source line now renders regular weight.
+11. Sub-group headings get a uniform separator line, per user request
+    (2026-07-31). The origin is inconsistent: all sub-list titles carry
+    `mt-0` (no top margin), most keep the line, and the ones that open
+    their column at wide widths drop it via `md:border-t-0 md:pt-0` —
+    except §4 SPIS "Melk og meieriprodukter:", which keeps a floating
+    line with nothing above it. The reimplementation applies one rule:
+    every sub-group heading with content above it gets the 1 px line;
+    a sub-group that opens its column has nothing above it at ≥ 768 px
+    (the mobile label is hidden there) and stays flush (no margin, no
+    padding, no line) via a `@media (min-width: 768px)` rule targeting
+    `.content-col > .role-label + .sub-group-title` and
+    `.content-col > .sub-group-title:first-child`. Below 768 px the
+    label sits above it, so the line stays. No `:first-of-type`
+    exception is used: a sub-group below a main item list has content
+    above it and keeps the line.
 
 ### 12.3 Negative contracts
 
@@ -678,6 +703,8 @@ Cover the search engine:
 - Visibility transitions: item, sub-group, mobile label, section.
 - Special inputs: regex metacharacters, spaces, uppercase.
 - Clear control: hides/shows, restores originals, returns focus.
+- Escape key: clears an active search exactly like the clear control while
+  the input is focused; empty query and unfocused input are no-ops.
 - Debounce: coalesces rapid input.
 - Scroll blur rule.
 
