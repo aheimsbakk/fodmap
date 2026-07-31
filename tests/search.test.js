@@ -346,6 +346,58 @@ test("clear control toggles visibility and returns focus", async () => {
   assert.equal(dom.window.document.activeElement, input(dom));
 });
 
+// --- Escape key (§7.1) -------------------------------------------------------
+
+test("Escape clears the search and keeps focus on the input", async () => {
+  const dom = setup();
+  type(dom, "whisky");
+  await settle();
+  assert.ok(!clearButton(dom).classList.contains("hidden"));
+
+  input(dom).focus();
+  input(dom).dispatchEvent(
+    new dom.window.KeyboardEvent("keydown", {
+      key: "Escape",
+      bubbles: true,
+    }),
+  );
+  await settle();
+
+  assert.equal(input(dom).value, "");
+  assert.ok(clearButton(dom).classList.contains("hidden"));
+  assert.equal(visibleItems(dom).length, items(dom).length);
+  assert.equal(dom.window.document.activeElement, input(dom));
+});
+
+test("Escape with an empty query leaves the page untouched", async () => {
+  const dom = setup();
+  input(dom).dispatchEvent(
+    new dom.window.KeyboardEvent("keydown", {
+      key: "Escape",
+      bubbles: true,
+    }),
+  );
+  await settle();
+  assert.equal(input(dom).value, "");
+  assert.equal(visibleItems(dom).length, items(dom).length);
+});
+
+test("Escape outside the input never clears an active search", async () => {
+  const dom = setup();
+  type(dom, "whisky");
+  await settle();
+
+  dom.window.document.body.dispatchEvent(
+    new dom.window.KeyboardEvent("keydown", {
+      key: "Escape",
+      bubbles: true,
+    }),
+  );
+  await settle();
+  assert.equal(input(dom).value, "whisky");
+  assert.ok(!clearButton(dom).classList.contains("hidden"));
+});
+
 // --- debounce (§9.5) ----------------------------------------------------------
 
 test("rapid input coalesces into a single debounced run", async () => {
@@ -370,6 +422,28 @@ test("scrolling past 50 px while focused blurs the input", async () => {
   input(dom).focus();
   dom.window.dispatchEvent(new dom.window.Event("scroll"));
   assert.notEqual(dom.window.document.activeElement, input(dom));
+});
+
+test("a scroll caused by the filter's layout change does not blur the input", async () => {
+  // Filtering hides sections, which collapses the page height. The browser
+  // clamps the scroll position and fires a scroll event — if the page was
+  // scrolled past 50 px, that event would steal focus from the input right
+  // after the user's first keystroke. Only user scrolls may blur.
+  const dom = setup();
+  Object.defineProperty(dom.window, "scrollY", {
+    value: 100,
+    configurable: true,
+  });
+  input(dom).focus();
+  type(dom, "egg");
+  await settle(); // debounce fires -> plan applied -> layout would collapse
+
+  dom.window.dispatchEvent(new dom.window.Event("scroll"));
+  assert.equal(
+    dom.window.document.activeElement,
+    input(dom),
+    "input must keep focus after a filter-triggered scroll event",
+  );
 });
 
 // --- idempotence (§9.4) ------------------------------------------------------

@@ -104,6 +104,56 @@ test("sub-title size steps down on narrow viewports so the line fits", () => {
   }
 });
 
+// --- sub-group separator (§5.6, deviation 11) -------------------------------
+
+test("every sub-group heading with content above it keeps the separator line", () => {
+  // The base rule declares the line for every sub-group. Only the
+  // first-block exception (separate test) may strip it, and only on wide
+  // screens where the mobile label is hidden.
+  const base = declarationsFor(".sub-group-title");
+  assert.match(
+    base,
+    /border-top:\s*1px\s+solid\s+var\(--color-subgroup-line\)/,
+    ".sub-group-title base rule must declare the top separator line",
+  );
+  assert.doesNotMatch(
+    base,
+    /border-top:\s*none/,
+    "the base rule itself must not remove the line",
+  );
+});
+
+test("a sub-group opening its column drops the separator only at wide widths", () => {
+  // At ≥ 768 px the mobile label is hidden, so a sub-group that opens its
+  // column has nothing above it to separate from; a floating line there is
+  // the defect. Below 768 px the label sits above it, so the line stays —
+  // the exception must live inside a min-width media query. It must target
+  // true first blocks only (label directly followed by the sub-group, or
+  // the sub-group as first child), never :first-of-type: a sub-group below
+  // a main item list has content above it and keeps the line.
+  const wide = MEDIA_RULES.find(
+    (r) =>
+      r.selector.startsWith("@media (min-width: 768px)") &&
+      r.declarations.includes(".sub-group-title"),
+  );
+  assert.ok(wide, "expected a min-width: 768px media block");
+  assert.match(
+    wide.declarations,
+    /\.content-col\s*>\s*\.role-label\s*\+\s*\.sub-group-title/,
+    "first-block exception must target the label + sub-group pattern",
+  );
+  assert.match(wide.declarations, /border-top:\s*none/);
+  const firstOfType = [...BASE_RULES, ...MEDIA_RULES].find(
+    (r) =>
+      r.selector.includes(".sub-group-title") &&
+      r.selector.includes(":first-of-type"),
+  );
+  assert.ok(
+    !firstOfType,
+    "no :first-of-type rule may strip the separator (a main list above counts as content)",
+  );
+});
+
 // --- text-scale tokens (§4.3, §7.4) -----------------------------------------
 
 test("text-scale multiplier is defined for all three levels", () => {

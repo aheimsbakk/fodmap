@@ -231,10 +231,17 @@ export function initSearch(document, debounceMs = 300) {
   const capture = { sections: captureContent(document) };
   const match = buildMatcher();
   let debounceId = null;
+  // Filtering hides sections, which collapses the page height; the browser
+  // clamps the scroll position and fires a scroll event. Within this window
+  // after a filter run such events are ignored so they cannot steal focus
+  // from the input the user is typing in (§9.5).
+  const FILTER_SCROLL_GRACE_MS = 200;
+  let lastFilterAt = 0;
 
   function run(value) {
     const plan = match(value, capture);
     applyPlan(document, plan);
+    lastFilterAt = Date.now();
     clearButton?.classList.toggle("hidden", normalizeQuery(value).length === 0);
   }
 
@@ -252,12 +259,28 @@ export function initSearch(document, debounceMs = 300) {
     });
   }
 
+  // Escape clears the search exactly like the clear control (§7.1), but
+  // only while the input is focused; the input keeps focus so the user
+  // can immediately type a new query.
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && input.value !== "") {
+      input.value = "";
+      win.clearTimeout(debounceId);
+      run("");
+    }
+  });
+
   // Blur the input once the user scrolls past 50 px so sticky headings
-  // never sit under a focused keyboard on mobile.
+  // never sit under a focused keyboard on mobile. Scroll events fired
+  // within the filter grace window are the layout collapse, not the user.
   win.addEventListener(
     "scroll",
     () => {
-      if (win.document.activeElement === input && win.scrollY > 50) {
+      if (
+        win.document.activeElement === input &&
+        win.scrollY > 50 &&
+        Date.now() - lastFilterAt > FILTER_SCROLL_GRACE_MS
+      ) {
         input.blur();
       }
     },

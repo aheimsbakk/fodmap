@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.8.0] - 2026-07-31
+
+- **why:** Make sub-group separators uniform, keep search focus when filtering collapses the layout, and let the Escape key clear the search
+- **model:** opencode/deepseek-v4-flash-free
+- **tags:** sub-group, css, scroll-blur, focus, escape, search
+
+### Added
+
+- `src/js/search.js`: the Escape key clears an active search exactly like the clear control while the input is focused; the input keeps focus so a new query can follow immediately. Escape with an empty query or outside the input is a no-op
+- `tests/search.test.js`: three tests covering Escape clearing with focus retained, the empty-query no-op, and the unfocused-input no-op
+
+### Changed
+
+- `src/css/components.css`: every sub-group heading with content above it now renders the same 1 px separator line; a sub-group that opens its column drops the line at ≥ 768 px (mobile label hidden, nothing above to separate from) via a `@media (min-width: 768px)` rule, mirroring the origin's `md:border-t-0 md:pt-0` variants
+- `tests/styles.test.js`: contract guards for the sub-group separator — the base rule declares the line, the first-block exception lives only inside the wide media query, and no `:first-of-type` rule may strip the line (a main item list above counts as content)
+- `BLUEPRINT.md` §5.6, §7.1, §8, §9.5, §13.1, and §12.2 (deviation 11) document the uniform separator rule, the Escape clear, and the scroll-blur grace window
+- `CODEBASE.md` `initSearch` row reflects the Escape key and the scroll-blur grace window
+
+### Fixed
+
+- `src/js/search.js`: the scroll-blur listener no longer steals focus when filtering collapses the page height — the browser clamps the scroll position and fires a scroll event, which used to blur the input mid-search whenever the page was scrolled past 50 px. A 200 ms grace window after each filter run suppresses layout-collapse scroll events; genuine user scrolls still blur
+
 ## [0.7.0] - 2026-07-31
 
 - **why:** User request: credit the developer and license the project in the footer

@@ -402,12 +402,23 @@
   border-top: 1px solid var(--color-subgroup-line);
 }
 
-/* The first sub-group block in a column sits flush with the content above
-   (the origin's mt-0 variant); later blocks get the separator line. */
-.sub-group-title:first-of-type {
-  margin-top: 0;
-  padding-top: 0;
-  border-top: none;
+/* Every sub-group heading gets the same separator line above it (user
+   decision 2026-07-31; deviation 11). The origin rendered only some titles
+   with a line (mt-0 / md:border-t-0 variants); uniform separators make the
+   blocks easier to scan. */
+
+/* A sub-group that opens its column has nothing above it at ≥ 768 px — the
+   mobile label is hidden there — so a separator would float at the top of
+   the tinted cell. Below 768 px the label sits above it and the line stays.
+   This mirrors the origin's md:border-t-0 md:pt-0 variants and fixes its
+   one inconsistent copy (§4 SPIS "Melk og meieriprodukter:"). */
+@media (min-width: 768px) {
+  .content-col > .role-label + .sub-group-title,
+  .content-col > .sub-group-title:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
 }
 
 /* Footnote banner --------------------------------------------------------- */
