@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.2.0] - 2026-07-31
+
+- **why:** Fix info banner color parity and add automated deployment to GitHub Pages
+- **model:** opencode/deepseek-v4-flash-free
+- **tags:** colors, css, github-pages, cicd
+
+### Added
+
+- `.github/workflows/deploy-pages.yml` deploying `src/` to GitHub Pages on push to main (direct pushes and merges only)
+
+### Fixed
+
+- Info banner text color now matches the origin's `text-gray-700` (`#374151`) in `src/css/tokens.css`
+- Footer disclaimer uses its own gray-600 token (`--color-footer-secondary`) instead of sharing the banner token
+
 ## [0.1.0] - 2026-07-31
 
 - **why:** First working reimplementation of the FODMAP overview with full content parity and live search
