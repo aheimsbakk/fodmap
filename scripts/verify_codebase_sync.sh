@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # verify_codebase_sync.sh — verify that every physical path listed in
-# CODEBASE.md exists on disk.
+# CODEBASE.md section 1 exists on disk.
 #
 # Usage:
 #   ./scripts/verify_codebase_sync.sh
@@ -9,11 +9,11 @@
 #   0  all paths exist
 #   1  one or more paths are missing (listed on stderr)
 #
-# Parses the directory tree in CODEBASE.md section 1. Each tree line
-# starts with a box-drawing prefix ("├── " or "└── "); the path is the
-# text after the prefix, up to the first whitespace. Inline comments
-# after the path are ignored. The tree root "work/" maps to the
-# repository root.
+# Parses the nested box-drawing tree in CODEBASE.md. Each level occupies
+# four columns ("│   " or spaces); the branch glyph is "├── " or "└── ".
+# The path is the text after the glyph, up to the first whitespace
+# (inline comments are ignored). Directories end with "/" and seed the
+# nesting stack. The tree root "work/" maps to the repository root.
 
 set -u
 
@@ -27,25 +27,36 @@ fi
 
 missing=0
 checked=0
+stack=()
 
 while IFS= read -r line; do
-	# Match tree lines only; skip everything else.
-	if [[ ! "$line" =~ ^[├└]──[[:space:]]+ ]]; then
+	# Match tree branch lines; skip headings, tables, and prose.
+	if [[ ! "$line" =~ ^([│[:space:]]*)([├└]──[[:space:]]+)(.+)$ ]]; then
 		continue
 	fi
 
-	# Extract the path: text after the prefix, up to the first whitespace.
-	path="${line#*── }"
-	path="${path%%[[:space:]]*}"
+	prefix="${BASH_REMATCH[1]}"
+	entry="${BASH_REMATCH[3]}"
+	name="${entry%%[[:space:]]*}"
 
-	# The tree root is "work/"; map it to the repository root.
-	if [[ "$path" == "work/" || "$path" == "work" ]]; then
-		rel="."
-	elif [[ "$path" == work/* ]]; then
-		rel="${path#work/}"
-	else
-		echo "warning: path outside tree root, skipping: $path" >&2
+	# The tree root ("work/") has no branch glyph; everything else sits at
+	# depth = number of four-column levels in the prefix.
+	if [[ "$name" == "work/" ]]; then
+		stack=()
 		continue
+	fi
+
+	level=$((${#prefix} / 4))
+	stack=("${stack[@]:0:$level}")
+
+	rel=""
+	for dir in "${stack[@]}"; do
+		rel+="$dir"
+	done
+	rel+="$name"
+
+	if [[ "$name" == *"/" ]]; then
+		stack+=("$name")
 	fi
 
 	checked=$((checked + 1))

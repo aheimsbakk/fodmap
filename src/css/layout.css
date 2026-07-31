@@ -1,0 +1,96 @@
+/* layout.css — page shell, container, content grid, sticky offsets
+   (BLUEPRINT §5.1, §5.6, §4.4). Mobile-first: base is the narrow layout,
+   media queries widen it. */
+
+body {
+  padding: var(--size-page-padding);
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  position: relative;
+  z-index: var(--z-container);
+  background-color: var(--color-bg);
+  padding-bottom: 1rem;
+}
+
+/* Content grid ------------------------------------------------------------ */
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  border-left: 2px solid var(--color-heading-ink);
+  border-right: 2px solid var(--color-heading-ink);
+  border-bottom: 2px solid var(--color-heading-ink);
+  border-top: none;
+}
+
+/* Sections with a footnote banner drop the grid's bottom border so the
+   banner's open top edge joins it into one continuous box (§5.6). */
+.content-grid.border-b-0 {
+  border-bottom: none;
+}
+
+.content-col {
+  padding: 0.75rem;
+}
+
+/* Narrow separators: dashed bottom line between stacked columns, plus a
+   light top line on columns 2 and 3. */
+.content-col + .content-col {
+  border-top: 1px solid var(--color-column-top);
+}
+
+.content-col {
+  border-bottom: 1px dashed var(--color-separator);
+}
+
+.content-col:last-child {
+  border-bottom: none;
+}
+
+/* Empty placeholder columns render wide+ only (§5.7). */
+.content-col[data-role="empty"] {
+  display: none;
+}
+
+/* Sticky layers (§4.4): search widget at the viewport top, category
+   headings directly below it. */
+.search-widget {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-search);
+}
+
+.category-heading {
+  position: sticky;
+  top: var(--sticky-heading-offset);
+  z-index: var(--z-heading);
+}
+
+/* ≥ 640 px: token cascade (sizes, sticky offset) lives in tokens.css. */
+
+@media (min-width: 768px) {
+  .content-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  /* Wide separators: dashed right line on all but the last column. */
+  .content-col {
+    border-bottom: none;
+    border-right: 1px dashed var(--color-separator);
+  }
+
+  .content-col:last-child {
+    border-right: none;
+  }
+
+  .content-col + .content-col {
+    border-top: none;
+  }
+
+  .content-col[data-role="empty"] {
+    display: block;
+  }
+}

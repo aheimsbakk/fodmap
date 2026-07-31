@@ -1,0 +1,115 @@
+/* tokens.css — design tokens: colors, typography, sizes, z-order, sticky
+   offsets, effects (BLUEPRINT §4). Single source of truth; every other
+   stylesheet consumes these custom properties only. */
+
+:root {
+  /* §4.1 palette */
+  --color-text: #333333;
+  --color-bg: #ffffff;
+  --color-accent: #c43838;
+  --color-accent-light: #d85c5c;
+  --color-heading-ink: #000000;
+  --color-spis-bg: #a0c49d;
+  --color-spis-ink: #1e3a1e;
+  --color-begrens-bg: #f7d774;
+  --color-begrens-ink: #4a3c08;
+  --color-unnga-bg: #d15d5d;
+  --color-unnga-ink: #ffffff;
+  --color-unnga-border: #5a1919;
+  --color-banner-text: #4b5563;
+  --color-placeholder: #9ca3af;
+  --color-hover-link: #dc2626;
+  --color-separator: rgba(0, 0, 0, 0.3);
+  --color-column-top: rgba(0, 0, 0, 0.1);
+  --color-subgroup-line: rgba(0, 0, 0, 0.2);
+  --color-outline: rgba(0, 0, 0, 0.8);
+  --color-dot-a: #c43838;
+  --color-dot-b: #a0c49d;
+  --color-dot-c: #e6a147;
+
+  /* §4.1 category sets: heading background + column tint RGB base */
+  --color-brod: #d59e5e;
+  --tint-brod: 213, 158, 94;
+  --color-gronn: #8fb88a;
+  --tint-gronn: 143, 184, 138;
+  --color-frukt: #d96f6f;
+  --tint-frukt: 217, 111, 111;
+  --color-melk: #93b5c6;
+  --tint-melk: 147, 181, 198;
+  --color-notter: #d59e5e;
+  --tint-notter: 213, 158, 94;
+  --color-drikke: #8ab6d6;
+  --tint-drikke: 138, 182, 214;
+  --color-kjott: #e08c8c;
+  --tint-kjott: 224, 140, 140;
+  --color-palegg: #d1bfae;
+  --tint-palegg: 213, 158, 94;
+  --color-sukker: #e6c8c8;
+  --tint-sukker: 230, 200, 200;
+  --color-krydder: #b5c7b3;
+  --tint-krydder: 181, 199, 179;
+  --color-saus: #a4b8a2;
+  --tint-saus: 164, 184, 162;
+
+  /* §4.2 typography */
+  --font-body: "Open Sans", system-ui, sans-serif;
+  --font-heading: "Oswald", system-ui, sans-serif;
+  --font-display: "Bebas Neue", sans-serif;
+
+  /* §4.3 sizes — narrow (base) column */
+  --size-page-padding: 0.5rem;
+  --size-main-title: 2.25rem;
+  --size-sub-title: 1.25rem;
+  --size-search-height: 56px;
+  --size-search-text: 1rem;
+  --size-heading: 1.125rem;
+  --size-legend: 1.125rem;
+  --size-item: 0.85rem;
+  --size-item-line: 1.2;
+  --size-subgroup: 0.8rem;
+  --size-banner: 9px;
+  --size-footnote: 0.75rem;
+  --size-label: 0.875rem;
+
+  /* §4.4 depth + sticky */
+  --z-decoration: 10;
+  --z-container: 20;
+  --z-heading: 30;
+  --z-search: 40;
+  --sticky-heading-offset: 56px;
+
+  /* §4.5 effects */
+  --shadow-banner: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --marker-shadow: 2px 2px 0 0 #000000;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --size-page-padding: 0.5rem;
+    --size-main-title: 4.5rem;
+    --size-sub-title: 1.5rem;
+    --size-search-height: 64px;
+    --size-search-text: 1.25rem;
+    --size-heading: 1.25rem;
+    --size-legend: 1.25rem;
+    --size-subgroup: 0.875rem;
+    --size-banner: 10px;
+    --size-footnote: 0.875rem;
+    --sticky-heading-offset: 64px;
+  }
+}
+
+@media (min-width: 768px) {
+  :root {
+    --size-page-padding: 1.5rem;
+    --size-main-title: 6rem;
+    --size-sub-title: 1.875rem;
+    --size-legend: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --size-page-padding: 2rem;
+  }
+}

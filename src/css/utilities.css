@@ -1,0 +1,54 @@
+/* utilities.css — responsive toggles, hidden state, search markers
+   (BLUEPRINT §4.5, §7.2). Loaded last so these classes win over component
+   rules at equal specificity. */
+
+.hidden {
+  display: none !important;
+}
+
+/* Mobile-only: visible below 768 px, hidden from wide up. */
+.mobile-only {
+  display: block;
+}
+
+/* Wide-only: hidden below 768 px, visible from wide up. */
+.wide-only {
+  display: none;
+}
+
+/* Halftone decorations: visible from 640 px up. */
+.sm-only {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .sm-only {
+    display: block;
+  }
+}
+
+@media (min-width: 768px) {
+  .mobile-only {
+    display: none;
+  }
+
+  .wide-only {
+    display: block;
+  }
+}
+
+/* Search highlight marker: hard offset shadow box (BLUEPRINT §4.5). */
+.marker {
+  background-color: var(--color-bg);
+  color: var(--color-heading-ink);
+  padding: 0 0.25rem;
+  margin: 0 0.125rem;
+  border: 2px solid var(--color-heading-ink);
+  border-radius: 0.25rem;
+  box-shadow: var(--marker-shadow);
+}
+
+/* Search emphasis inside item text. */
+.item-highlight {
+  font-weight: 800;
+}

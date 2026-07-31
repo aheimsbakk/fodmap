@@ -1,0 +1,451 @@
+/* components.css — masthead, search widget, legend, role labels, category
+   headings, banners, sub-groups, halftone decorations, footer
+   (BLUEPRINT §5.2–5.8, §4.1, §4.2, §4.5). */
+
+/* Masthead ---------------------------------------------------------------- */
+
+.masthead {
+  text-align: center;
+  margin: 0.5rem 0 1.5rem;
+}
+
+.sub-title {
+  font-family: var(--font-heading);
+  font-size: var(--size-sub-title);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-accent-light);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
+}
+
+.sub-title .emoji-left {
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+
+.sub-title .emoji-right {
+  display: inline-block;
+  margin-left: 0.5rem;
+}
+
+.main-title {
+  font-family: var(--font-display);
+  font-size: var(--size-main-title);
+  line-height: 1;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  /* Black outline: offset dark shadow plus four 1 px directional shadows. */
+  text-shadow:
+    2px 2px 0 var(--color-outline),
+    -1px -1px 0 var(--color-heading-ink),
+    1px -1px 0 var(--color-heading-ink),
+    -1px 1px 0 var(--color-heading-ink),
+    1px 1px 0 var(--color-heading-ink);
+  margin-top: -5px;
+  margin-bottom: 1rem;
+}
+
+/* Search widget ----------------------------------------------------------- */
+
+.search-widget {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: var(--size-search-height);
+  margin-bottom: 1.5rem;
+  padding: 0 0.5rem;
+  background-color: var(--color-bg);
+  border: 2px solid var(--color-heading-ink);
+  font-family: var(--font-heading);
+}
+
+.search-icon {
+  font-size: 1.25rem;
+  margin-left: 0.5rem;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 0;
+  align-self: stretch;
+  background: transparent;
+  border: none;
+  font-size: var(--size-search-text);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.search-input:focus {
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: var(--color-placeholder);
+}
+
+.clear-search {
+  padding: 0 0.75rem;
+  border: none;
+  background: transparent;
+  font-size: 1.875rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--color-text);
+  transition: color 150ms ease;
+}
+
+.clear-search:hover {
+  color: var(--color-hover-link);
+}
+
+/* Column legend (wide+ only) ---------------------------------------------- */
+
+.legend {
+  display: none;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  font-size: var(--size-legend);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 2px solid;
+}
+
+.legend-spis {
+  background-color: var(--color-spis-bg);
+  color: var(--color-spis-ink);
+  border-color: var(--color-spis-ink);
+}
+
+.legend-begrens {
+  background-color: var(--color-begrens-bg);
+  color: var(--color-begrens-ink);
+  border-color: var(--color-begrens-ink);
+}
+
+.legend-unnga {
+  background-color: var(--color-unnga-bg);
+  color: var(--color-unnga-ink);
+  border-color: var(--color-unnga-border);
+}
+
+@media (min-width: 768px) {
+  .legend {
+    display: grid;
+  }
+}
+
+/* Info banner ------------------------------------------------------------- */
+
+.info-banner {
+  margin-bottom: 1.5rem;
+  padding: 0.25rem;
+  background-color: var(--color-bg);
+  border: 2px solid var(--color-heading-ink);
+  box-shadow: var(--shadow-banner);
+  font-size: var(--size-banner);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--color-banner-text);
+}
+
+/* Category sections ------------------------------------------------------- */
+
+.category-section {
+  margin-bottom: 1rem;
+}
+
+.category-heading {
+  padding: 0.25rem 0;
+  font-size: var(--size-heading);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-align: center;
+  background-color: var(--color-brod);
+  border: 2px solid var(--color-heading-ink);
+  box-shadow: var(--shadow-banner);
+}
+
+/* Heading background per category (§4.1). Column tints are set by the
+   matching sibling rules below. */
+.category-heading[data-category="gronnsaker"] {
+  background-color: var(--color-gronn);
+}
+
+.category-heading[data-category="frukt"] {
+  background-color: var(--color-frukt);
+}
+
+.category-heading[data-category="melk"] {
+  background-color: var(--color-melk);
+}
+
+.category-heading[data-category="notter"] {
+  background-color: var(--color-notter);
+}
+
+.category-heading[data-category="drikke"] {
+  background-color: var(--color-drikke);
+}
+
+.category-heading[data-category="kjott"] {
+  background-color: var(--color-kjott);
+}
+
+.category-heading[data-category="palegg"] {
+  background-color: var(--color-palegg);
+}
+
+.category-heading[data-category="sukker"] {
+  background-color: var(--color-sukker);
+}
+
+.category-heading[data-category="krydder"] {
+  background-color: var(--color-krydder);
+}
+
+.category-heading[data-category="saus"] {
+  background-color: var(--color-saus);
+}
+
+/* Column tints: 10 % / 20 % / 10 % opacity levels (§4.1). Default is the
+   brod set; every other category overrides via its heading sibling. */
+.content-col {
+  background-color: rgba(var(--tint-brod), 0.1);
+}
+
+.content-col:nth-child(2) {
+  background-color: rgba(var(--tint-brod), 0.2);
+}
+
+.content-col:nth-child(3) {
+  background-color: rgba(var(--tint-brod), 0.1);
+}
+
+.category-heading[data-category="gronnsaker"] + .content-grid .content-col {
+  background-color: rgba(var(--tint-gronn), 0.1);
+}
+
+.category-heading[data-category="gronnsaker"]
+  + .content-grid
+  .content-col:nth-child(2) {
+  background-color: rgba(var(--tint-gronn), 0.2);
+}
+
+.category-heading[data-category="frukt"] + .content-grid .content-col {
+  background-color: rgba(var(--tint-frukt), 0.1);
+}
+
+.category-heading[data-category="frukt"]
+  + .content-grid
+  .content-col:nth-child(2) {
+  background-color: rgba(var(--tint-frukt), 0.2);
+}
+
+.category-heading[data-category="melk"] + .content-grid .content-col {
+  background-color: rgba(var(--tint-melk), 0.1);
+}
+
+.category-heading[data-category="melk"]
+  + .content-grid
+  .content-col:nth-child(2) {
+  background-color: rgba(var(--tint-melk), 0.2);
+}
+
+.category-heading[data-category="drikke"] + .content-grid .content-col {
+  background-color: rgba(var(--tint-drikke), 0.1);
+}
+
+.category-heading[data-category="drikke"]
+  + .content-grid
+  .content-col:nth-child(2) {
+  background-color: rgba(var(--tint-drikke), 0.2);
+}
+
+.category-heading[data-category="kjott"] + .content-grid .content-col {
+  background-color: rgba(var(--tint-kjott), 0.1);
+}
+
+.category-heading[data-category="kjott"]
+  + .content-grid
+  .content-col:nth-child(2) {
+  background-color: rgba(var(--tint-kjott), 0.2);
+}
+
+.category-heading[data-category="sukker"] + .content-grid .content-col {
+  background-color: rgba(var(--tint-sukker), 0.1);
+}
+
+.category-heading[data-category="sukker"]
+  + .content-grid
+  .content-col:nth-child(2) {
+  background-color: rgba(var(--tint-sukker), 0.2);
+}
+
+.category-heading[data-category="krydder"] + .content-grid .content-col {
+  background-color: rgba(var(--tint-krydder), 0.1);
+}
+
+.category-heading[data-category="krydder"]
+  + .content-grid
+  .content-col:nth-child(2) {
+  background-color: rgba(var(--tint-krydder), 0.2);
+}
+
+.category-heading[data-category="saus"] + .content-grid .content-col {
+  background-color: rgba(var(--tint-saus), 0.1);
+}
+
+.category-heading[data-category="saus"]
+  + .content-grid
+  .content-col:nth-child(2) {
+  background-color: rgba(var(--tint-saus), 0.2);
+}
+
+/* Mobile-only role labels (hidden ≥ 768 px via utilities.mobile-only) ----- */
+
+.role-label {
+  padding: 0.25rem 0;
+  margin-bottom: 0.5rem;
+  font-size: var(--size-label);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-align: center;
+  border: 2px solid;
+  border-radius: 0.25rem;
+}
+
+.content-col[data-role="spis"] .role-label {
+  background-color: var(--color-spis-bg);
+  color: var(--color-spis-ink);
+  border-color: var(--color-spis-ink);
+}
+
+.content-col[data-role="begrens"] .role-label {
+  background-color: var(--color-begrens-bg);
+  color: var(--color-begrens-ink);
+  border-color: var(--color-begrens-ink);
+}
+
+.content-col[data-role="unnga"] .role-label {
+  background-color: var(--color-unnga-bg);
+  color: var(--color-unnga-ink);
+  border-color: var(--color-unnga-border);
+}
+
+/* Sub-groups -------------------------------------------------------------- */
+
+.sub-group-title {
+  margin: 0.75rem 0 0.25rem;
+  padding-top: 0.25rem;
+  font-size: var(--size-subgroup);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-top: 1px solid var(--color-subgroup-line);
+}
+
+/* The first sub-group block in a column sits flush with the content above
+   (the origin's mt-0 variant); later blocks get the separator line. */
+.sub-group-title:first-of-type {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+/* Footnote banner --------------------------------------------------------- */
+
+.footnote-banner {
+  padding: 0.5rem;
+  background-color: var(--color-bg);
+  border: 2px solid var(--color-heading-ink);
+  border-top: none;
+  box-shadow: var(--shadow-banner);
+  font-size: var(--size-footnote);
+  font-weight: 700;
+  text-align: center;
+  position: relative;
+  z-index: var(--z-decoration);
+}
+
+.footnote-icon {
+  margin-right: 0.25rem;
+  color: var(--color-unnga-bg);
+}
+
+/* Halftone decorations (sm+ only) ----------------------------------------- */
+
+.halftone-tl,
+.halftone-tr {
+  position: absolute;
+  top: 10px;
+  width: 80px;
+  height: 80px;
+  background-position:
+    0 0,
+    8px 8px;
+  background-size: 16px 16px;
+  opacity: 0.8;
+  z-index: var(--z-decoration);
+}
+
+.halftone-tl {
+  left: 10px;
+  background-image:
+    radial-gradient(var(--color-dot-a) 20%, transparent 20%),
+    radial-gradient(var(--color-dot-c) 20%, transparent 20%);
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+.halftone-tr {
+  right: 10px;
+  background-image:
+    radial-gradient(var(--color-dot-b) 20%, transparent 20%),
+    radial-gradient(var(--color-dot-c) 20%, transparent 20%);
+  clip-path: polygon(100% 0, 0 0, 100% 100%);
+}
+
+/* Footer ------------------------------------------------------------------ */
+
+.page-footer {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  padding-bottom: 0.5rem;
+  text-align: center;
+  border-top: 2px solid var(--color-heading-ink);
+  font-size: var(--size-footnote);
+}
+
+.footer-source {
+  font-weight: 700;
+  margin: 0;
+}
+
+.footer-source a {
+  text-decoration: underline;
+  transition: color 150ms ease;
+}
+
+.footer-source a:hover {
+  color: var(--color-hover-link);
+}
+
+.footer-disclaimer {
+  margin: 0.25rem 0 0;
+  color: var(--color-banner-text);
+}
