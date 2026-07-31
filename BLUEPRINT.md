@@ -48,7 +48,7 @@ Page shell                    (background, base typography, page padding)
 ├─ Corner decoration, right   (halftone triangle, medium+ only)
 └─ Content container          (max-width 1280 px, centered, white, above decorations)
    ├─ Masthead
-   │  ├─ Sub-title            (emojis + "Vanlige matvarer på")
+   │  ├─ Sub-title            (emojis + "Vanlige matvarer")
    │  └─ Main title           ("FODMAP", display typeface, red, outlined)
    ├─ Search widget           (sticky top; icon, text input, clear control,
    │                            text-size toggle)
@@ -552,6 +552,7 @@ Approved corrections (user decision, 2026-07-31):
 
 | Location    | Origin                                                             | Corrected                                                          |
 | ----------- | ------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| Masthead    | Vanlige matvarer på                                                | Vanlige matvarer                                                   |
 | §2 SPIS     | Sopp: hermetsisk sjampinjong, Østers                               | Sopp: hermetisk sjampinjong, østers                                |
 | §2 SPIS     | Purre-kun det grønne                                               | Purre – kun det grønne                                             |
 | §2 SPIS     | Rødbeter, syltet                                                   | Rødbeter, syltede                                                  |
