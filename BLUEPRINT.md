@@ -91,7 +91,7 @@ Category color sets (heading background + column tint base):
 | Pålegg                               | `#d1bfae`  | `213, 158, 94` (reuses Brød set) |
 | Sukker, søtning og annet             | `#e6c8c8`  | `230, 200, 200`                  |
 | Krydder og urter                     | `#b5c7b3`  | `181, 199, 179`                  |
-| Smakstilsetning, saus, dressing      | `#a4b8a2`  | `164, 184, 162`                  |
+| Smakstilsetning, saus, dressing      | `#b9a7cf`  | `185, 167, 207`                  |
 
 Column tint levels: column 1 = base at 10 % opacity, column 2 = base at
 20 % opacity, column 3 = base at 10 % opacity.
@@ -422,7 +422,7 @@ icons. No runtime icon library.
 | bread-slice          | 🍞                | Pålegg                          |
 | cubes-stacked        | 🧊                | Sukker, søtning og annet        |
 | pepper-hot           | 🌶️                | Krydder og urter                |
-| bottle-droplet       | 🧴                | Smakstilsetning, saus, dressing |
+| bottle-droplet       | 🫗                | Smakstilsetning, saus, dressing |
 
 Glyphs with a dual text/emoji presentation (⚖️ ℹ️ ⚠️ ☕ 🌶️) render in
 emoji presentation. The masthead emoji (🥦 🍓 🧀 🥖) stay as text glyphs.
@@ -542,6 +542,13 @@ Reviewed and confirmed unchanged: `Nøtte` (§8), `Banos` (§8),
    "FODMAP v0.3.0 // Kilder:" with two links (NHI.no and NKFM – Lav
    FODMAP-mat ved IBS). The disclaimer line below is unchanged. The
    version text must track the `VERSION` file.
+7. The Smakstilsetning, saus, dressing category color set is changed per
+   user request (2026-07-31): the origin's gray-green
+   (`#a4b8a2` / `164, 184, 162`) was visually indistinguishable from the
+   Krydder og urter set (`#b5c7b3` / `181, 199, 179`) and is replaced by
+   a muted lavender (`#b9a7cf` / `185, 167, 207`), a hue family not used
+   elsewhere in the palette. Applies to the heading background and the
+   three column tint levels.
 
 ### 12.3 Negative contracts
 

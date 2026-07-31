@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.1] - 2026-07-31
+
+- **why:** Make the Smakstilsetning, saus, dressing section visually distinct: its color was indistinguishable from Krydder og urter, and its icon read as lotion
+- **model:** opencode/deepseek-v4-flash-free
+- **tags:** colors, icons, css, fidelity
+
+### Changed
+
+- `src/css/tokens.css`: Smakstilsetning, saus, dressing color set is now muted lavender (`#b9a7cf` / `185, 167, 207`) instead of gray-green (`#a4b8a2`), which was indistinguishable from the Krydder og urter set
+- `src/index.html`: section 11 icon changed from 🧴 to 🫗 (pouring liquid)
+- `BLUEPRINT.md` §4.1, §9.2, and §12.2 (deviation 7) document the new color and icon
+
 ## [0.4.0] - 2026-07-31
 
 - **why:** Add NKFM as a second footer source and keep the footer version in sync with VERSION

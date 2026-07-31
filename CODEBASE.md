@@ -171,7 +171,7 @@ together; all behavior follows BLUEPRINT §7.2 derived visibility rules.
   (heading bg + 3 tint levels) a single source of truth:
   `--color-brod`, `--color-gronn`, `--color-frukt`, `--color-melk`,
   `--color-drikke`, `--color-kjott`, plus per-section headings
-  (`#d1bfae`, `#e6c8c8`, `#b5c7b3`, `#a4b8a2`) set via
+  (`#d1bfae`, `#e6c8c8`, `#b5c7b3`, `#b9a7cf`) set via
   `[data-category="..."]` selectors — this replaces the origin's
   Tailwind utility classes with semantic selectors (deviation 1).
   Column tints default to the brod set (10 % / 20 % / 10 % opacity) and
