@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.6.1] - 2026-07-31
+
+- **why:** User request: the masthead tagline reads "Vanlige matvarer" instead of "Vanlige matvarer på"
+- **model:** opencode/deepseek-v4-flash-free
+- **tags:** masthead, sub-title, content, fidelity
+
+### Changed
+
+- `src/index.html`: masthead sub-title shortened from "Vanlige matvarer på" to "Vanlige matvarer"; the shorter line keeps the one-line guarantee with more headroom. The browser tab title stays "Vanlige matvarer på FODMAP" (grammatically required there)
+- `BLUEPRINT.md` §3 and §12.1 record the correction in the approved-corrections table
+
 ## [0.6.0] - 2026-07-31
 
 - **why:** Give users a way to enlarge the content text without breaking the compact layout
