@@ -474,20 +474,28 @@
 }
 
 .footer-source {
-  font-weight: 700;
   margin: 0;
 }
 
-.footer-source a {
+.footer-source a,
+.footer-credit a {
   text-decoration: underline;
   transition: color 150ms ease;
 }
 
-.footer-source a:hover {
+.footer-source a:hover,
+.footer-credit a:hover {
   color: var(--color-hover-link);
 }
 
 .footer-disclaimer {
-  margin: 0.25rem 0 0;
+  margin: 0 0 0.5rem;
+  font-weight: 700;
+  color: var(--color-footer-secondary);
+}
+
+.footer-credit {
+  /* Equal to the disclaimer-to-source gap (0.5rem). */
+  margin: 0.5rem 0 0;
   color: var(--color-footer-secondary);
 }

@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.7.0] - 2026-07-31
+
+- **why:** User request: credit the developer and license the project in the footer
+- **model:** opencode/deepseek-v4-flash-free
+- **tags:** footer, credit, license, attribution
+
+### Added
+
+- `LICENSE`: MIT License (official OSI text, holder Arnulf Heimsbakk, 2026)
+- `src/index.html`: footer credit line "Utviklet av Arnulf Heimsbakk // Kildekode på github.com/aheimsbakk/fodmap // Lisens MIT" with the repository linked to https://github.com/aheimsbakk/fodmap/ (new tab)
+
+### Changed
+
+- `src/index.html`: footer reordered to disclaimer, source line, credit line with equal 0.5 rem gaps; a trial separator (em dash, dashed, then solid) was removed again; only the disclaimer line is bold; disclaimer text drops the trailing period
+- `src/css/components.css`: `.footer-disclaimer` bold with 0.5 rem bottom margin, `.footer-credit` 0.5 rem top margin, link underline/hover shared with the source line
+- `BLUEPRINT.md` §5.8 and §12.2 deviation 10: footer order, weight, and credit-line wording documented
+- `CODEBASE.md`: footer element mapping, LICENSE entry in the repository tree
+
 ## [0.6.1] - 2026-07-31
 
 - **why:** User request: the masthead tagline reads "Vanlige matvarer" instead of "Vanlige matvarer på"

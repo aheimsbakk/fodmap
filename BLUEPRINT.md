@@ -288,13 +288,20 @@ mobile label. They are excluded from filtering.
 
 ### 5.8 Footer
 
-Top border 2 px solid black, centered, small text. Line 1: bold
-"FODMAP v<version> // Kilder:" followed by two external source links
-(underlined, red on hover, open in a new tab): Norsk Helseinformatikk
-(NHI.no) and NKFM – Lav FODMAP-mat ved IBS. The version text follows the
-`VERSION` file. Line 2: gray disclaimer text. The source line replaces the
-origin's "01 // FODMAP | Kilde:" line (user decision; see §12.2
-deviation 6).
+Top border 2 px solid black, centered, small text. Line 1: bold gray
+disclaimer text. Line 2: "FODMAP v<version> // Kilder:" followed by
+two external source links (underlined, red on hover, open in a new
+tab): Norsk Helseinformatikk (NHI.no) and NKFM – Lav FODMAP-mat ved
+IBS. The version text follows the `VERSION` file. Line 3: gray credit
+line "Utviklet av Arnulf Heimsbakk // Kildekode på
+github.com/aheimsbakk/fodmap // Lisens MIT" where the repository name
+is a link to `https://github.com/aheimsbakk/fodmap/` (open in a new
+tab). Only the disclaimer line is bold; the source and credit lines
+are regular weight. The three lines are separated by equal 0.5 rem
+gaps. The source line replaces the origin's
+"01 // FODMAP | Kilde:" line (user decision; see §12.2
+deviation 6), and the credit line is a new addition (user decision
+2026-07-31; see §12.2 deviation 10).
 
 ## 6. Content Data Model
 
@@ -633,6 +640,19 @@ Reviewed and confirmed unchanged: `Nøtte` (§8), `Banos` (§8),
    degrades to session-only when storage is unavailable. The toggle is
    not part of the search engine module; it lives in its own module
    and state machine (§7.4).
+10. A footer credit line is added per user request (2026-07-31):
+    "Utviklet av Arnulf Heimsbakk // Kildekode på
+    github.com/aheimsbakk/fodmap // Lisens MIT" with the repository
+    name linked to `https://github.com/aheimsbakk/fodmap/` (new tab).
+    The origin has no such line. It renders in the footer's small gray
+    secondary style below the source line. The footer order is:
+    disclaimer, source line, credit line, with equal 0.5 rem gaps
+    between the three text lines. A separator (em dash, then dashed,
+    then a solid 2 px rule matching the footer border) sat between
+    the disclaimer and the source line for one day and was removed on
+    user request; the current footer has no separator. Bold weight
+    moved from the source line to the disclaimer line on user request
+    (2026-07-31); the source line now renders regular weight.
 
 ### 12.3 Negative contracts
 

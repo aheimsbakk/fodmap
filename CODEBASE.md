@@ -13,6 +13,7 @@ work/
 ├── BLUEPRINT.md                 # language-agnostic architecture (source of truth)
 ├── CHANGELOG.md                 # wrap-up changelog (versioned milestones)
 ├── CODEBASE.md                  # this file
+├── LICENSE                      # MIT License (OSI text, holder: Arnulf Heimsbakk, 2026)
 ├── .github/
 │   └── workflows/
 │       └── deploy-pages.yml     # GitHub Pages deploy of src/ (on push to main)
@@ -74,7 +75,7 @@ corrections applied (BLUEPRINT §12.1).
 | Item list              | `ul.item-list` → `li.item`                                                                                        |
 | Sub-group              | `h4.sub-group-title` + following `ul.item-list`                                                                   |
 | Footnote banner        | `div.footnote-banner` (optional `span.footnote-icon`)                                                             |
-| Footer                 | `footer.page-footer`                                                                                              |
+| Footer                 | `footer.page-footer` → `p.footer-disclaimer`, `p.footer-source`, `p.footer-credit` (with link)                    |
 
 The `data-category` attribute repeats on the section element itself: the
 scripts and the content tests address sections by it, while the CSS tint
@@ -136,7 +137,7 @@ the two modules share no state and boot independently.
 | Concern                | Choice                                                                                                                                                                                                                       |
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Languages              | HTML5, CSS3, JavaScript (ES modules)                                                                                                                                                                                         |
-| Runtime dependencies   | none (footer attribution hyperlinks to NHI.no and NKFM only; fonts are the platform's native system stack)                                                                                                                   |
+| Runtime dependencies   | none (footer attribution hyperlinks to NHI.no, NKFM, and the GitHub repository only; fonts are the platform's native system stack)                                                                                           |
 | Client storage         | `localStorage` (key `fodmap-text-scale`) for the text-size level only; read once at load, written on toggle, validated; failures degrade to session-only (BLUEPRINT §10, §12.2 deviation 9)                                  |
 | Dev dependencies       | `jsdom` (DOM emulation for tests), pinned exact version                                                                                                                                                                      |
 | Test runner            | Node built-in `node --test` (Node ≥ 20; environment has v26)                                                                                                                                                                 |
