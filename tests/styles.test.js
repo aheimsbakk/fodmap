@@ -15,6 +15,11 @@ const COMPONENTS_CSS = readFileSync(
   "utf8",
 );
 
+const TOKENS_CSS = readFileSync(
+  new URL("../src/css/tokens.css", import.meta.url),
+  "utf8",
+);
+
 const stripComments = (css) => css.replace(/\/\*[\s\S]*?\*\//g, "");
 
 /**
@@ -49,6 +54,17 @@ function parseRules(css) {
 const RULES = parseRules(COMPONENTS_CSS);
 const MEDIA_RULES = RULES.filter((r) => r.selector.startsWith("@media"));
 const BASE_RULES = RULES.filter((r) => !r.selector.startsWith("@media"));
+
+const TOKEN_RULES = parseRules(TOKENS_CSS);
+const TOKEN_ROOT = TOKEN_RULES.find((r) => r.selector === ":root").declarations;
+
+const BASE_CSS = readFileSync(
+  new URL("../src/css/base.css", import.meta.url),
+  "utf8",
+);
+const BASE_RULE = parseRules(BASE_CSS).find(
+  (r) => r.selector === "li.item",
+).declarations;
 
 function declarationsFor(selector) {
   const rule = BASE_RULES.find((r) => r.selector === selector);
@@ -86,4 +102,55 @@ test("sub-title size steps down on narrow viewports so the line fits", () => {
       "each step must declare a smaller font-size in rem",
     );
   }
+});
+
+// --- text-scale tokens (§4.3, §7.4) -----------------------------------------
+
+test("text-scale multiplier is defined for all three levels", () => {
+  assert.match(TOKEN_ROOT, /--text-scale:\s*1\s*;/);
+  const levelRule = (level) =>
+    TOKEN_RULES.find((r) => r.selector === `html[data-text-scale="${level}"]`);
+  assert.match(levelRule("125").declarations, /--text-scale:\s*1\.25/);
+  assert.match(levelRule("150").declarations, /--text-scale:\s*1\.5/);
+});
+
+test("content font-size tokens scale; masthead and geometry do not", () => {
+  const scaled = [
+    "search-text",
+    "heading",
+    "legend",
+    "item",
+    "subgroup",
+    "banner",
+    "footnote",
+    "label",
+  ];
+  for (const token of scaled) {
+    assert.match(
+      TOKEN_ROOT,
+      new RegExp(`--size-${token}:\\s*calc\\([^;]*var\\(--text-scale\\)`),
+      `--size-${token} must scale via calc(var(--text-scale))`,
+    );
+  }
+  const fixed = [
+    "page-padding",
+    "main-title",
+    "sub-title",
+    "search-height",
+    "item-line",
+  ];
+  for (const token of fixed) {
+    assert.doesNotMatch(
+      TOKEN_ROOT,
+      new RegExp(`--size-${token}:\\s*[^;]*var\\(--text-scale\\)`),
+      `--size-${token} must stay fixed`,
+    );
+  }
+});
+
+test("items can break long tokens so scaled text never overflows", () => {
+  // Unbreakable tokens ("Maltodextrin/maltose/maltekstrakt") exceed the
+  // column track at 150 %; anywhere participates in min-content sizing,
+  // break-word does not.
+  assert.match(BASE_RULE, /overflow-wrap:\s*anywhere\s*;/);
 });

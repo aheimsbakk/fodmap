@@ -46,6 +46,11 @@ li.item {
   margin-bottom: 0.25rem;
   font-size: var(--size-item);
   line-height: var(--size-item-line);
+  /* Items contain unbreakable tokens ("Maltodextrin/maltose/maltekstrakt").
+     At the 150 % text scale these would exceed the column track on narrow
+     viewports; anywhere lets them wrap mid-token and keeps the grid from
+     overflowing (deviation 9). */
+  overflow-wrap: anywhere;
 }
 
 /* ❖ (U+2756) bullet anchored at the list item's left edge. */

@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.6.0] - 2026-07-31
+
+- **why:** Give users a way to enlarge the content text without breaking the compact layout
+- **model:** opencode/deepseek-v4-flash-free
+- **tags:** text-scale, accessibility, storage, tokens
+
+### Added
+
+- `src/js/text-scale.js`: new module cycling the content text size through 100 % / 125 % / 150 % via `data-text-scale` on the root element; the level persists in `localStorage` (`fodmap-text-scale`) and degrades to session-only when storage is blocked
+- `src/index.html`: `Aa` toggle button in the sticky search widget, with `aria-label` and a live `title` reporting the current level
+- `tests/text-scale.test.js`: cycling, storage write/restore, invalid and blocked storage fallbacks, independence from an active search, and the missing-button inert path
+
+### Changed
+
+- `src/css/tokens.css`: content font-size tokens are wrapped in `calc(base × var(--text-scale))`; the multiplier levels live in `html[data-text-scale="..."]` rules; masthead titles, spacing, borders, widget height, and sticky offsets stay fixed so the view remains compact
+- `src/css/base.css`: `li.item` declares `overflow-wrap: anywhere` so unbreakable tokens ("Maltodextrin/maltose/maltekstrakt") wrap instead of widening the column at 150 %
+- `src/css/components.css`: `.text-scale-toggle` control styling
+- `tests/styles.test.js`: token contract guards for the multiplier levels, the scaled vs fixed token sets, and the item overflow-wrap rule
+- `BLUEPRINT.md` §1, §2, §3, §4.3, §5.3, §7, §8, §9, §10, §12.2 (deviation 9), and §13.1 document the toggle
+- `CODEBASE.md` module, markup, token, storage, and test mapping reflect the feature
+
 ## [0.5.1] - 2026-07-31
 
 - **why:** The masthead tagline wrapped onto two lines on narrow screens; it must always stay on one line

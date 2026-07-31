@@ -3,6 +3,11 @@
    stylesheet consumes these custom properties only. */
 
 :root {
+  /* §7.4 text-scale multiplier: 1 / 1.25 / 1.5 via data-text-scale on the
+     root element (deviation 9). Only content font-size tokens consume it;
+     the masthead, spacing, borders, and geometry stay fixed. */
+  --text-scale: 1;
+
   /* §4.1 palette */
   --color-text: #333333;
   --color-bg: #ffffff;
@@ -62,20 +67,22 @@
   --font-heading: var(--font-system);
   --font-display: var(--font-system);
 
-  /* §4.3 sizes — narrow (base) column */
+  /* §4.3 sizes — narrow (base) column. Font-size tokens are wrapped in the
+     text-scale multiplier; the masthead titles, page padding, search
+     widget height, and line-height stay fixed (deviation 9). */
   --size-page-padding: 0.5rem;
   --size-main-title: 2.25rem;
   --size-sub-title: 1.25rem;
   --size-search-height: 56px;
-  --size-search-text: 1rem;
-  --size-heading: 1.125rem;
-  --size-legend: 1.125rem;
-  --size-item: 0.85rem;
+  --size-search-text: calc(1rem * var(--text-scale));
+  --size-heading: calc(1.125rem * var(--text-scale));
+  --size-legend: calc(1.125rem * var(--text-scale));
+  --size-item: calc(0.85rem * var(--text-scale));
   --size-item-line: 1.2;
-  --size-subgroup: 0.8rem;
-  --size-banner: 9px;
-  --size-footnote: 0.75rem;
-  --size-label: 0.875rem;
+  --size-subgroup: calc(0.8rem * var(--text-scale));
+  --size-banner: calc(9px * var(--text-scale));
+  --size-footnote: calc(0.75rem * var(--text-scale));
+  --size-label: calc(0.875rem * var(--text-scale));
 
   /* §4.4 depth + sticky */
   --z-decoration: 10;
@@ -95,12 +102,12 @@
     --size-main-title: 4.5rem;
     --size-sub-title: 1.5rem;
     --size-search-height: 64px;
-    --size-search-text: 1.25rem;
-    --size-heading: 1.25rem;
-    --size-legend: 1.25rem;
-    --size-subgroup: 0.875rem;
-    --size-banner: 10px;
-    --size-footnote: 0.875rem;
+    --size-search-text: calc(1.25rem * var(--text-scale));
+    --size-heading: calc(1.25rem * var(--text-scale));
+    --size-legend: calc(1.25rem * var(--text-scale));
+    --size-subgroup: calc(0.875rem * var(--text-scale));
+    --size-banner: calc(10px * var(--text-scale));
+    --size-footnote: calc(0.875rem * var(--text-scale));
     --sticky-heading-offset: 64px;
   }
 }
@@ -118,4 +125,14 @@
   :root {
     --size-page-padding: 2rem;
   }
+}
+
+/* §7.4 text-scale levels. The attribute outranks :root by specificity, so
+   the multiplier value alone flips every scaled token (deviation 9). */
+html[data-text-scale="125"] {
+  --text-scale: 1.25;
+}
+
+html[data-text-scale="150"] {
+  --text-scale: 1.5;
 }
