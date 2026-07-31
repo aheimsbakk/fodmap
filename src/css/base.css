@@ -1,0 +1,59 @@
+/* base.css — reset, body typography, list normalization (BLUEPRINT §5.1). */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.5;
+  position: relative;
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* Form controls inherit the page typography (Tailwind preflight parity). */
+input,
+button {
+  font: inherit;
+  color: inherit;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+li.item {
+  position: relative;
+  padding-left: 1.25rem;
+  margin-bottom: 0.25rem;
+  font-size: var(--size-item);
+  line-height: var(--size-item-line);
+}
+
+/* ❖ (U+2756) bullet anchored at the list item's left edge. */
+li.item::before {
+  content: "\2756";
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 0.7rem;
+  color: var(--color-heading-ink);
+}
