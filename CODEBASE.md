@@ -83,6 +83,7 @@ Semantic hooks used by the script (data attributes, set at load time):
 | ---------------- | --------------------------- | -------------------------------------------- |
 | `data-orig-text` | every `li.item`             | captured plain text for matching and restore |
 | `data-orig-html` | every `h3.category-heading` | captured markup for restore/highlight        |
+| `data-orig-html` | every `h4.sub-group-title`  | captured markup for restore/highlight        |
 
 Element IDs: `search-input`, `clear-search`, `main-column-headers`.
 
@@ -107,7 +108,7 @@ One ES module with three exported parts (single responsibility):
 | Export                                   | Responsibility                                                                                                                    | BLUEPRINT § |
 | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ----------- |
 | `normalizeQuery(value)`                  | lowercase + trim                                                                                                                  | §7.2.1      |
-| `buildMatcher()`                         | pure matcher: query + captured content → visibility/highlight plan                                                                | §8          |
+| `buildMatcher()`                         | pure matcher: query + captured content → visibility/highlight plan for items and category/sub-group headings                      | §8          |
 | `applyPlan(document, plan)`              | executor: applies the plan to the DOM                                                                                             | §8          |
 | `initSearch(document, debounceMs = 300)` | load-time capture (`data-orig-*`), event wiring (input debounce 300 ms, clear control, passive scroll-blur > 50 px), IDLE restore | §7, §9.5    |
 
@@ -204,11 +205,12 @@ together; all behavior follows BLUEPRINT §7.2 derived visibility rules.
   which the test duplicates as data — a change to the map without a
   matching markup change fails the suite.
 - `tests/search.test.js` covers BLUEPRINT §13.1: normalization, matching
-  (case-insensitivity, note participation, header match, no diacritic
-  folding), highlighting (marker vs item emphasis, no matches inside icon
-  markup), visibility transitions (item, sub-group, mobile label, section,
-  empty columns untouched), metacharacter safety, clear/restore, debounce
-  coalescing, and the scroll-blur rule (simulated via `window.scrollY`).
+  (case-insensitivity, note participation, header match, sub-group header
+  match revealing its whole list, no diacritic folding), highlighting
+  (marker vs item emphasis, no matches inside icon markup), visibility
+  transitions (item, sub-group, mobile label, section, empty columns
+  untouched), metacharacter safety, clear/restore, debounce coalescing,
+  and the scroll-blur rule (simulated via `window.scrollY`).
 - **Full-browser verification (Playwright).** Beyond the Node unit tests,
   the environment provides the `playwright-cli` skill for real-browser
   testing. Use it for BLUEPRINT §13.3 visual and behavioral parity:

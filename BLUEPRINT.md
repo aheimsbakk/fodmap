@@ -346,18 +346,25 @@ to the input.
 1. Query = input value, lowercased, trimmed. No diacritic folding
    (a search for "lok" does not match "Løk"; "løk" does).
 2. Match = case-insensitive substring containment in an item's full text
-   (including its portion note) or in a category heading text.
-3. Item: visible if it matches or the section heading matches. Highlighted
-   (emphasis) if it matches; otherwise plain.
+   (including its portion note), in a category heading text, or in a
+   sub-group heading text.
+3. Item: visible if it matches, the section heading matches, or the
+   sub-group heading directly above it matches. Highlighted (emphasis)
+   if it matches; otherwise plain.
 4. Category heading: all items in the section stay visible when the heading
    matches; the heading text is highlighted with the marker style. Matches
    inside embedded icon markup are never highlighted.
-5. Column: never hidden as a cell. If it has no matches and the heading does
-   not match, its mobile label and all its sub-group headings are hidden
-   (the tinted cell remains).
-6. Sub-group heading: hidden if the list directly below it has no visible
-   items; visible otherwise. Columns without any item lists are skipped.
-7. Section: hidden entirely if no item and no heading match anywhere in it.
+5. Column: never hidden as a cell. If it has no matches and the category
+   heading does not match, its mobile label and all its sub-group headings
+   are hidden (the tinted cell remains).
+6. Sub-group heading: visible when the list directly below it has at least
+   one visible item, or when the heading itself matches the query. On a
+   heading match, every item in the list below stays visible and the
+   heading text is highlighted with the marker style, matching the category
+   heading treatment. Hidden otherwise. Columns without any item lists are
+   skipped.
+7. Section: hidden entirely if no item and no category or sub-group heading
+   match anywhere in it.
 8. Empty placeholder columns: always untouched.
 
 ### 7.3 Restoration guarantee
@@ -371,7 +378,7 @@ formatting or highlight artifacts.
 
 ```
 input change ──> debounce 300 ms ──> normalize (lowercase + trim)
-      ──> match items + headings ──> derive visibility plan
+      ──> match items + headings (category and sub-group) ──> derive visibility plan
       ──> apply plan (hide/show + highlight) ──> toggle clear control
 
 clear control ──> empty input ──> restore originals ──> IDLE
@@ -566,9 +573,11 @@ Cover the search engine:
 
 - Normalization: lowercase, trim, empty query.
 - Matching: case-insensitivity, portion note participation,
-  heading match reveals whole section, no diacritic folding.
+  heading match reveals whole section, sub-group heading match reveals its
+  whole list, no diacritic folding.
 - Highlight: single/multiple occurrences, emphasis marker in headings
-  excluding icon markup, item emphasis, restore on clear.
+  (category and sub-group) excluding icon markup, item emphasis, restore on
+  clear.
 - Visibility transitions: item, sub-group, mobile label, section.
 - Special inputs: regex metacharacters, spaces, uppercase.
 - Clear control: hides/shows, restores originals, returns focus.
