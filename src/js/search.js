@@ -28,8 +28,9 @@ function escapeRegExp(term) {
  * Builds the pure matcher: (query, capture) => visibility/highlight plan.
  * Capture shape (produced by initSearch):
  *   sections: [{ element, heading: { element, html, text },
- *                columns: [{ element, label|null, items: [{ element, text }],
- *                            subgroups: [{ element, items: [text] }] }] }]
+ *                columns: [{ element, label|null, items: [{ element, text,
+ *                            group|null }], subgroups: [{ element, html,
+ *                            text, items: [text] }] }] }]
  * Plan shape mirrors the capture and carries exact html strings to set.
  */
 export function buildMatcher() {
@@ -39,7 +40,7 @@ export function buildMatcher() {
 
     // Lookahead on heading matches excludes text inside tags, so icon
     // markup is never wrapped in a marker (§7.2.4).
-    const headingRegex = active
+    const markupRegex = active
       ? new RegExp(`(${escapeRegExp(q)})(?![^<]*>)`, "gi")
       : null;
     const itemRegex = active ? new RegExp(`(${escapeRegExp(q)})`, "gi") : null;
@@ -50,17 +51,46 @@ export function buildMatcher() {
           active && section.heading.text.toLowerCase().includes(q);
         const headingHtml = headingMatch
           ? section.heading.html.replace(
-              headingRegex,
+              markupRegex,
               `<span class="${MARKER_CLASS}">$1</span>`,
             )
           : section.heading.html;
 
         const columns = section.columns.map((column) => {
+          // A sub-group match reveals its whole list, like a category
+          // heading match reveals its section (§7.2.6).
+          const groupMatches = new Map(
+            column.subgroups.map((group) => [
+              group,
+              active && group.text.toLowerCase().includes(q),
+            ]),
+          );
+          const subgroups = column.subgroups.map((group) => {
+            const groupMatch = groupMatches.get(group);
+            return {
+              element: group.element,
+              html: groupMatch
+                ? group.html.replace(
+                    markupRegex,
+                    `<span class="${MARKER_CLASS}">$1</span>`,
+                  )
+                : group.html,
+              hidden:
+                active &&
+                !headingMatch &&
+                !groupMatch &&
+                !group.items.some((text) => text.toLowerCase().includes(q)),
+            };
+          });
+
           const items = column.items.map((item) => {
             const itemMatch = active && item.text.toLowerCase().includes(q);
+            const groupMatch = item.group
+              ? groupMatches.get(item.group)
+              : false;
             return {
               element: item.element,
-              hidden: active && !itemMatch && !headingMatch,
+              hidden: active && !itemMatch && !headingMatch && !groupMatch,
               html: itemMatch
                 ? item.text.replace(
                     itemRegex,
@@ -80,13 +110,7 @@ export function buildMatcher() {
           return {
             label: column.label,
             labelHidden: active && !columnHasMatch,
-            subgroups: column.subgroups.map((group) => ({
-              element: group.element,
-              hidden:
-                active &&
-                !headingMatch &&
-                !group.items.some((text) => text.toLowerCase().includes(q)),
-            })),
+            subgroups,
             items,
           };
         });
@@ -120,6 +144,7 @@ export function applyPlan(document, plan) {
       }
       column.subgroups.forEach((group) => {
         group.element.classList.toggle("hidden", group.hidden);
+        group.element.innerHTML = group.html;
       });
       column.items.forEach((item) => {
         item.element.classList.toggle("hidden", item.hidden);
@@ -159,11 +184,20 @@ function captureContent(document) {
               // renders them with no surrounding whitespace, so trim.
               const text = li.textContent.trim();
               li.dataset.origText = text;
-              items.push({ element: li, text });
+              items.push({ element: li, text, group: activeGroup });
               if (activeGroup) activeGroup.items.push(text);
             });
           } else if (child.classList.contains("sub-group-title")) {
-            activeGroup = { element: child, items: [] };
+            // Sub-group headings match like category headings (§7.2.6),
+            // so their markup and text are captured for highlight/restore.
+            const html = child.innerHTML;
+            child.dataset.origHtml = html;
+            activeGroup = {
+              element: child,
+              html,
+              text: child.textContent,
+              items: [],
+            };
             subgroups.push(activeGroup);
           }
         });

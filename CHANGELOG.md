@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.5.0] - 2026-07-31
+
+- **why:** Make sub-group headings searchable so a term like "sjømat" reveals the whole "Fisk/sjømat:" list with the same marker style as a category match
+- **model:** opencode/deepseek-v4-flash-free
+- **tags:** search, sub-group, highlight, visibility
+
+### Added
+
+- `src/js/search.js`: sub-group headings (`h4.sub-group-title`) now match the query; a heading match keeps every item in its list visible and highlights the heading with the `.marker` style used for category headings
+
+### Changed
+
+- `src/js/search.js`: sub-group titles are captured at load time (`data-orig-html`) for restore; items keep a reference to their sub-group so a group match reveals them
+- `tests/search.test.js`: new test covering the "sjømat" → "Fisk/sjømat:" flow, including reveal, marker highlight, collapse of non-matching groups, and restore on clear
+- `BLUEPRINT.md` §7.2 (rules 2, 3, 5–7), §8, and §13.1 document sub-group heading matching
+- `CODEBASE.md` element hooks and matcher/test descriptions reflect sub-group heading search
+
 ## [0.4.1] - 2026-07-31
 
 - **why:** Make the Smakstilsetning, saus, dressing section visually distinct: its color was indistinguishable from Krydder og urter, and its icon read as lotion

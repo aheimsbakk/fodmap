@@ -187,6 +187,55 @@ test("restore on clear returns exact original markup", async () => {
 
 // --- visibility transitions (§7.2.5–7.2.8) ------------------------------------
 
+test("a sub-group heading match reveals its list and highlights the heading", async () => {
+  const dom = setup();
+  type(dom, "sjømat");
+  await settle();
+
+  const section = sectionByCategory(dom, "palegg");
+  assert.ok(!section.classList.contains("hidden"));
+
+  const group = [...section.querySelectorAll(".sub-group-title")].find(
+    (h4) => h4.textContent === "Fisk/sjømat:",
+  );
+  // The heading gets the same marker style as a category heading match.
+  const marker = group.querySelector(".marker");
+  assert.equal(marker.textContent, "sjømat");
+  assert.equal(group.innerHTML, 'Fisk/<span class="marker">sjømat</span>:');
+
+  // Every product under the matched heading stays visible, plus the
+  // §8 UNNGÅ item "Sjømatpålegg med løk/hvitløk" which contains the term.
+  for (const product of [
+    "Kaviar/kaviarmix (Mills)",
+    "Laks (gravet og røkt)",
+    "Tunfisk",
+  ]) {
+    assert.ok(!itemByText(dom, product).classList.contains("hidden"));
+  }
+  assert.equal(visibleItems(dom).length, 9);
+
+  // Products and headings outside the matched list collapse.
+  assert.ok(itemByText(dom, "Bacon").classList.contains("hidden"));
+  for (const h4 of section.querySelectorAll(".sub-group-title")) {
+    if (h4.textContent !== "Fisk/sjømat:") {
+      assert.ok(h4.classList.contains("hidden"), h4.textContent);
+    }
+  }
+
+  // Both columns with a match keep their labels (SPIS via the heading
+  // match, UNNGÅ via its own item match).
+  const cols = section.querySelectorAll(".content-col");
+  assert.ok(!cols[0].querySelector(".role-label").classList.contains("hidden"));
+  assert.ok(!cols[2].querySelector(".role-label").classList.contains("hidden"));
+
+  // Restore on clear returns the exact original heading markup.
+  clearButton(dom).click();
+  await settle();
+  assert.equal(group.innerHTML, group.dataset.origHtml);
+  assert.ok(!group.classList.contains("hidden"));
+  assert.equal(visibleItems(dom).length, items(dom).length);
+});
+
 test("sub-group headings and mobile labels collapse without matches", async () => {
   const dom = setup();
   type(dom, "tempeh");
