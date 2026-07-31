@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.5.1] - 2026-07-31
+
+- **why:** The masthead tagline wrapped onto two lines on narrow screens; it must always stay on one line
+- **model:** opencode/deepseek-v4-flash-free
+- **tags:** masthead, sub-title, css, responsive
+
+### Fixed
+
+- `src/css/components.css`: the sub-title declares `white-space: nowrap`; on narrow viewports the size steps down (≤ 457 px → 1 rem, ≤ 372 px → 0.875 rem, ≤ 329 px → 0.8125 rem) so the single line also fits without horizontal overflow down to 320 px
+
+### Added
+
+- `tests/styles.test.js`: stylesheet contract guards — the base `.sub-title` rule keeps `white-space: nowrap`, and the narrow-viewport size steps exist
+
+### Changed
+
+- `BLUEPRINT.md` §5.2, §4.3, and §12.2 (deviation 8) document the one-line sub-title guarantee
+- `CODEBASE.md` tree, components mapping, and test-suite notes reflect the new stylesheet guard
+
 ## [0.5.0] - 2026-07-31
 
 - **why:** Make sub-group headings searchable so a term like "sjømat" reveals the whole "Fisk/sjømat:" list with the same marker style as a category match

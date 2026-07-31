@@ -17,6 +17,30 @@
   text-transform: uppercase;
   color: var(--color-accent-light);
   text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
+  /* The emoji flanking spans are inline-blocks, so the browser can wrap
+     between them and the words; the tagline must stay on one line. */
+  white-space: nowrap;
+}
+
+/* The tagline fits one line only if the viewport gives it room: at 1.25 rem
+   it needs ~458 px. Step the size down on narrow viewports so the line
+   never wraps and never clips (BLUEPRINT §12.2 deviation 8). */
+@media (max-width: 457px) {
+  .sub-title {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 372px) {
+  .sub-title {
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 329px) {
+  .sub-title {
+    font-size: 0.8125rem;
+  }
 }
 
 .sub-title .emoji-left {
