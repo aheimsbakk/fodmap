@@ -61,63 +61,63 @@ Page shell                    (background, base typography, page padding)
 
 ### 4.1 Color palette
 
-| Token | Value | Use |
-|---|---|---|
-| Body text | `#333` | default text |
-| Page background | `#ffffff` | page + container |
-| Accent red (main title) | `#c43838` | FODMAP masthead |
-| Accent red light | `#d85c5c` | sub-title |
-| SPIS background | `#a0c49d` | SPIS labels/badges |
-| SPIS ink / border | `#1e3a1e` | SPIS labels/badges |
-| BEGRENSE background | `#f7d774` | BEGRENSE labels/badges |
-| BEGRENSE ink / border | `#4a3c08` | BEGRENSE labels/badges |
-| UNNGÅ background | `#d15d5d` | UNNGÅ labels/badges |
-| UNNGÅ border | `#5a1919` | UNNGÅ labels/badges |
-| Category heading (default) | `#d59e5e` | heading background |
-| Category heading ink | `#000` | heading text/border |
+| Token                      | Value     | Use                    |
+| -------------------------- | --------- | ---------------------- |
+| Body text                  | `#333`    | default text           |
+| Page background            | `#ffffff` | page + container       |
+| Accent red (main title)    | `#c43838` | FODMAP masthead        |
+| Accent red light           | `#d85c5c` | sub-title              |
+| SPIS background            | `#a0c49d` | SPIS labels/badges     |
+| SPIS ink / border          | `#1e3a1e` | SPIS labels/badges     |
+| BEGRENSE background        | `#f7d774` | BEGRENSE labels/badges |
+| BEGRENSE ink / border      | `#4a3c08` | BEGRENSE labels/badges |
+| UNNGÅ background           | `#d15d5d` | UNNGÅ labels/badges    |
+| UNNGÅ border               | `#5a1919` | UNNGÅ labels/badges    |
+| Category heading (default) | `#d59e5e` | heading background     |
+| Category heading ink       | `#000`    | heading text/border    |
 
 Category color sets (heading background + column tint base):
 
-| Category | Heading bg | Column tint base |
-|---|---|---|
-| Brød, ris og pasta | `#d59e5e` | `213, 158, 94` |
-| Grønnsaker og belgfrukter | `#8fb88a` | `143, 184, 138` |
-| Frukt, tørket frukt og bær | `#d96f6f` | `217, 111, 111` |
-| Melk, meieriprodukter & Alternativer | `#93b5c6` | `147, 181, 198` |
-| Nøtter og frø | `#d59e5e` | `213, 158, 94` (reuses Brød set) |
-| Drikke | `#8ab6d6` | `138, 182, 214` |
-| Kjøtt, egg, fisk | `#e08c8c` | `224, 140, 140` |
-| Pålegg | `#d1bfae` | `213, 158, 94` (reuses Brød set) |
-| Sukker, søtning og annet | `#e6c8c8` | `230, 200, 200` |
-| Krydder og urter | `#b5c7b3` | `181, 199, 179` |
-| Smakstilsetning, saus, dressing | `#a4b8a2` | `164, 184, 162` |
+| Category                             | Heading bg | Column tint base                 |
+| ------------------------------------ | ---------- | -------------------------------- |
+| Brød, ris og pasta                   | `#d59e5e`  | `213, 158, 94`                   |
+| Grønnsaker og belgfrukter            | `#8fb88a`  | `143, 184, 138`                  |
+| Frukt, tørket frukt og bær           | `#d96f6f`  | `217, 111, 111`                  |
+| Melk, meieriprodukter & Alternativer | `#93b5c6`  | `147, 181, 198`                  |
+| Nøtter og frø                        | `#d59e5e`  | `213, 158, 94` (reuses Brød set) |
+| Drikke                               | `#8ab6d6`  | `138, 182, 214`                  |
+| Kjøtt, egg, fisk                     | `#e08c8c`  | `224, 140, 140`                  |
+| Pålegg                               | `#d1bfae`  | `213, 158, 94` (reuses Brød set) |
+| Sukker, søtning og annet             | `#e6c8c8`  | `230, 200, 200`                  |
+| Krydder og urter                     | `#b5c7b3`  | `181, 199, 179`                  |
+| Smakstilsetning, saus, dressing      | `#a4b8a2`  | `164, 184, 162`                  |
 
 Column tint levels: column 1 = base at 10 % opacity, column 2 = base at
 20 % opacity, column 3 = base at 10 % opacity.
 
 Support colors:
 
-| Token | Value | Use |
-|---|---|---|
+| Token            | Value                | Use                             |
+| ---------------- | -------------------- | ------------------------------- |
 | Dashed separator | `rgba(0, 0, 0, 0.3)` | column separators (1 px dashed) |
-| Column top line | `rgba(0, 0, 0, 0.1)` | column top borders (narrow) |
-| Sub-group line | `rgba(0, 0, 0, 0.2)` | sub-group top borders |
-| Outline shadow | `rgba(0, 0, 0, 0.8)` | main title text-shadow |
-| Halftone dot A | `#c43838` | left decoration |
-| Halftone dot B | `#a0c49d` | right decoration |
-| Halftone dot C | `#e6a147` | both decorations |
-| Banner text | `#4b5563` (gray) | info banner text |
-| Placeholder text | gray-400 | search input placeholder |
-| Footer secondary | gray-600 | disclaimer text |
-| Hover link | `#dc2626` (red-600) | source link hover |
+| Column top line  | `rgba(0, 0, 0, 0.1)` | column top borders (narrow)     |
+| Sub-group line   | `rgba(0, 0, 0, 0.2)` | sub-group top borders           |
+| Outline shadow   | `rgba(0, 0, 0, 0.8)` | main title text-shadow          |
+| Halftone dot A   | `#c43838`            | left decoration                 |
+| Halftone dot B   | `#a0c49d`            | right decoration                |
+| Halftone dot C   | `#e6a147`            | both decorations                |
+| Banner text      | `#4b5563` (gray)     | info banner text                |
+| Placeholder text | gray-400             | search input placeholder        |
+| Footer secondary | gray-600             | disclaimer text                 |
+| Hover link       | `#dc2626` (red-600)  | source link hover               |
 
 ### 4.2 Typography
 
-| Role | Family | Weights | Transform |
-|---|---|---|---|
-| Body | Open Sans | 400, 600, 700 | none |
-| Headings, labels, banners | Oswald | 400, 500, 700 | uppercase |
-| Main title "FODMAP" | Bebas Neue | 400 | uppercase |
+| Role                      | Family     | Weights       | Transform |
+| ------------------------- | ---------- | ------------- | --------- |
+| Body                      | Open Sans  | 400, 600, 700 | none      |
+| Headings, labels, banners | Oswald     | 400, 500, 700 | uppercase |
+| Main title "FODMAP"       | Bebas Neue | 400           | uppercase |
 
 Letter spacing: main title +2 px, sub-title `tracking-widest`, labels and
 banners `tracking-wider`. Search input text: uppercase, `tracking-wider`.
@@ -127,33 +127,39 @@ four 1 px directional black shadows (creates a black outline).
 
 ### 4.3 Size scale
 
-| Element | Narrow | ≥ 640 px | ≥ 768 px | ≥ 1024 px |
-|---|---|---|---|---|
-| Page padding | 0.5 rem | 0.5 rem | 1.5 rem | 2 rem |
-| Main title | 2.25 rem | 4.5 rem | 6 rem | 6 rem |
-| Sub-title | 1.25 rem | 1.5 rem | 1.875 rem | 1.875 rem |
-| Search widget height | 56 px | 64 px | 64 px | 64 px |
-| Search input text | 1 rem | 1.25 rem | 1.25 rem | 1.25 rem |
-| Category heading | 1.125 rem | 1.25 rem | 1.25 rem | 1.25 rem |
-| Legend headings | 1.125 rem | 1.25 rem | 1.5 rem | 1.5 rem |
-| List text | 0.75 rem | 0.875 rem | 0.875 rem | 0.875 rem |
-| Sub-group title | 0.8 rem | 0.875 rem | 0.875 rem | 0.875 rem |
-| Info banner | 9 px | 10 px | 10 px | 10 px |
-| Footnote banner | 0.75 rem | 0.875 rem | 0.875 rem | 0.875 rem |
+| Element              | Narrow    | ≥ 640 px  | ≥ 768 px  | ≥ 1024 px |
+| -------------------- | --------- | --------- | --------- | --------- |
+| Page padding         | 0.5 rem   | 0.5 rem   | 1.5 rem   | 2 rem     |
+| Main title           | 2.25 rem  | 4.5 rem   | 6 rem     | 6 rem     |
+| Sub-title            | 1.25 rem  | 1.5 rem   | 1.875 rem | 1.875 rem |
+| Search widget height | 56 px     | 64 px     | 64 px     | 64 px     |
+| Search input text    | 1 rem     | 1.25 rem  | 1.25 rem  | 1.25 rem  |
+| Category heading     | 1.125 rem | 1.25 rem  | 1.25 rem  | 1.25 rem  |
+| Legend headings      | 1.125 rem | 1.25 rem  | 1.5 rem   | 1.5 rem   |
+| List text            | 0.85 rem  | 0.85 rem  | 0.85 rem  | 0.85 rem  |
+| Sub-group title      | 0.8 rem   | 0.875 rem | 0.875 rem | 0.875 rem |
+| Info banner          | 9 px      | 10 px     | 10 px     | 10 px     |
+| Footnote banner      | 0.75 rem  | 0.875 rem | 0.875 rem | 0.875 rem |
 
 Other metrics: list items 0.85 rem with 1.2 line-height and 0.25 rem bottom
 margin; sub-group titles 0.8 rem bold; mobile labels 0.875 rem bold;
 columns 0.75 rem padding; heading border 2 px solid black; grid border
 2 px solid black (left, right, bottom); dashed separators 1 px.
 
+List text is 0.85 rem at every width: the origin's `li` rule (0.85 rem)
+overrides the responsive `ul` size classes, and the reimplementation
+reproduces that rendering. Sub-group titles are 0.8 rem on narrow and
+0.875 rem from 640 px (the origin's `ul` classes win there because the
+Tailwind stylesheet loads after the origin's own rules).
+
 ### 4.4 Depth and sticky offsets
 
-| Layer | Z-order |
-|---|---|
-| Corner decorations | 10 |
-| Content container | 20 |
-| Category headings (sticky) | 30 |
-| Search widget (sticky) | 40 |
+| Layer                      | Z-order |
+| -------------------------- | ------- |
+| Corner decorations         | 10      |
+| Content container          | 20      |
+| Category headings (sticky) | 30      |
+| Search widget (sticky)     | 40      |
 
 Sticky offsets: search widget sticks to viewport top (0). Category headings
 stick 56 px from top (narrow) and 64 px (≥ 640 px) so they sit directly
@@ -282,19 +288,19 @@ Section
 Counts are item totals per column (main list + sub-groups), and sub-group
 count per column. These are frozen parity assertions.
 
-| # | Section | Icon | Columns (SPIS / BEGRENSE / UNNGÅ) | Footnotes |
-|---|---|---|---|---|
-| 1 | Brød, ris og pasta | wheat | 20 / 7 / 19 | VIKTIG |
-| 2 | Grønnsaker og belgfrukter | carrot | 46+4 sub (1) / 13+6 sub (1) / 14+8 sub (1) | — |
-| 3 | Frukt, tørket frukt og bær | apple | 25+2 sub (1) / 10+1 sub (1) / 13+10 sub (1) | — |
-| 4 | Melk, meieriprodukter & alternativer | cow | 3+17 sub (2) / 2+5 sub (2) / 10+2+1 sub (3) | — |
-| 5 | Nøtter og frø | seedling | 12 / 2 / 2 | — |
-| 6 | Drikke | mug | 16 / 5 / 12 | — |
-| 7 | Kjøtt, egg, fisk | drumstick | 9 / empty / empty | MARINADER |
-| 8 | Pålegg | bread slice | 35 over 6 sub / empty / 11 | — |
-| 9 | Sukker, søtning og annet | cubes | 11+5+10 sub (2) / 3 / 10+8+6 sub (2) | TIPS |
-| 10 | Krydder og urter | pepper | 17+20 sub (2) / empty / 8 | TIPS |
-| 11 | Smakstilsetning, saus, dressing | droplet | 29 / 6 / 9 | — |
+| #   | Section                              | Icon        | Columns (SPIS / BEGRENSE / UNNGÅ)           | Footnotes |
+| --- | ------------------------------------ | ----------- | ------------------------------------------- | --------- |
+| 1   | Brød, ris og pasta                   | wheat       | 20 / 7 / 19                                 | VIKTIG    |
+| 2   | Grønnsaker og belgfrukter            | carrot      | 46+4 sub (1) / 13+6 sub (1) / 14+8 sub (1)  | —         |
+| 3   | Frukt, tørket frukt og bær           | apple       | 25+2 sub (1) / 10+1 sub (1) / 13+10 sub (1) | —         |
+| 4   | Melk, meieriprodukter & alternativer | cow         | 3+17 sub (2) / 2+5 sub (2) / 10+2+1 sub (3) | —         |
+| 5   | Nøtter og frø                        | seedling    | 12 / 2 / 2                                  | —         |
+| 6   | Drikke                               | mug         | 16 / 5 / 12                                 | —         |
+| 7   | Kjøtt, egg, fisk                     | drumstick   | 9 / empty / empty                           | MARINADER |
+| 8   | Pålegg                               | bread slice | 35 over 6 sub / empty / 11                  | —         |
+| 9   | Sukker, søtning og annet             | cubes       | 11+5+10 sub (2) / 3 / 10+8+6 sub (2)        | TIPS      |
+| 10  | Krydder og urter                     | pepper      | 17+20 sub (2) / empty / 8                   | TIPS      |
+| 11  | Smakstilsetning, saus, dressing      | droplet     | 29 / 6 / 9                                  | —         |
 
 Total item count: 484 (excluding sub-group headings, mobile labels, and
 empty placeholder columns).
@@ -306,9 +312,9 @@ everything else is derived.
 
 ### 7.1 State machine
 
-| State | Condition | Effects |
-|---|---|---|
-| IDLE | query empty | All content visible in original form. Clear control hidden. |
+| State    | Condition       | Effects                                                         |
+| -------- | --------------- | --------------------------------------------------------------- |
+| IDLE     | query empty     | All content visible in original form. Clear control hidden.     |
 | FILTERED | query non-empty | Items/headings filtered and highlighted. Clear control visible. |
 
 Transitions (debounced 300 ms after each input change):
@@ -383,25 +389,25 @@ A single document (`src/index.html` per user requirement). It must:
 Emoji glyphs from the system font, mapped to the origin's Font Awesome
 icons. No runtime icon library.
 
-| Origin icon (FA 6) | Replacement emoji | Used in |
-|---|---|---|
-| magnifying-glass | 🔍 | search widget |
-| thumbs-up | 👍 | SPIS labels |
-| scale-balanced | ⚖️ | BEGRENSE labels |
-| hand | ✋ | UNNGÅ labels |
-| circle-info | ℹ️ | info banner |
-| triangle-exclamation | ⚠️ | VIKTIG / TIPS footnotes |
-| wheat-awn | 🌾 | Brød, ris og pasta |
-| carrot | 🥕 | Grønnsaker og belgfrukter |
-| apple-whole | 🍎 | Frukt, tørket frukt og bær |
-| cow | 🐄 | Melk, meieriprodukter |
-| seedling | 🥜 | Nøtter og frø |
-| mug-hot | ☕ | Drikke |
-| drumstick-bite | 🍗 | Kjøtt, egg, fisk |
-| bread-slice | 🍞 | Pålegg |
-| cubes-stacked | 🧊 | Sukker, søtning og annet |
-| pepper-hot | 🌶️ | Krydder og urter |
-| bottle-droplet | 🧴 | Smakstilsetning, saus, dressing |
+| Origin icon (FA 6)   | Replacement emoji | Used in                         |
+| -------------------- | ----------------- | ------------------------------- |
+| magnifying-glass     | 🔍                | search widget                   |
+| thumbs-up            | 👍                | SPIS labels                     |
+| scale-balanced       | ⚖️                | BEGRENSE labels                 |
+| hand                 | ✋                | UNNGÅ labels                    |
+| circle-info          | ℹ️                | info banner                     |
+| triangle-exclamation | ⚠️                | VIKTIG / TIPS footnotes         |
+| wheat-awn            | 🌾                | Brød, ris og pasta              |
+| carrot               | 🥕                | Grønnsaker og belgfrukter       |
+| apple-whole          | 🍎                | Frukt, tørket frukt og bær      |
+| cow                  | 🐄                | Melk, meieriprodukter           |
+| seedling             | 🥜                | Nøtter og frø                   |
+| mug-hot              | ☕                | Drikke                          |
+| drumstick-bite       | 🍗                | Kjøtt, egg, fisk                |
+| bread-slice          | 🍞                | Pålegg                          |
+| cubes-stacked        | 🧊                | Sukker, søtning og annet        |
+| pepper-hot           | 🌶️                | Krydder og urter                |
+| bottle-droplet       | 🧴                | Smakstilsetning, saus, dressing |
 
 Glyphs with a dual text/emoji presentation (⚖️ ℹ️ ⚠️ ☕ 🌶️) render in
 emoji presentation. The masthead emoji (🥦 🍓 🧀 🥖) stay as text glyphs.
@@ -410,16 +416,16 @@ emoji presentation. The masthead emoji (🥦 🍓 🧀 🥖) stay as text glyphs
 
 The script locates elements by stable, semantic identity:
 
-| Element | Required |
-|---|---|
-| Search input | required; missing → page renders, no interactivity |
-| Clear control | required |
-| Category section | required (11) |
-| Category heading | required per section |
-| Column | required per section (3) |
-| Item | optional per column |
-| Sub-group heading | optional per column |
-| Mobile label | optional per column |
+| Element           | Required                                           |
+| ----------------- | -------------------------------------------------- |
+| Search input      | required; missing → page renders, no interactivity |
+| Clear control     | required                                           |
+| Category section  | required (11)                                      |
+| Category heading  | required per section                               |
+| Column            | required per section (3)                           |
+| Item              | optional per column                                |
+| Sub-group heading | optional per column                                |
+| Mobile label      | optional per column                                |
 
 ### 9.4 Error boundaries
 
@@ -445,10 +451,10 @@ content needed for restoration.
 
 ## 11. External Dependencies
 
-| Dependency | Type | Rationale |
-|---|---|---|
-| Google Fonts (Oswald, Bebas Neue, Open Sans) | remote stylesheet link | identical rendering to the origin |
-| NHI.no source page | external hyperlink | footer attribution, opens in new tab |
+| Dependency                                   | Type                   | Rationale                            |
+| -------------------------------------------- | ---------------------- | ------------------------------------ |
+| Google Fonts (Oswald, Bebas Neue, Open Sans) | remote stylesheet link | identical rendering to the origin    |
+| NHI.no source page                           | external hyperlink     | footer attribution, opens in new tab |
 
 No runtime JavaScript libraries. Fonts are the only remote asset; the page
 must degrade gracefully (system font fallbacks) when offline.
@@ -464,28 +470,28 @@ section 6.2 exactly.
 
 Approved corrections (user decision, 2026-07-31):
 
-| Location | Origin | Corrected |
-|---|---|---|
-| §2 SPIS | Sopp: hermetsisk sjampinjong, Østers | Sopp: hermetisk sjampinjong, østers |
-| §2 SPIS | Purre-kun det grønne | Purre – kun det grønne |
-| §2 SPIS | Rødbeter, syltet | Rødbeter, syltede |
-| §2 BEGRENSE | Squash (0.75 dl) | Squash (0,75 dl) |
-| §3 SPIS | Banan (15 stk) | Banan i biter (15 stk) |
-| §3 BEGRENSE | Avokodo (1/8 av en hel) | Avokado (1/8 av en hel) |
-| §3 BEGRENSE | Blåbær, amerikanske og hvite inn (40 gram) | Blåbær, amerikanske og hvite inni (40 gram) |
-| §3 BEGRENSE | Tranebær (1ss) | Tranebær (1 ss) |
-| §4 heading | Melk, meieriprodukter & Alternativer | Melk, meieriprodukter & alternativer |
-| §4 BEGRENSE | Kokosmelk, (0,6 dl) | Kokosmelk (0,6 dl) |
-| §4 UNNGÅ | Rømme, kesam | Rømme |
-| §8 SPIS | Sardiner i vann, olje eller gele. | Sardiner i vann, olje eller gele |
-| §8 SPIS | Spekeskinke (strynskinke, Strandaskinke, serranoskinke, westfaler) | Spekeskinke (strynskinke, strandaskinke, serranoskinke, westfaler) |
-| §9 SPIS | Sirup, Glukose | Sirup, glukose |
-| §9 SPIS | Aceculfat K | Acesulfam K |
-| §9 UNNGÅ | Erytritol (Sukrin) (E938) | Erytritol (Sukrin) (E 968) |
-| §9 UNNGÅ | Polydextrose (E1200) | Polydextrose (E 1200) |
-| §10 SPIS | Bukkehomkløver/methi | Bukkehornkløver/methi |
-| §10 SPIS | Kajennepepper | Cayennepepper |
-| §11 UNNGÅ | Kjøttbuljond, cups (Magi) | Kjøttbuljong (Maggi) |
+| Location    | Origin                                                             | Corrected                                                          |
+| ----------- | ------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| §2 SPIS     | Sopp: hermetsisk sjampinjong, Østers                               | Sopp: hermetisk sjampinjong, østers                                |
+| §2 SPIS     | Purre-kun det grønne                                               | Purre – kun det grønne                                             |
+| §2 SPIS     | Rødbeter, syltet                                                   | Rødbeter, syltede                                                  |
+| §2 BEGRENSE | Squash (0.75 dl)                                                   | Squash (0,75 dl)                                                   |
+| §3 SPIS     | Banan (15 stk)                                                     | Banan i biter (15 stk)                                             |
+| §3 BEGRENSE | Avokodo (1/8 av en hel)                                            | Avokado (1/8 av en hel)                                            |
+| §3 BEGRENSE | Blåbær, amerikanske og hvite inn (40 gram)                         | Blåbær, amerikanske og hvite inni (40 gram)                        |
+| §3 BEGRENSE | Tranebær (1ss)                                                     | Tranebær (1 ss)                                                    |
+| §4 heading  | Melk, meieriprodukter & Alternativer                               | Melk, meieriprodukter & alternativer                               |
+| §4 BEGRENSE | Kokosmelk, (0,6 dl)                                                | Kokosmelk (0,6 dl)                                                 |
+| §4 UNNGÅ    | Rømme, kesam                                                       | Rømme                                                              |
+| §8 SPIS     | Sardiner i vann, olje eller gele.                                  | Sardiner i vann, olje eller gele                                   |
+| §8 SPIS     | Spekeskinke (strynskinke, Strandaskinke, serranoskinke, westfaler) | Spekeskinke (strynskinke, strandaskinke, serranoskinke, westfaler) |
+| §9 SPIS     | Sirup, Glukose                                                     | Sirup, glukose                                                     |
+| §9 SPIS     | Aceculfat K                                                        | Acesulfam K                                                        |
+| §9 UNNGÅ    | Erytritol (Sukrin) (E938)                                          | Erytritol (Sukrin) (E 968)                                         |
+| §9 UNNGÅ    | Polydextrose (E1200)                                               | Polydextrose (E 1200)                                              |
+| §10 SPIS    | Bukkehomkløver/methi                                               | Bukkehornkløver/methi                                              |
+| §10 SPIS    | Kajennepepper                                                      | Cayennepepper                                                      |
+| §11 UNNGÅ   | Kjøttbuljond, cups (Magi)                                          | Kjøttbuljong (Maggi)                                               |
 
 Reviewed and confirmed unchanged: `Nøtte` (§8), `Banos` (§8),
 `Lollosalat` (§2).

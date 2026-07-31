@@ -11,12 +11,12 @@
 work/
 ├── AGENTS.md                    # workflow rules
 ├── BLUEPRINT.md                 # language-agnostic architecture (source of truth)
+├── CHANGELOG.md                 # wrap-up changelog (versioned milestones)
 ├── CODEBASE.md                  # this file
 ├── opencode.json
 ├── .opencode/                   # agent configuration and skills
 ├── .gitignore
 ├── docs/
-│   ├── fodmap.pdf               # reference document (source material)
 │   └── memory/                  # session memory (skill-managed)
 ├── origin/
 │   └── fodmap.html              # absolute source of truth (reference only, never edited)
@@ -35,8 +35,10 @@ work/
 │   ├── content.test.js          # parity: origin vs src/index.html, with corrections map
 │   └── search.test.js           # functional tests of the search engine
 ├── scripts/
-│   └── verify_codebase_sync.sh  # sync verification (created in synchronization phase)
-├── package.json                 # dev-only: test runner config + jsdom
+│   ├── verify_codebase_sync.sh  # sync verification (see README)
+│   ├── bump-version.sh          # wrap-up: version bump helper
+│   └── validate-changelog.sh    # wrap-up: changelog validation
+├── package.json                 # dev-only: test runner config + jsdom + prettier
 └── package-lock.json
 ```
 
@@ -53,20 +55,24 @@ corrections applied (BLUEPRINT §12.1).
 | Blueprint component    | Markup element(s)                                                                     |
 | ---------------------- | ------------------------------------------------------------------------------------- |
 | Page shell             | `body`                                                                                |
-| Corner decorations     | `div.halftone-tl`, `div.halftone-tr`                                                  |
+| Corner decorations     | `div.halftone-tl.sm-only`, `div.halftone-tr.sm-only`                                  |
 | Content container      | `div.container`                                                                       |
 | Masthead               | `header.masthead` → `h2.sub-title`, `h1.main-title`                                   |
 | Search widget          | `div.search-widget` → `span.search-icon`, `input#search-input`, `button#clear-search` |
 | Column legend          | `div#main-column-headers.legend` → 3 × `div.legend-item.legend-spis/begrens/unnga`    |
 | Info banner            | `div.info-banner`                                                                     |
-| Category section (×11) | `section.category-section` → `h3.category-heading`, `div.content-grid`                |
+| Category section (×11) | `section.category-section[data-category]` → `h3.category-heading`, `div.content-grid` |
 | Category heading       | `h3.category-heading[data-category]` (icon span + title)                              |
 | Column                 | `div.content-col[data-role="spis\|begrens\|unnga\|empty"]`                            |
 | Mobile label           | `div.role-label.mobile-only`                                                          |
 | Item list              | `ul.item-list` → `li.item`                                                            |
 | Sub-group              | `h4.sub-group-title` + following `ul.item-list`                                       |
-| Footnote banner        | `div.footnote-banner`                                                                 |
+| Footnote banner        | `div.footnote-banner` (optional `span.footnote-icon`)                                 |
 | Footer                 | `footer.page-footer`                                                                  |
+
+The `data-category` attribute repeats on the section element itself: the
+scripts and the content tests address sections by it, while the CSS tint
+rules consume the heading's copy through sibling selectors (CODEBASE §5.2).
 
 Semantic hooks used by the script (data attributes, set at load time):
 
@@ -85,7 +91,7 @@ Element IDs: `search-input`, `clear-search`, `main-column-headers`.
 | `base.css`       | base       | minimal reset, `body` (white bg, Open Sans, `#333`), heading families + uppercase, `ul` normalization, `li` bullet marker (❖ U+2756)                                                                                                                                                                                                           |
 | `layout.css`     | layout     | `.container` (max-width 1280 px, margins, z-20, padding), page padding scale, `.content-grid` (1 col → 3 cols at ≥ 768 px; 2 px solid borders; `border-b-0` variant for footnote sections), column border rules (dashed separators, mobile top lines), sticky offsets for `.search-widget` (top 0) and `.category-heading` (top 56 px / 64 px) |
 | `components.css` | components | masthead typography and title outline shadow, search widget (heights 56/64 px, flex layout), legend cells, role labels (3 color sets), category heading colors (per `[data-category]`), info/footnote banners, sub-group titles, halftone decorations, footer                                                                                  |
-| `utilities.css`  | utilities  | `.hidden`, `.mobile-only` (hidden ≥ 768 px), `.wide-only` (hidden < 768 px), `.marker` (search highlight span), `.item-highlight` (bold emphasis)                                                                                                                                                                                              |
+| `utilities.css`  | utilities  | `.hidden`, `.mobile-only` (hidden ≥ 768 px), `.wide-only` (hidden < 768 px), `.sm-only` (hidden < 640 px, for the halftone decorations), `.marker` (search highlight span), `.item-highlight` (bold emphasis)                                                                                                                                  |
 
 Authoring rules: mobile-first; no inline styles in markup; all values from
 tokens; each file under 300 lines (RULES §17); if a layer outgrows it,
@@ -147,7 +153,9 @@ together; all behavior follows BLUEPRINT §7.2 derived visibility rules.
   contract (BLUEPRINT §9.3).
 - **Restoration uses `data-orig-*` attributes** rather than a side table:
   matches the origin's approach, survives any element relocation, and keeps
-  restore logic local to each node.
+  restore logic local to each node. Item text is trimmed at capture time
+  (items are authored multi-line for readability; the origin renders them
+  with no surrounding whitespace, so trimming preserves exact parity).
 - **Plain-text items simplify search.** Items carry no child markup
   (small-print notes are merged into the item text, BLUEPRINT §12.2
   deviation 3), so matching and highlighting run directly on the item's
@@ -163,6 +171,11 @@ together; all behavior follows BLUEPRINT §7.2 derived visibility rules.
   (`#d1bfae`, `#e6c8c8`, `#b5c7b3`, `#a4b8a2`) set via
   `[data-category="..."]` selectors — this replaces the origin's
   Tailwind utility classes with semantic selectors (deviation 1).
+  Column tints default to the brod set (10 % / 20 % / 10 % opacity) and
+  every other category overrides them with heading-sibling rules
+  (`.category-heading[data-category="x"] + .content-grid .content-col`),
+  which keeps the tint source of truth in the tokens and the markup free
+  of per-column color classes.
 - **Breakpoints** are authored mobile-first: base (< 640 px), `sm`
   (≥ 640 px), `md` (≥ 768 px) — the grid and legend flip happens at `md`.
   No `lg`-specific rules are needed beyond the body padding step
