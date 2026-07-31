@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.9.0] - 2026-07-31
+
+- **why:** User request: give every category a color set related to its content, remove the reused Brød colors, and replace the lavender sauce section
+- **model:** opencode/deepseek-v4-flash-free
+- **tags:** colors, palette, tokens, design
+
+### Changed
+
+- `src/css/tokens.css`: Nøtter og frø gets its own walnut-brown set (`#a9744f` / `169, 116, 79`) instead of duplicating the Brød set; Pålegg's column tints now come from its own beige heading (`#d1bfae` / `209, 191, 174`) instead of the Brød tint base; Smakstilsetning, saus, dressing swaps the muted lavender (`#b9a7cf` / `185, 167, 207`) for a sauce-red terracotta (`#d97744` / `217, 119, 68`). The other eight category sets are unchanged
+- `BLUEPRINT.md` §4.1 and §12.2 (deviations 7 and 12) record the new sets and the one-set-per-category pattern
+- `CODEBASE.md` §5.2 lists the updated per-section heading colors
+
 ## [0.8.0] - 2026-07-31
 
 - **why:** Make sub-group separators uniform, keep search focus when filtering collapses the layout, and let the Escape key clear the search
