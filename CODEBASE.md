@@ -36,7 +36,8 @@ work/
 │       └── search.js            # search engine: matcher (pure) + executor (DOM)
 ├── tests/
 │   ├── content.test.js          # parity: origin vs src/index.html, with corrections map
-│   └── search.test.js           # functional tests of the search engine
+│   ├── search.test.js           # functional tests of the search engine
+│   └── styles.test.js           # stylesheet contract guards (single-line sub-title)
 ├── scripts/
 │   ├── verify_codebase_sync.sh  # sync verification (see README)
 │   ├── bump-version.sh          # wrap-up: version bump helper (VERSION + index.html footer)
@@ -89,13 +90,13 @@ Element IDs: `search-input`, `clear-search`, `main-column-headers`.
 
 ### 2.2 Stylesheets (`src/css/`)
 
-| File             | Layer      | Content                                                                                                                                                                                                                                                                                                                                        |
-| ---------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `tokens.css`     | tokens     | CSS custom properties: every color from BLUEPRINT §4.1 (category sets incl. 10 %/20 %/10 % column tints), font families/weights, size scale §4.3, z-order §4.4, sticky offsets, effects §4.5                                                                                                                                                   |
-| `base.css`       | base       | minimal reset, `body` (white bg, system sans-serif, `#333`), heading families + uppercase, `ul` normalization, `li` bullet marker (❖ U+2756)                                                                                                                                                                                                   |
-| `layout.css`     | layout     | `.container` (max-width 1280 px, margins, z-20, padding), page padding scale, `.content-grid` (1 col → 3 cols at ≥ 768 px; 2 px solid borders; `border-b-0` variant for footnote sections), column border rules (dashed separators, mobile top lines), sticky offsets for `.search-widget` (top 0) and `.category-heading` (top 56 px / 64 px) |
-| `components.css` | components | masthead typography and title outline shadow, search widget (heights 56/64 px, flex layout), legend cells, role labels (3 color sets), category heading colors (per `[data-category]`), info/footnote banners, sub-group titles, halftone decorations, footer                                                                                  |
-| `utilities.css`  | utilities  | `.hidden`, `.mobile-only` (hidden ≥ 768 px), `.wide-only` (hidden < 768 px), `.sm-only` (hidden < 640 px, for the halftone decorations), `.marker` (search highlight span), `.item-highlight` (bold emphasis)                                                                                                                                  |
+| File             | Layer      | Content                                                                                                                                                                                                                                                                                                                                               |
+| ---------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tokens.css`     | tokens     | CSS custom properties: every color from BLUEPRINT §4.1 (category sets incl. 10 %/20 %/10 % column tints), font families/weights, size scale §4.3, z-order §4.4, sticky offsets, effects §4.5                                                                                                                                                          |
+| `base.css`       | base       | minimal reset, `body` (white bg, system sans-serif, `#333`), heading families + uppercase, `ul` normalization, `li` bullet marker (❖ U+2756)                                                                                                                                                                                                          |
+| `layout.css`     | layout     | `.container` (max-width 1280 px, margins, z-20, padding), page padding scale, `.content-grid` (1 col → 3 cols at ≥ 768 px; 2 px solid borders; `border-b-0` variant for footnote sections), column border rules (dashed separators, mobile top lines), sticky offsets for `.search-widget` (top 0) and `.category-heading` (top 56 px / 64 px)        |
+| `components.css` | components | masthead typography and title outline shadow, sub-title `white-space: nowrap` plus narrow-viewport size steps (≤ 457 / 372 / 329 px), search widget (heights 56/64 px, flex layout), legend cells, role labels (3 color sets), category heading colors (per `[data-category]`), info/footnote banners, sub-group titles, halftone decorations, footer |
+| `utilities.css`  | utilities  | `.hidden`, `.mobile-only` (hidden ≥ 768 px), `.wide-only` (hidden < 768 px), `.sm-only` (hidden < 640 px, for the halftone decorations), `.marker` (search highlight span), `.item-highlight` (bold emphasis)                                                                                                                                         |
 
 Authoring rules: mobile-first; no inline styles in markup; all values from
 tokens; each file under 300 lines (RULES §17); if a layer outgrows it,
@@ -211,6 +212,12 @@ together; all behavior follows BLUEPRINT §7.2 derived visibility rules.
   transitions (item, sub-group, mobile label, section, empty columns
   untouched), metacharacter safety, clear/restore, debounce coalescing,
   and the scroll-blur rule (simulated via `window.scrollY`).
+- `tests/styles.test.js` guards the masthead sub-title contract
+  (BLUEPRINT §12.2 deviation 8): the base rule declares
+  `white-space: nowrap` and the narrow-viewport size steps exist.
+  jsdom cannot measure layout, so the guards assert the stylesheet
+  declarations directly; the browser-level fit is verified with
+  Playwright at 320–640 px widths.
 - **Full-browser verification (Playwright).** Beyond the Node unit tests,
   the environment provides the `playwright-cli` skill for real-browser
   testing. Use it for BLUEPRINT §13.3 visual and behavioral parity:

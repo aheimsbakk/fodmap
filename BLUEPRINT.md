@@ -151,6 +151,10 @@ four 1 px directional black shadows (creates a black outline).
 | Info banner          | 9 px      | 10 px     | 10 px     | 10 px     |
 | Footnote banner      | 0.75 rem  | 0.875 rem | 0.875 rem | 0.875 rem |
 
+The sub-title deviates from the narrow step below 640 px to keep the
+tagline on one line (deviation 8): ≤ 457 px → 1 rem, ≤ 372 px →
+0.875 rem, ≤ 329 px → 0.8125 rem.
+
 Other metrics: list items 0.85 rem with 1.2 line-height and 0.25 rem bottom
 margin; sub-group titles 0.8 rem bold; mobile labels 0.875 rem bold;
 columns 0.75 rem padding; heading border 2 px solid black; grid border
@@ -199,7 +203,10 @@ below the search widget.
 
 Centered, bottom margin 1.5 rem, top margin 0.5 rem. Sub-title above main
 title; emoji clusters flank the sub-title text with 0.5 rem horizontal
-margin. Main title uses the display typeface at 2.25–6 rem, tight leading,
+margin. The sub-title is guaranteed to render on a single line at every
+viewport width: `white-space: nowrap`, with the size stepping down on
+narrow viewports so the line never overflows (see §12.2 deviation 8).
+Main title uses the display typeface at 2.25–6 rem, tight leading,
 negative top margin 5 px, bottom margin 1 rem.
 
 ### 5.3 Search widget
@@ -556,6 +563,12 @@ Reviewed and confirmed unchanged: `Nøtte` (§8), `Banos` (§8),
    a muted lavender (`#b9a7cf` / `185, 167, 207`), a hue family not used
    elsewhere in the palette. Applies to the heading background and the
    three column tint levels.
+8. The masthead sub-title never wraps (user requirement, 2026-07-31).
+   The origin wraps onto two lines at narrow viewports; the
+   reimplementation declares `white-space: nowrap` and steps the size
+   down at ≤ 457 px (1 rem), ≤ 372 px (0.875 rem), and ≤ 329 px
+   (0.8125 rem) so the single line also fits without horizontal
+   overflow at every width down to 320 px.
 
 ### 12.3 Negative contracts
 
