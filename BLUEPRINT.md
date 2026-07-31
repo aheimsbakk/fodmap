@@ -84,19 +84,19 @@ Page shell                    (background, base typography, page padding)
 
 Category color sets (heading background + column tint base):
 
-| Category                             | Heading bg | Column tint base                 |
-| ------------------------------------ | ---------- | -------------------------------- |
-| Brød, ris og pasta                   | `#d59e5e`  | `213, 158, 94`                   |
-| Grønnsaker og belgfrukter            | `#8fb88a`  | `143, 184, 138`                  |
-| Frukt, tørket frukt og bær           | `#d96f6f`  | `217, 111, 111`                  |
-| Melk, meieriprodukter & Alternativer | `#93b5c6`  | `147, 181, 198`                  |
-| Nøtter og frø                        | `#d59e5e`  | `213, 158, 94` (reuses Brød set) |
-| Drikke                               | `#8ab6d6`  | `138, 182, 214`                  |
-| Kjøtt, egg, fisk                     | `#e08c8c`  | `224, 140, 140`                  |
-| Pålegg                               | `#d1bfae`  | `213, 158, 94` (reuses Brød set) |
-| Sukker, søtning og annet             | `#e6c8c8`  | `230, 200, 200`                  |
-| Krydder og urter                     | `#b5c7b3`  | `181, 199, 179`                  |
-| Smakstilsetning, saus, dressing      | `#b9a7cf`  | `185, 167, 207`                  |
+| Category                             | Heading bg | Column tint base |
+| ------------------------------------ | ---------- | ---------------- |
+| Brød, ris og pasta                   | `#d59e5e`  | `213, 158, 94`   |
+| Grønnsaker og belgfrukter            | `#8fb88a`  | `143, 184, 138`  |
+| Frukt, tørket frukt og bær           | `#d96f6f`  | `217, 111, 111`  |
+| Melk, meieriprodukter & Alternativer | `#93b5c6`  | `147, 181, 198`  |
+| Nøtter og frø                        | `#a9744f`  | `169, 116, 79`   |
+| Drikke                               | `#8ab6d6`  | `138, 182, 214`  |
+| Kjøtt, egg, fisk                     | `#e08c8c`  | `224, 140, 140`  |
+| Pålegg                               | `#d1bfae`  | `209, 191, 174`  |
+| Sukker, søtning og annet             | `#e6c8c8`  | `230, 200, 200`  |
+| Krydder og urter                     | `#b5c7b3`  | `181, 199, 179`  |
+| Smakstilsetning, saus, dressing      | `#d97744`  | `217, 119, 68`   |
 
 Column tint levels: column 1 = base at 10 % opacity, column 2 = base at
 20 % opacity, column 3 = base at 10 % opacity.
@@ -626,10 +626,11 @@ Reviewed and confirmed unchanged: `Nøtte` (§8), `Banos` (§8),
 7. The Smakstilsetning, saus, dressing category color set is changed per
    user request (2026-07-31): the origin's gray-green
    (`#a4b8a2` / `164, 184, 162`) was visually indistinguishable from the
-   Krydder og urter set (`#b5c7b3` / `181, 199, 179`) and is replaced by
-   a muted lavender (`#b9a7cf` / `185, 167, 207`), a hue family not used
-   elsewhere in the palette. Applies to the heading background and the
-   three column tint levels.
+   Krydder og urter set (`#b5c7b3` / `181, 199, 179`). It is replaced by
+   a sauce-red terracotta (`#d97744` / `217, 119, 68`), chosen for its
+   content association (tomato-based sauces) and its distance from the
+   pink/red family already used by Frukt, Kjøtt, and Sukker. Applies to
+   the heading background and the three column tint levels.
 8. The masthead sub-title never wraps (user requirement, 2026-07-31).
    The origin wraps onto two lines at narrow viewports; the
    reimplementation declares `white-space: nowrap` and steps the size
@@ -678,6 +679,15 @@ Reviewed and confirmed unchanged: `Nøtte` (§8), `Banos` (§8),
     label sits above it, so the line stays. No `:first-of-type`
     exception is used: a sub-group below a main item list has content
     above it and keeps the line.
+12. The Nøtter og frø and Pålegg category color sets are changed per user
+    request (2026-07-31). The origin reuses the Brød set for Nøtter og
+    frø (same heading and column tints) and the Brød tint base for
+    Pålegg's columns. Each now gets a distinct set: Nøtter og frø a
+    walnut brown (`#a9744f` / `169, 116, 79`), and Pålegg uses its own
+    beige heading (`#d1bfae` / `209, 191, 174`) as the tint base too,
+    matching the one-set-per-category pattern of the other nine
+    categories. Applies to the heading background and the three column
+    tint levels.
 
 ### 12.3 Negative contracts
 
