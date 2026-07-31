@@ -33,10 +33,12 @@ work/
 │   │   ├── components.css       # masthead, search widget, labels, banners, decorations
 │   │   └── utilities.css        # responsive toggles, hidden state, search marker
 │   └── js/
-│       └── search.js            # search engine: matcher (pure) + executor (DOM)
+│       ├── search.js            # search engine: matcher (pure) + executor (DOM)
+│       └── text-scale.js        # text-size toggle: cycle + persist the level
 ├── tests/
 │   ├── content.test.js          # parity: origin vs src/index.html, with corrections map
 │   ├── search.test.js           # functional tests of the search engine
+│   ├── text-scale.test.js       # functional tests of the text-size toggle
 │   └── styles.test.js           # stylesheet contract guards (single-line sub-title)
 ├── scripts/
 │   ├── verify_codebase_sync.sh  # sync verification (see README)
@@ -52,27 +54,27 @@ work/
 
 Single document, `lang="no"`, UTF-8, responsive viewport meta. Loads the
 stylesheet set in layer order (tokens → base → layout → components →
-utilities) and the script as a module at the end of the body. Content is
+utilities) and the scripts as ES modules at the end of the body. Content is
 static markup, copied from `origin/fodmap.html` with the approved
 corrections applied (BLUEPRINT §12.1).
 
-| Blueprint component    | Markup element(s)                                                                     |
-| ---------------------- | ------------------------------------------------------------------------------------- |
-| Page shell             | `body`                                                                                |
-| Corner decorations     | `div.halftone-tl.sm-only`, `div.halftone-tr.sm-only`                                  |
-| Content container      | `div.container`                                                                       |
-| Masthead               | `header.masthead` → `h2.sub-title`, `h1.main-title`                                   |
-| Search widget          | `div.search-widget` → `span.search-icon`, `input#search-input`, `button#clear-search` |
-| Column legend          | `div#main-column-headers.legend` → 3 × `div.legend-item.legend-spis/begrens/unnga`    |
-| Info banner            | `div.info-banner`                                                                     |
-| Category section (×11) | `section.category-section[data-category]` → `h3.category-heading`, `div.content-grid` |
-| Category heading       | `h3.category-heading[data-category]` (icon span + title)                              |
-| Column                 | `div.content-col[data-role="spis\|begrens\|unnga\|empty"]`                            |
-| Mobile label           | `div.role-label.mobile-only`                                                          |
-| Item list              | `ul.item-list` → `li.item`                                                            |
-| Sub-group              | `h4.sub-group-title` + following `ul.item-list`                                       |
-| Footnote banner        | `div.footnote-banner` (optional `span.footnote-icon`)                                 |
-| Footer                 | `footer.page-footer`                                                                  |
+| Blueprint component    | Markup element(s)                                                                                                 |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Page shell             | `body`                                                                                                            |
+| Corner decorations     | `div.halftone-tl.sm-only`, `div.halftone-tr.sm-only`                                                              |
+| Content container      | `div.container`                                                                                                   |
+| Masthead               | `header.masthead` → `h2.sub-title`, `h1.main-title`                                                               |
+| Search widget          | `div.search-widget` → `span.search-icon`, `input#search-input`, `button#clear-search`, `button#text-scale-toggle` |
+| Column legend          | `div#main-column-headers.legend` → 3 × `div.legend-item.legend-spis/begrens/unnga`                                |
+| Info banner            | `div.info-banner`                                                                                                 |
+| Category section (×11) | `section.category-section[data-category]` → `h3.category-heading`, `div.content-grid`                             |
+| Category heading       | `h3.category-heading[data-category]` (icon span + title)                                                          |
+| Column                 | `div.content-col[data-role="spis\|begrens\|unnga\|empty"]`                                                        |
+| Mobile label           | `div.role-label.mobile-only`                                                                                      |
+| Item list              | `ul.item-list` → `li.item`                                                                                        |
+| Sub-group              | `h4.sub-group-title` + following `ul.item-list`                                                                   |
+| Footnote banner        | `div.footnote-banner` (optional `span.footnote-icon`)                                                             |
+| Footer                 | `footer.page-footer`                                                                                              |
 
 The `data-category` attribute repeats on the section element itself: the
 scripts and the content tests address sections by it, while the CSS tint
@@ -86,25 +88,29 @@ Semantic hooks used by the script (data attributes, set at load time):
 | `data-orig-html` | every `h3.category-heading` | captured markup for restore/highlight        |
 | `data-orig-html` | every `h4.sub-group-title`  | captured markup for restore/highlight        |
 
-Element IDs: `search-input`, `clear-search`, `main-column-headers`.
+Element IDs: `search-input`, `clear-search`, `text-scale-toggle`,
+`main-column-headers`.
 
 ### 2.2 Stylesheets (`src/css/`)
 
-| File             | Layer      | Content                                                                                                                                                                                                                                                                                                                                               |
-| ---------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `tokens.css`     | tokens     | CSS custom properties: every color from BLUEPRINT §4.1 (category sets incl. 10 %/20 %/10 % column tints), font families/weights, size scale §4.3, z-order §4.4, sticky offsets, effects §4.5                                                                                                                                                          |
-| `base.css`       | base       | minimal reset, `body` (white bg, system sans-serif, `#333`), heading families + uppercase, `ul` normalization, `li` bullet marker (❖ U+2756)                                                                                                                                                                                                          |
-| `layout.css`     | layout     | `.container` (max-width 1280 px, margins, z-20, padding), page padding scale, `.content-grid` (1 col → 3 cols at ≥ 768 px; 2 px solid borders; `border-b-0` variant for footnote sections), column border rules (dashed separators, mobile top lines), sticky offsets for `.search-widget` (top 0) and `.category-heading` (top 56 px / 64 px)        |
-| `components.css` | components | masthead typography and title outline shadow, sub-title `white-space: nowrap` plus narrow-viewport size steps (≤ 457 / 372 / 329 px), search widget (heights 56/64 px, flex layout), legend cells, role labels (3 color sets), category heading colors (per `[data-category]`), info/footnote banners, sub-group titles, halftone decorations, footer |
-| `utilities.css`  | utilities  | `.hidden`, `.mobile-only` (hidden ≥ 768 px), `.wide-only` (hidden < 768 px), `.sm-only` (hidden < 640 px, for the halftone decorations), `.marker` (search highlight span), `.item-highlight` (bold emphasis)                                                                                                                                         |
+| File             | Layer      | Content                                                                                                                                                                                                                                                                                                                                                                       |
+| ---------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tokens.css`     | tokens     | CSS custom properties: every color from BLUEPRINT §4.1 (category sets incl. 10 %/20 %/10 % column tints), font families/weights, size scale §4.3 (content font-size tokens wrapped in `calc(var(--text-scale))`, §7.4), z-order §4.4, sticky offsets, effects §4.5                                                                                                            |
+| `base.css`       | base       | minimal reset, `body` (white bg, system sans-serif, `#333`), heading families + uppercase, `ul` normalization, `li` bullet marker (❖ U+2756), `li.item` `overflow-wrap: anywhere` (long tokens at 150 % scale)                                                                                                                                                                |
+| `layout.css`     | layout     | `.container` (max-width 1280 px, margins, z-20, padding), page padding scale, `.content-grid` (1 col → 3 cols at ≥ 768 px; 2 px solid borders; `border-b-0` variant for footnote sections), column border rules (dashed separators, mobile top lines), sticky offsets for `.search-widget` (top 0) and `.category-heading` (top 56 px / 64 px)                                |
+| `components.css` | components | masthead typography and title outline shadow, sub-title `white-space: nowrap` plus narrow-viewport size steps (≤ 457 / 372 / 329 px), search widget (heights 56/64 px, flex layout, `Aa` text-scale toggle), legend cells, role labels (3 color sets), category heading colors (per `[data-category]`), info/footnote banners, sub-group titles, halftone decorations, footer |
+| `utilities.css`  | utilities  | `.hidden`, `.mobile-only` (hidden ≥ 768 px), `.wide-only` (hidden < 768 px), `.sm-only` (hidden < 640 px, for the halftone decorations), `.marker` (search highlight span), `.item-highlight` (bold emphasis)                                                                                                                                                                 |
 
 Authoring rules: mobile-first; no inline styles in markup; all values from
 tokens; each file under 300 lines (RULES §17); if a layer outgrows it,
 split by component before continuing.
 
-### 2.3 Script (`src/js/search.js`)
+### 2.3 Scripts (`src/js/`)
 
-One ES module with three exported parts (single responsibility):
+One ES module per concern (BLUEPRINT goal 3, §9.1), loaded in order at
+the end of the body.
+
+`src/js/search.js` — the search engine:
 
 | Export                                   | Responsibility                                                                                                                    | BLUEPRINT § |
 | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ----------- |
@@ -113,9 +119,17 @@ One ES module with three exported parts (single responsibility):
 | `applyPlan(document, plan)`              | executor: applies the plan to the DOM                                                                                             | §8          |
 | `initSearch(document, debounceMs = 300)` | load-time capture (`data-orig-*`), event wiring (input debounce 300 ms, clear control, passive scroll-blur > 50 px), IDLE restore | §7, §9.5    |
 
-The matcher never touches the document and is fully testable in Node.
-The executor performs no string logic. `initSearch` only wires them
+`src/js/text-scale.js` — the text-size toggle:
+
+| Export                             | Responsibility                                                                                                                                                                 | BLUEPRINT § |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------- |
+| `initTextScale(document, storage)` | restore the stored level, apply `data-text-scale` on the root, wire the cycling `Aa` button; `storage` defaults to `localStorage`, read/write failures degrade to session-only | §7.4, §10   |
+
+The search matcher never touches the document and is fully testable in
+Node. The executor performs no string logic. `initSearch` only wires them
 together; all behavior follows BLUEPRINT §7.2 derived visibility rules.
+The text-scale module sets one attribute and never touches content text;
+the two modules share no state and boot independently.
 
 ## 3. Tech Specs
 
@@ -123,6 +137,7 @@ together; all behavior follows BLUEPRINT §7.2 derived visibility rules.
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Languages              | HTML5, CSS3, JavaScript (ES modules)                                                                                                                                                                                         |
 | Runtime dependencies   | none (footer attribution hyperlinks to NHI.no and NKFM only; fonts are the platform's native system stack)                                                                                                                   |
+| Client storage         | `localStorage` (key `fodmap-text-scale`) for the text-size level only; read once at load, written on toggle, validated; failures degrade to session-only (BLUEPRINT §10, §12.2 deviation 9)                                  |
 | Dev dependencies       | `jsdom` (DOM emulation for tests), pinned exact version                                                                                                                                                                      |
 | Test runner            | Node built-in `node --test` (Node ≥ 20; environment has v26)                                                                                                                                                                 |
 | Full-browser testing   | Playwright, available in this environment via the `playwright-cli` skill (automated browser interactions and page checks)                                                                                                    |
@@ -141,6 +156,7 @@ together; all behavior follows BLUEPRINT §7.2 derived visibility rules.
 | -------------------- | ------------------------------------------------------------------------------------------- |
 | Application entry    | `src/index.html` (served statically; any static file server, e.g. `python3 -m http.server`) |
 | Search engine module | `src/js/search.js`                                                                          |
+| Text-scale module    | `src/js/text-scale.js`                                                                      |
 | Test suite           | `tests/` via `npm test`                                                                     |
 | Sync verification    | `scripts/verify_codebase_sync.sh` (created in synchronization phase)                        |
 
@@ -149,8 +165,15 @@ together; all behavior follows BLUEPRINT §7.2 derived visibility rules.
 ### 5.1 JavaScript
 
 - **ES modules without a bundler.** The environment has no build step, and
-  modern browsers load modules natively. The single module keeps the file
-  well under the 300-line limit.
+  modern browsers load modules natively. One module per concern
+  (BLUEPRINT goal 3): `search.js` stays under the 300-line limit, and the
+  text-size toggle gets its own `text-scale.js` instead of growing the
+  search module (RULES §17). The two modules share no state.
+- **The storage adapter is a parameter, not a global.** `initTextScale`
+  accepts a `{ getItem, setItem }` object; the browser path defaults to
+  `localStorage` behind a try/catch. Tests inject an in-memory store and
+  can simulate blocked storage, which keeps the persistence cases
+  deterministic in jsdom.
 - **Matcher/executor split is the testing strategy.** The matcher is pure
   (strings in, plan out), so `node --test` covers it without a browser.
   The executor and `initSearch` are integration-tested through jsdom with
@@ -193,6 +216,20 @@ together; all behavior follows BLUEPRINT §7.2 derived visibility rules.
   `--font-display`) alias a single `--font-system` custom property
   (`system-ui` + generic fallback). Reintroducing webfonts later is a
   one-token change; layout and letter-spacing rules are unaffected.
+- **Text scaling is a token multiplier, not a root font-size.** The
+  `--text-scale` custom property (1 / 1.25 / 1.5) is set by the
+  `data-text-scale` attribute on the root element, and the content
+  font-size tokens are defined as `calc(<base> * var(--text-scale))`.
+  The `html[data-text-scale="..."]` selectors outrank `:root` by
+  specificity, so one attribute flips every scaled token. Spacing,
+  borders, the search widget height, the sticky offsets, and the
+  masthead tokens are defined without the multiplier and stay fixed,
+  which is what keeps the layout compact (deviation 9).
+- **`overflow-wrap: anywhere` on `li.item`** (not `break-word`): long
+  unbreakable tokens ("Maltodextrin/maltose/maltekstrakt") exceed the
+  column track at the 150 % scale on narrow viewports. `anywhere`
+  participates in min-content sizing, so the grid track shrinks with
+  the wrap; `break-word` would not and the column would overflow.
 - **The 20 content corrections** (BLUEPRINT §12.1) are applied only in
   `src/index.html`; `origin/fodmap.html` stays untouched and is read by
   `tests/content.test.js` to prove parity.
@@ -215,9 +252,17 @@ together; all behavior follows BLUEPRINT §7.2 derived visibility rules.
 - `tests/styles.test.js` guards the masthead sub-title contract
   (BLUEPRINT §12.2 deviation 8): the base rule declares
   `white-space: nowrap` and the narrow-viewport size steps exist.
-  jsdom cannot measure layout, so the guards assert the stylesheet
-  declarations directly; the browser-level fit is verified with
-  Playwright at 320–640 px widths.
+  It also guards the text-scale token contract (§4.3, §7.4): the
+  multiplier exists for all three levels, the content tokens scale
+  while the masthead and geometry tokens do not, and `li.item`
+  declares `overflow-wrap: anywhere`. jsdom cannot measure layout, so
+  the guards assert the stylesheet declarations directly; the
+  browser-level fit is verified with Playwright at 320–640 px widths.
+- `tests/text-scale.test.js` covers BLUEPRINT §13.1 (text-size toggle):
+  the default S100 state, the 100 → 125 → 150 → 100 cycle, storage
+  write and restore, invalid and blocked storage fallbacks, the
+  independence of scaling and an active search, and the missing-button
+  inert path (§9.3).
 - **Full-browser verification (Playwright).** Beyond the Node unit tests,
   the environment provides the `playwright-cli` skill for real-browser
   testing. Use it for BLUEPRINT §13.3 visual and behavioral parity:

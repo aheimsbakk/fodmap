@@ -11,9 +11,10 @@ Reimplement the origin as a static, dependency-free single-page app that:
 1. Looks identical to the origin on all screen sizes (mobile, tablet, desktop).
 2. Behaves identically to the origin: full content rendering without scripts,
    plus the interactive food search with live filtering and highlighting.
-3. Uses only a plain markup document, stylesheets, and one vanilla script.
-   No frameworks, no runtime library downloads, no remote assets, no build
-   step. Typography uses the platform's native system fonts.
+3. Uses only plain markup documents, stylesheets, and vanilla scripts
+   (one module per concern). No frameworks, no runtime library downloads,
+   no remote assets, no build step. Typography uses the platform's native
+   system fonts.
 4. Keeps the stylesheets clean, token-driven, and mobile-first responsive.
 5. Keeps all Norwegian content verbatim (see section 12, Fidelity).
 
@@ -27,7 +28,10 @@ Reimplement the origin as a static, dependency-free single-page app that:
   and extra-wide (≥ 1024 px) viewports.
 - Search interaction: debounced live filtering, term highlighting, clear
   control, section/column/item visibility transitions.
-- Automated tests for the search engine and content parity.
+- Text-size toggle: a control in the search widget that cycles the content
+  text size through 100 % / 125 % / 150 % (see §12.2 deviation 9).
+- Automated tests for the search engine, the text-size toggle, and content
+  parity.
 
 ### Out of scope
 
@@ -46,7 +50,8 @@ Page shell                    (background, base typography, page padding)
    ├─ Masthead
    │  ├─ Sub-title            (emojis + "Vanlige matvarer på")
    │  └─ Main title           ("FODMAP", display typeface, red, outlined)
-   ├─ Search widget           (sticky top; icon, text input, clear control)
+   ├─ Search widget           (sticky top; icon, text input, clear control,
+   │                            text-size toggle)
    ├─ Column legend           (SPIS | BEGRENSE | UNNGÅ; wide+ only)
    ├─ Info banner             (BEGRENSE explanation)
    ├─ Category sections (11 ×)  each:
@@ -155,6 +160,14 @@ The sub-title deviates from the narrow step below 640 px to keep the
 tagline on one line (deviation 8): ≤ 457 px → 1 rem, ≤ 372 px →
 0.875 rem, ≤ 329 px → 0.8125 rem.
 
+Text scaling (§7.2, deviation 9): the font-size tokens for content text
+(search input, category headings, legend, list items, sub-group titles,
+banners, labels) are defined as `calc(<base> × --text-scale)`, where
+`--text-scale` is 1, 1.25, or 1.5 per the `data-text-scale` attribute on
+the root element. Spacing, borders, search widget height, sticky offsets,
+and the masthead titles are deliberately excluded, so the layout stays
+compact while text grows.
+
 Other metrics: list items 0.85 rem with 1.2 line-height and 0.25 rem bottom
 margin; sub-group titles 0.8 rem bold; mobile labels 0.875 rem bold;
 columns 0.75 rem padding; heading border 2 px solid black; grid border
@@ -215,7 +228,8 @@ Sticky at viewport top. White background, 2 px solid black border,
 horizontal padding 0.5 rem, flex row with 0.5 rem gap, heights per
 section 4.3. Children: search icon (emoji), text input (flex-grow, full
 height, transparent background, no border, no focus outline, uppercase),
-clear control (`×`, 1.875 rem, hidden by default, red on hover).
+clear control (`×`, 1.875 rem, hidden by default, red on hover),
+text-size toggle (`Aa`, see §7.2 and §12.2 deviation 9).
 
 ### 5.4 Column legend
 
@@ -328,10 +342,11 @@ empty placeholder columns).
 
 ## 7. State Management
 
-Single interactive state: the search query. It is the only mutable state;
-everything else is derived.
+Two independent interactive states: the search query and the text-size
+level. Neither depends on the other; each is managed by its own module and
+state machine (§7.1, §7.4).
 
-### 7.1 State machine
+### 7.1 Search state machine
 
 | State    | Condition       | Effects                                                         |
 | -------- | --------------- | --------------------------------------------------------------- |
@@ -381,6 +396,27 @@ The original content of every item (plain text) and category heading
 restores from these captures, so repeated searches never accumulate
 formatting or highlight artifacts.
 
+### 7.4 Text-scale state machine
+
+| State | Condition               | Effects                                        |
+| ----- | ----------------------- | ---------------------------------------------- |
+| S100  | `data-text-scale="100"` | `--text-scale` 1; content at the sizes of §4.3 |
+| S125  | `data-text-scale="125"` | `--text-scale` 1.25; content text 25 % larger  |
+| S150  | `data-text-scale="150"` | `--text-scale` 1.5; content text 50 % larger   |
+
+Transitions (single control, a cycling `Aa` button in the search widget):
+
+- S100 → S125 → S150 → S100 on each activation.
+- The attribute lives on the root element; the level is restored at load
+  from local storage when present and valid, otherwise S100 (see §10).
+- The scale applies to the content font-size tokens only; the masthead
+  titles, spacing, borders, widget height, and sticky offsets are fixed
+  (deviation 9). The sub-title one-line guarantee (deviation 8) is
+  unaffected because the masthead never scales.
+- Invalid or missing stored values fall back to S100. Storage failures
+  (private mode, blocked cookies) degrade to session-only behavior:
+  the toggle still works, the choice is simply not remembered.
+
 ## 8. Data Flow
 
 ```
@@ -390,7 +426,11 @@ input change ──> debounce 300 ms ──> normalize (lowercase + trim)
 
 clear control ──> empty input ──> restore originals ──> IDLE
 
+toggle ──> next level ──> set data-text-scale on root ──> tokens recompute
+      ──> persist level (local storage, failure-safe)
+
 page load ──> capture item text/markup + heading markup ──> attach listeners
+      ──> restore stored text-scale level
 
 scroll ──> if input focused and scrolled past 50 px ──> blur input
 ```
@@ -398,7 +438,9 @@ scroll ──> if input focused and scrolled past 50 px ──> blur input
 The matcher is a pure function: query + captured content in, visibility
 plan out. No side effects inside the matcher; a separate executor applies
 the plan to the document. This separation makes the engine testable
-without a browser and keeps application of changes idempotent.
+without a browser and keeps application of changes idempotent. The
+text-scale toggle is a pure state flip: it sets one attribute and lets
+the stylesheet tokens recompute; no DOM traversal or content rewrites.
 
 ## 9. Contracts
 
@@ -407,9 +449,10 @@ without a browser and keeps application of changes idempotent.
 A single document (`src/index.html` per user requirement). It must:
 
 - Declare Norwegian language, UTF-8, and the responsive viewport meta.
-- Render the full page content with scripts disabled (search degrades to
-  inert; all content and layout must be intact).
-- Load one stylesheet set and one script at the end.
+- Render the full page content with scripts disabled (search and the
+  text-size toggle degrade to inert; all content and layout must be
+  intact).
+- Load one stylesheet set and the module scripts at the end.
 - Require no network at all: no remote assets (fonts are the platform's
   native system stack).
 
@@ -449,6 +492,7 @@ The script locates elements by stable, semantic identity:
 | ----------------- | -------------------------------------------------- |
 | Search input      | required; missing → page renders, no interactivity |
 | Clear control     | required                                           |
+| Text-scale toggle | optional; missing → no text scaling                |
 | Category section  | required (11)                                      |
 | Category heading  | required per section                               |
 | Column            | required per section (3)                           |
@@ -474,9 +518,14 @@ The script locates elements by stable, semantic identity:
 
 ## 10. Persistence
 
-None. No storage, no cookies, no server. The document is static; the only
-retained state is the in-session capture of original item and heading
-content needed for restoration.
+One exception to the otherwise stateless document: the chosen text-size
+level is remembered in local storage (key `fodmap-text-scale`, values
+`100` / `125` / `150`) so the preference survives reloads. It is a
+single string, written only on toggle, read once at load, and validated
+against the allowed values; read/write failures degrade to session-only
+behavior (deviation 9). Nothing else is stored — no cookies, no server,
+no search history. The in-session capture of original item and heading
+content needed for restoration is never persisted.
 
 ## 11. External Dependencies
 
@@ -569,6 +618,20 @@ Reviewed and confirmed unchanged: `Nøtte` (§8), `Banos` (§8),
    down at ≤ 457 px (1 rem), ≤ 372 px (0.875 rem), and ≤ 329 px
    (0.8125 rem) so the single line also fits without horizontal
    overflow at every width down to 320 px.
+9. A text-size toggle is added per user request (2026-07-31): a cycling
+   `Aa` button in the search widget raises content text through
+   100 % / 125 % / 150 %. The origin has no such control. Scaling
+   applies to the content font-size tokens only (`calc` on
+   `--text-scale`); the masthead titles, spacing, borders, search
+   widget height, and sticky offsets stay fixed so the view remains
+   compact. Items declare `overflow-wrap: anywhere` so unbreakable
+   tokens ("Maltodextrin/maltose/maltekstrakt") wrap instead of pushing
+   the column track wider at 150 %. The level is persisted in local
+   storage (key
+   `fodmap-text-scale`) — the one storage exception to §10 — and
+   degrades to session-only when storage is unavailable. The toggle is
+   not part of the search engine module; it lives in its own module
+   and state machine (§7.4).
 
 ### 12.3 Negative contracts
 
@@ -596,6 +659,17 @@ Cover the search engine:
 - Clear control: hides/shows, restores originals, returns focus.
 - Debounce: coalesces rapid input.
 - Scroll blur rule.
+
+Text-size toggle (§7.4):
+
+- Cycling: each activation advances S100 → S125 → S150 → S100.
+- Application: the `data-text-scale` attribute moves with the level; the
+  computed content font sizes scale, the masthead and spacing do not.
+- Persistence: the level survives reload via local storage; invalid,
+  missing, or unreadable stored values fall back to S100.
+- Independence: toggling the scale never disturbs an active search
+  (matches, highlights, and visibility stay intact), and clearing a
+  search never resets the level.
 
 ### 13.2 Content parity tests (automated)
 
