@@ -117,7 +117,6 @@ Support colors:
 | ---------------- | -------------------- | ------------------------------- |
 | Dashed separator | `rgba(0, 0, 0, 0.3)` | column separators (1 px dashed) |
 | Column top line  | `rgba(0, 0, 0, 0.1)` | column top borders (narrow)     |
-| Sub-group line   | `rgba(0, 0, 0, 0.2)` | sub-group top borders           |
 | Outline shadow   | `rgba(0, 0, 0, 0.8)` | main title text-shadow          |
 | Halftone dot A   | `#c43838`            | left decoration                 |
 | Halftone dot B   | `#a0c49d`            | right decoration                |
@@ -279,10 +278,8 @@ Full width, white background, 2 px solid black border, 0.25 rem padding,
   All notes are inline plain text; there is no small-print styling
   (see §12.2 deviation 3).
 - Sub-groups: uppercase bold small heading; separated from the preceding
-  block by a 1 px light border + padding. Every sub-group heading with
-  content above it gets the same separator; a sub-group that opens its
-  column (nothing above it at wide widths, where the mobile label is
-  hidden) stays flush (deviation 11).
+  block by margin only (0.75 rem top margin). No separator line at any
+  width or search state (deviation 11).
 - Footnote banner: white background, 2 px solid black border (top edge
   open), centered bold text, warning icon, small shadow. Wording and icon
   per section: VIKTIG and TIPS notes use the warning emoji; the MARINADER
@@ -675,21 +672,17 @@ Reviewed and confirmed unchanged: `Nøtte` (§8), `Banos` (§8),
     user request; the current footer has no separator. Bold weight
     moved from the source line to the disclaimer line on user request
     (2026-07-31); the source line now renders regular weight.
-11. Sub-group headings get a uniform separator line, per user request
-    (2026-07-31). The origin is inconsistent: all sub-list titles carry
-    `mt-0` (no top margin), most keep the line, and the ones that open
-    their column at wide widths drop it via `md:border-t-0 md:pt-0` —
-    except §4 SPIS "Melk og meieriprodukter:", which keeps a floating
-    line with nothing above it. The reimplementation applies one rule:
-    every sub-group heading with content above it gets the 1 px line;
-    a sub-group that opens its column has nothing above it at ≥ 768 px
-    (the mobile label is hidden there) and stays flush (no margin, no
-    padding, no line) via a `@media (min-width: 768px)` rule targeting
-    `.content-col > .role-label + .sub-group-title` and
-    `.content-col > .sub-group-title:first-child`. Below 768 px the
-    label sits above it, so the line stays. No `:first-of-type`
-    exception is used: a sub-group below a main item list has content
-    above it and keeps the line.
+11. Sub-group headings have no separator line, per user request
+    (2026-08-01). The origin draws a 1 px light line above most sub-list
+    titles; the reimplementation drops the line everywhere. A uniform
+    separator with a wide-screen flush variant was added on 2026-07-31
+    and removed again on 2026-08-01: in the FILTERED state a visible
+    sub-group heading can sit below hidden items, leaving the line
+    floating above it. Separation from the preceding block is
+    margin-only (0.75 rem top margin); the `--color-subgroup-line`
+    token is gone, and no media query special-cases first sub-groups —
+    the heading renders identically at every width and in both search
+    states.
 12. The Nøtter og frø and Pålegg category color sets are changed per user
     request (2026-07-31). The origin reuses the Brød set for Nøtter og
     frø (same heading and column tints) and the Brød tint base for

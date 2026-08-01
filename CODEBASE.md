@@ -261,8 +261,11 @@ the two modules share no state and boot independently.
   It also guards the text-scale token contract (§4.3, §7.4): the
   multiplier exists for all three levels, the content tokens scale
   while the masthead and geometry tokens do not, and `li.item`
-  declares `overflow-wrap: anywhere`. jsdom cannot measure layout, so
-  the guards assert the stylesheet declarations directly; the
+  declares `overflow-wrap: anywhere`. It also guards the sub-group
+  contract (§5.6, deviation 11): no rule may draw a separator line above
+  `.sub-group-title`, no media query special-cases sub-group headings,
+  and the `--color-subgroup-line` token is gone. jsdom cannot measure
+  layout, so the guards assert the stylesheet declarations directly; the
   browser-level fit is verified with Playwright at 320–640 px widths.
 - `tests/text-scale.test.js` covers BLUEPRINT §13.1 (text-size toggle):
   the default S100 state, the 100 → 125 → 150 → 100 cycle, storage
