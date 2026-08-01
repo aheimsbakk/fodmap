@@ -187,8 +187,8 @@ function captureContent(document) {
         Array.from(colEl.children).forEach((child) => {
           if (child.classList.contains("item-list")) {
             Array.from(child.children).forEach((li) => {
-              // Items are authored multi-line for readability; the origin
-              // renders them with no surrounding whitespace, so trim.
+              // Items are authored multi-line for readability, but render
+              // with no surrounding whitespace, so capture trimmed text.
               const text = li.textContent.trim();
               li.dataset.origText = text;
               items.push({ element: li, text, group: activeGroup });

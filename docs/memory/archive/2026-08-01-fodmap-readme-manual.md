@@ -4,7 +4,7 @@ importance: medium
 category: preference
 tags: [readme, documentation, norwegian, klarsprak]
 created: 2026-08-01T20:14:30Z
-model: opencode/deepseek-v4-flash-free
+model: openrouter/deepseek/deepseek-v4-flash-0731
 ---
 
 User preference (2026-08-01): the README is a user documentation / user

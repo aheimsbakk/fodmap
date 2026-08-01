@@ -2,7 +2,7 @@
   "name": "fodmap-overview",
   "version": "1.0.0",
   "private": true,
-  "description": "Static reimplementation of the FODMAP food overview page",
+  "description": "Static, dependency-free single-page FODMAP food overview",
   "type": "module",
   "scripts": {
     "test": "node --test \"tests/*.test.js\"",

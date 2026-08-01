@@ -4,7 +4,7 @@ importance: high
 category: decision
 tags: [fodmap, origin, blueprint, content-tests, standalone]
 created: 2026-08-01T19:49:00Z
-model: opencode/deepseek-v4-flash-free
+model: openrouter/deepseek/deepseek-v4-flash-0731
 ---
 
 User decision (2026-08-01): the app stands on its own; `origin/fodmap.html`

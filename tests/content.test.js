@@ -1,9 +1,7 @@
 /**
- * content.test.js — parity between origin/fodmap.html and src/index.html
- * (BLUEPRINT §13.2). The origin is the source of truth; the reimplementation
- * must match it exactly except for the user-approved corrections (§12.1),
- * which this file duplicates as data so a markup change without a matching
- * map update fails the suite.
+ * content.test.js — verifies src/index.html against the frozen content
+ * inventory (BLUEPRINT §6.2, §12.1). The inventory is duplicated here as
+ * data, so a markup change to any frozen string or count fails the suite.
  */
 
 import { readFileSync } from "node:fs";
@@ -11,60 +9,24 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { JSDOM } from "jsdom";
 
-const ORIGIN = new JSDOM(
-  readFileSync(new URL("../origin/fodmap.html", import.meta.url), "utf8"),
-).window.document;
 const APP = new JSDOM(
   readFileSync(new URL("../src/index.html", import.meta.url), "utf8"),
 ).window.document;
 
-/** Exact origin -> corrected replacements (BLUEPRINT §12.1). */
-const CORRECTIONS = new Map([
-  // §2 SPIS
-  [
-    "Sopp: hermetsisk sjampinjong, Østers",
-    "Sopp: hermetisk sjampinjong, østers",
-  ],
-  ["Purre-kun det grønne", "Purre – kun det grønne"],
-  ["Rødbeter, syltet", "Rødbeter, syltede"],
-  // §2 BEGRENSE
-  ["Squash (0.75 dl)", "Squash (0,75 dl)"],
-  // §3 SPIS (Tørket frukt)
-  ["Banan (15 stk)", "Banan i biter (15 stk)"],
-  // §3 BEGRENSE
-  ["Avokodo (1/8 av en hel)", "Avokado (1/8 av en hel)"],
-  [
-    "Blåbær, amerikanske og hvite inn (40 gram)",
-    "Blåbær, amerikanske og hvite inni (40 gram)",
-  ],
-  ["Tranebær (1ss)", "Tranebær (1 ss)"],
-  // §4 heading
-  [
-    "Melk, meieriprodukter & Alternativer",
-    "Melk, meieriprodukter & alternativer",
-  ],
-  // §4 BEGRENSE
-  ["Kokosmelk, (0,6 dl)", "Kokosmelk (0,6 dl)"],
-  // §4 UNNGÅ
-  ["Rømme, kesam", "Rømme"],
-  // §8 SPIS
-  ["Sardiner i vann, olje eller gele.", "Sardiner i vann, olje eller gele"],
-  [
-    "Spekeskinke (strynskinke, Strandaskinke, serranoskinke, westfaler)",
-    "Spekeskinke (strynskinke, strandaskinke, serranoskinke, westfaler)",
-  ],
-  // §9 SPIS
-  ["Sirup, Glukose", "Sirup, glukose"],
-  ["Aceculfat K", "Acesulfam K"],
-  // §9 UNNGÅ
-  ["Erytritol (Sukrin) (E938)", "Erytritol (Sukrin) (E 968)"],
-  ["Polydextrose (E1200)", "Polydextrose (E 1200)"],
-  // §10 SPIS
-  ["Bukkehomkløver/methi", "Bukkehornkløver/methi"],
-  ["Kajennepepper", "Cayennepepper"],
-  // §11 UNNGÅ
-  ["Kjøttbuljond, cups (Magi)", "Kjøttbuljong (Maggi)"],
-]);
+/** Canonical section headings in display order (BLUEPRINT §6.2). */
+const EXPECTED_SECTIONS = [
+  "Brød, ris og pasta",
+  "Grønnsaker og belgfrukter",
+  "Frukt, tørket frukt og bær",
+  "Melk, meieriprodukter & alternativer",
+  "Nøtter og frø",
+  "Drikke",
+  "Kjøtt, egg, fisk",
+  "Pålegg",
+  "Sukker, søtning og annet",
+  "Krydder og urter",
+  "Smakstilsetning, saus, dressing",
+];
 
 /** Per-column item totals (main lists + sub-groups), BLUEPRINT §6.2. */
 const EXPECTED_COUNTS = [
@@ -83,6 +45,37 @@ const EXPECTED_COUNTS = [
 
 const TOTAL_ITEMS = EXPECTED_COUNTS.flat().reduce((sum, n) => sum + n, 0);
 
+/**
+ * Canonical spellings (BLUEPRINT §12.1): corrected typos plus the
+ * reviewed spellings that must stay unchanged. Each entry must equal the
+ * whole normalized text of an item or a category heading.
+ */
+const CANONICAL_SPELLINGS = [
+  "Sopp: hermetisk sjampinjong, østers",
+  "Purre – kun det grønne",
+  "Rødbeter, syltede",
+  "Squash (0,75 dl)",
+  "Banan i biter (15 stk)",
+  "Avokado (1/8 av en hel)",
+  "Blåbær, amerikanske og hvite inni (40 gram)",
+  "Tranebær (1 ss)",
+  "Melk, meieriprodukter & alternativer",
+  "Kokosmelk (0,6 dl)",
+  "Rømme",
+  "Sardiner i vann, olje eller gele",
+  "Spekeskinke (strynskinke, strandaskinke, serranoskinke, westfaler)",
+  "Sirup, glukose",
+  "Acesulfam K",
+  "Erytritol (Sukrin) (E 968)",
+  "Polydextrose (E 1200)",
+  "Bukkehornkløver/methi",
+  "Cayennepepper",
+  "Kjøttbuljong (Maggi)",
+  "Nøtte",
+  "Banos",
+  "Lollosalat",
+];
+
 /** Heading text with icon markup stripped. */
 function headingText(heading) {
   for (const el of heading.querySelectorAll(".category-icon, i")) {
@@ -96,26 +89,23 @@ function normalized(text) {
   return text.replace(/\s+/g, " ").trim();
 }
 
-/** Applies the corrections map to an origin-side string. */
-function applyCorrections(text) {
-  return CORRECTIONS.get(text) ?? text;
+/** Page's category headings in display order. */
+function sectionHeadings() {
+  const sections = APP.querySelectorAll("section.category-section");
+  return Array.from(sections).map((section) =>
+    headingText(section.querySelector(".category-heading")),
+  );
 }
 
-test("reimplementation has 11 sections with the origin heading order", () => {
-  const originSections = ORIGIN.querySelectorAll("section");
-  const appSections = APP.querySelectorAll("section.category-section");
-  assert.equal(appSections.length, 11);
-  assert.equal(appSections.length, originSections.length);
+/** Every item text in the page, normalized. */
+function allItemTexts() {
+  return Array.from(APP.querySelectorAll("li.item")).map((li) =>
+    normalized(li.textContent),
+  );
+}
 
-  originSections.forEach((originSection, i) => {
-    const originTitle = applyCorrections(
-      headingText(originSection.querySelector(".category-header")),
-    );
-    const appTitle = headingText(
-      appSections[i].querySelector(".category-heading"),
-    );
-    assert.equal(appTitle, originTitle, `section ${i + 1} heading`);
-  });
+test("page has 11 sections in the canonical heading order", () => {
+  assert.deepEqual(sectionHeadings(), EXPECTED_SECTIONS);
 });
 
 test("per-column item counts match BLUEPRINT §6.2 (total 484)", () => {
@@ -140,37 +130,23 @@ test("per-column item counts match BLUEPRINT §6.2 (total 484)", () => {
   assert.equal(total, 484);
 });
 
-test("every item text equals the origin except the approved corrections", () => {
-  const originSections = ORIGIN.querySelectorAll("section");
-  const appSections = APP.querySelectorAll("section.category-section");
+test("canonical spellings from BLUEPRINT §12.1 appear verbatim", () => {
+  const itemTexts = new Set(allItemTexts());
+  const headingSet = new Set(sectionHeadings());
+  const allTexts = new Set([...itemTexts, ...headingSet]);
 
-  originSections.forEach((originSection, i) => {
-    const originCols = originSection.querySelectorAll(".content-col");
-    const appCols = appSections[i].querySelectorAll(".content-col");
-    assert.equal(
-      originCols.length,
-      appCols.length,
-      `section ${i + 1} column count`,
+  for (const spelling of CANONICAL_SPELLINGS) {
+    assert.ok(
+      allTexts.has(spelling),
+      `canonical spelling not found: "${spelling}"`,
     );
+  }
+});
 
-    originCols.forEach((originCol, j) => {
-      const originItems = originCol.querySelectorAll("li");
-      const appItems = appCols[j].querySelectorAll("li.item");
-      assert.equal(
-        appItems.length,
-        originItems.length,
-        `section ${i + 1}, column ${j + 1} item count`,
-      );
-
-      originItems.forEach((originItem, k) => {
-        const expected = applyCorrections(normalized(originItem.textContent));
-        const actual = normalized(appItems[k].textContent);
-        assert.equal(
-          actual,
-          expected,
-          `section ${i + 1}, column ${j + 1}, item ${k + 1}`,
-        );
-      });
-    });
-  });
+test("masthead sub-title reads 'Vanlige matvarer' (BLUEPRINT §12.1)", () => {
+  const subTitle = APP.querySelector(".sub-title");
+  for (const el of subTitle.querySelectorAll(".emoji-left, .emoji-right")) {
+    el.remove();
+  }
+  assert.equal(normalized(subTitle.textContent), "Vanlige matvarer");
 });
