@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.10.3] - 2026-08-01
+
+- **why:** User request: empty columns left by a search wasted vertical space in the stacked mobile layout; hide them and restore them as soon as they have content again
+- **model:** opencode/deepseek-v4-flash-free
+- **tags:** search, columns, mobile, collapse
+
+### Changed
+
+- `src/js/search.js`: the matcher marks each column `empty` when it has no visible content and the category heading does not match (placeholder columns are never marked); the executor toggles the narrow-only `.col-empty-mobile` class from that flag. Every re-render recomputes the flag, so a column returns as soon as any item or sub-group heading in it matches, or the category heading matches; the IDLE plan removes the class
+- `src/css/utilities.css`: `.col-empty-mobile { display: none }` lives in `@media (max-width: 767.98px)` only, so the class is inert from 768 px up and the tinted cell keeps the 3-column rhythm
+- `tests/search.test.js`: new coverage for the collapse and the restore (item match, heading match, clear); the sub-group and placeholder tests assert the marker is never placed on content-bearing or placeholder columns
+- `tests/styles.test.js`: new guard — the collapse rule exists, is scoped to a max-width media query, and shares its class name with `src/js/search.js`
+- `BLUEPRINT.md` §7.2.5 and §12.2 deviation 14 document the narrow collapse; `CODEBASE.md` §2.2, §2.3, §5.1–§5.3 and the README describe the implementation
+
 ## [0.10.2] - 2026-08-01
 
 - **why:** User request: empty placeholder columns showed no background while their neighbors were tinted; give them the tint of the role they reserve

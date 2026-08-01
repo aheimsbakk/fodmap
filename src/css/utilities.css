@@ -37,6 +37,18 @@
   }
 }
 
+/* Narrow empty-column collapse (BLUEPRINT §7.2.5, deviation 14): a column
+   with no visible content disappears below 768 px so empty tinted cells
+   do not waste vertical space in the stacked layout. Scoped to a
+   max-width query so the class is inert from 768 px up — the tinted cell
+   stays for the 3-column rhythm. Toggled by the search executor only;
+   placeholder columns are never marked. */
+@media (max-width: 767.98px) {
+  .col-empty-mobile {
+    display: none;
+  }
+}
+
 /* Search highlight marker: hard offset shadow box (BLUEPRINT §4.5). */
 .marker {
   background-color: var(--color-bg);

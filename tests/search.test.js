@@ -223,10 +223,14 @@ test("a sub-group heading match reveals its list and highlights the heading", as
   }
 
   // Both columns with a match keep their labels (SPIS via the heading
-  // match, UNNGÅ via its own item match).
+  // match, UNNGÅ via its own item match), and neither cell collapses on
+  // narrow (deviation 14); the placeholder column is never marked.
   const cols = section.querySelectorAll(".content-col");
   assert.ok(!cols[0].querySelector(".role-label").classList.contains("hidden"));
   assert.ok(!cols[2].querySelector(".role-label").classList.contains("hidden"));
+  for (const col of cols) {
+    assert.ok(!col.classList.contains("col-empty-mobile"));
+  }
 
   // Restore on clear returns the exact original heading markup.
   clearButton(dom).click();
@@ -252,9 +256,60 @@ test("sub-group headings and mobile labels collapse without matches", async () =
   assert.ok(
     cols[2].querySelector(".sub-group-title").classList.contains("hidden"),
   );
-  // The tinted cells themselves never hide.
-  assert.ok(!cols[0].classList.contains("hidden"));
-  assert.ok(!cols[2].classList.contains("hidden"));
+  // Below 768 px the whole empty cell collapses instead of leaving a
+  // wasted tinted strip (deviation 14): the matcher marks the column and
+  // the executor toggles the narrow-only class.
+  assert.ok(
+    !cols[0].classList.contains("col-empty-mobile"),
+    "SPIS keeps its match and its cell",
+  );
+  assert.ok(
+    cols[2].classList.contains("col-empty-mobile"),
+    "UNNGÅ collapses on narrow",
+  );
+});
+
+test("empty columns collapse on narrow and return as soon as they have content", async () => {
+  const dom = setup();
+  const section = sectionByCategory(dom, "gronnsaker");
+  const cols = section.querySelectorAll(".content-col");
+  const colClass = "col-empty-mobile";
+
+  // "tempeh" matches only the SPIS column (§7.2.5, deviation 14).
+  type(dom, "tempeh");
+  await settle();
+  assert.ok(!cols[0].classList.contains(colClass), "SPIS keeps its match");
+  assert.ok(cols[1].classList.contains(colClass), "BEGRENSE collapses");
+  assert.ok(cols[2].classList.contains(colClass), "UNNGÅ collapses");
+
+  // "løk" matches SPIS (Gressløk, Syltet løk, Vårløk) and UNNGÅ (Løk,
+  // Hvitløk, Sjalottløk, Vårløk): the UNNGÅ cell returns with content,
+  // the still-empty BEGRENSE cell stays collapsed.
+  type(dom, "løk");
+  await settle();
+  assert.ok(!cols[0].classList.contains(colClass), "SPIS matches løk items");
+  assert.ok(cols[1].classList.contains(colClass), "BEGRENSE stays collapsed");
+  assert.ok(!cols[2].classList.contains(colClass), "UNNGÅ returns with Løk");
+
+  // A category heading match reveals the whole section: no column in it
+  // collapses, even though individual items do not match.
+  type(dom, "saus");
+  await settle();
+  for (const col of sectionByCategory(dom, "saus").querySelectorAll(
+    ".content-col",
+  )) {
+    assert.ok(
+      !col.classList.contains(colClass),
+      "heading match keeps every column",
+    );
+  }
+
+  // Clearing restores the original layout: no column stays collapsed.
+  clearButton(dom).click();
+  await settle();
+  for (const col of dom.window.document.querySelectorAll(".content-col")) {
+    assert.ok(!col.classList.contains(colClass), "clear restores all columns");
+  }
 });
 
 test("sections with no matches anywhere are hidden entirely", async () => {
@@ -293,9 +348,11 @@ test("empty placeholder columns are never touched", async () => {
   assert.equal(emptyCols.length, 4);
   for (const col of emptyCols) {
     // Placeholders carry the positional role (for the tint) but never
-    // search state: no hidden toggle, no items, no mobile label.
+    // search state: no hidden toggle, no items, no mobile label, and no
+    // narrow collapse marker (deviation 14).
     assert.ok(col.dataset.role, "placeholder carries the positional role");
     assert.ok(!col.classList.contains("hidden"));
+    assert.ok(!col.classList.contains("col-empty-mobile"));
     assert.equal(col.querySelectorAll("li.item").length, 0);
     assert.equal(col.querySelector(".role-label"), null);
   }
@@ -496,9 +553,11 @@ test("buildMatcher works on a synthetic capture with no DOM reads", () => {
   assert.ok(plan.sections[0].heading.html.includes("marker"));
   assert.ok(!plan.sections[0].columns[0].items[0].hidden);
   assert.ok(!plan.sections[0].columns[0].items[1].hidden);
+  assert.equal(plan.sections[0].columns[0].empty, false);
 
   const none = match("agurk", capture);
   assert.equal(none.sections[0].hidden, true);
   assert.equal(none.sections[0].columns[0].items[0].hidden, true);
   assert.equal(none.sections[0].columns[0].items[1].hidden, true);
+  assert.equal(none.sections[0].columns[0].empty, true);
 });

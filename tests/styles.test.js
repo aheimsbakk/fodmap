@@ -66,6 +66,17 @@ const BASE_RULE = parseRules(BASE_CSS).find(
   (r) => r.selector === "li.item",
 ).declarations;
 
+const UTILITIES_CSS = readFileSync(
+  new URL("../src/css/utilities.css", import.meta.url),
+  "utf8",
+);
+const UTILITIES_RULES = parseRules(UTILITIES_CSS);
+
+const SEARCH_JS = readFileSync(
+  new URL("../src/js/search.js", import.meta.url),
+  "utf8",
+);
+
 const LAYOUT_CSS = readFileSync(
   new URL("../src/css/layout.css", import.meta.url),
   "utf8",
@@ -299,6 +310,49 @@ test("placeholder columns get the role tint and render wide+ only", () => {
       'the data-role="empty" value is gone; placeholders use data-placeholder',
     );
   }
+});
+
+// --- narrow empty-column collapse (§7.2.5, deviation 14) ---------------------
+
+test("the empty-column collapse is mobile-scoped and shared with the script", () => {
+  // A column with no visible content collapses below 768 px so empty
+  // cells do not waste vertical space. From 768 px up the class must be
+  // inert: the tinted cell stays for the 3-column rhythm. The rule lives
+  // in a max-width media query only — a base rule or a min-width
+  // override could fight the grid item's own display.
+  const narrow = UTILITIES_RULES.find(
+    (r) =>
+      r.selector.startsWith("@media (max-width:") &&
+      r.declarations.includes(".col-empty-mobile"),
+  );
+  assert.ok(
+    narrow,
+    "expected a max-width media block hiding .col-empty-mobile",
+  );
+  assert.match(
+    narrow.declarations,
+    /\.col-empty-mobile\s*\{\s*display:\s*none/,
+    "the max-width block must declare display: none for .col-empty-mobile",
+  );
+
+  const outside = UTILITIES_RULES.filter(
+    (r) =>
+      !r.selector.startsWith("@media (max-width:") &&
+      r.declarations.includes(".col-empty-mobile"),
+  );
+  assert.equal(
+    outside.length,
+    0,
+    "no rule outside the max-width block may target .col-empty-mobile",
+  );
+
+  // The executor toggles the same class name; a rename in one file
+  // without the other would silently break the collapse.
+  assert.match(
+    SEARCH_JS,
+    /col-empty-mobile/,
+    "search.js must toggle the .col-empty-mobile class",
+  );
 });
 
 test("category tint bases are removed from the token layer", () => {

@@ -28,9 +28,10 @@ function escapeRegExp(term) {
  * Builds the pure matcher: (query, capture) => visibility/highlight plan.
  * Capture shape (produced by initSearch):
  *   sections: [{ element, heading: { element, html, text },
- *                columns: [{ element, label|null, items: [{ element, text,
- *                            group|null }], subgroups: [{ element, html,
- *                            text, items: [text] }] }] }]
+ *                columns: [{ element, placeholder, label|null,
+ *                            items: [{ element, text, group|null }],
+ *                            subgroups: [{ element, html, text,
+ *                            items: [text] }] }] }]
  * Plan shape mirrors the capture and carries exact html strings to set.
  */
 export function buildMatcher() {
@@ -100,14 +101,17 @@ export function buildMatcher() {
             };
           });
 
-          // The tinted cell itself is never hidden; only its label
-          // and sub-group headings collapse when nothing matches
-          // (§7.2.5). Placeholder columns (data-placeholder) have no
-          // label, items, or groups, so nothing is ever toggled on them.
+          // On narrow the whole cell collapses when nothing in it
+          // matches; wide+ keeps the tinted cell for the 3-column
+          // rhythm. Placeholder columns are never marked (§7.2.5,
+          // deviation 14).
           const columnHasMatch =
             active && (headingMatch || items.some((item) => !item.hidden));
+          const empty = active && !column.placeholder && !columnHasMatch;
 
           return {
+            element: column.element,
+            empty,
             label: column.label,
             labelHidden: active && !columnHasMatch,
             subgroups,
@@ -139,6 +143,9 @@ export function applyPlan(document, plan) {
     section.element.classList.toggle("hidden", section.hidden);
     section.heading.element.innerHTML = section.heading.html;
     section.columns.forEach((column) => {
+      // Narrow-only collapse: the class is inert from 768 px up, so wide+
+      // always keeps the tinted cell (deviation 14). Idempotent per plan.
+      column.element.classList.toggle("col-empty-mobile", column.empty);
       if (column.label) {
         column.label.classList.toggle("hidden", column.labelHidden);
       }
@@ -201,7 +208,15 @@ function captureContent(document) {
             subgroups.push(activeGroup);
           }
         });
-        columns.push({ element: colEl, label: labelEl, items, subgroups });
+        columns.push({
+          element: colEl,
+          // Placeholders are excluded from filtering entirely (§5.7,
+          // deviation 14); the matcher uses the flag to never mark them.
+          placeholder: colEl.hasAttribute("data-placeholder"),
+          label: labelEl,
+          items,
+          subgroups,
+        });
       });
     }
     sections.push({
