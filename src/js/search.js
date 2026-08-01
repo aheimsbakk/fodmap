@@ -102,8 +102,8 @@ export function buildMatcher() {
 
           // The tinted cell itself is never hidden; only its label
           // and sub-group headings collapse when nothing matches
-          // (§7.2.5). Columns without items (empty placeholders)
-          // have no label or groups, so they stay untouched.
+          // (§7.2.5). Placeholder columns (data-placeholder) have no
+          // label, items, or groups, so nothing is ever toggled on them.
           const columnHasMatch =
             active && (headingMatch || items.some((item) => !item.hidden));
 

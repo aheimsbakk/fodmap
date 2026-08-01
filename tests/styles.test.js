@@ -66,6 +66,18 @@ const BASE_RULE = parseRules(BASE_CSS).find(
   (r) => r.selector === "li.item",
 ).declarations;
 
+const LAYOUT_CSS = readFileSync(
+  new URL("../src/css/layout.css", import.meta.url),
+  "utf8",
+);
+const LAYOUT_RULES = parseRules(LAYOUT_CSS);
+const LAYOUT_MEDIA = LAYOUT_RULES.filter((r) =>
+  r.selector.startsWith("@media"),
+);
+const LAYOUT_BASE = LAYOUT_RULES.filter(
+  (r) => !r.selector.startsWith("@media"),
+);
+
 function declarationsFor(selector) {
   const rule = BASE_RULES.find((r) => r.selector === selector);
   return rule ? rule.declarations : "";
@@ -233,15 +245,60 @@ test("columns are tinted by role selector, not by position or category", () => {
   }
 });
 
-test("empty placeholder columns stay untinted", () => {
-  // The search engine hides nothing but labels/headings in empty columns;
-  // a tinted empty cell would fake a role that is not there.
-  const tinted = BASE_RULES.filter(
-    (r) =>
-      r.selector.includes('[data-role="empty"]') &&
-      /background-color/.test(r.declarations),
+test("placeholder columns get the role tint and render wide+ only", () => {
+  // Empty placeholder columns carry the role of their position, so the
+  // role tint rules apply to them like any other column (deviation 13).
+  // The [data-placeholder] layout rules may only control their wide-only
+  // rendering, never their background.
+  const placeholderRules = [...LAYOUT_BASE, ...LAYOUT_MEDIA].filter((r) =>
+    r.selector.includes("[data-placeholder]"),
   );
-  assert.equal(tinted.length, 0, "no rule may tint [data-role='empty'] cells");
+  assert.ok(
+    placeholderRules.length >= 1,
+    "expected a [data-placeholder] layout rule",
+  );
+  for (const rule of placeholderRules) {
+    assert.doesNotMatch(
+      rule.declarations,
+      /background-color/,
+      "placeholder rendering rules must not override the role tint",
+    );
+  }
+  const narrow = LAYOUT_BASE.find((r) =>
+    r.selector.includes("[data-placeholder]"),
+  );
+  assert.match(
+    narrow.declarations,
+    /display:\s*none/,
+    "placeholder columns stay hidden on narrow",
+  );
+  const wide = LAYOUT_MEDIA.find(
+    (r) =>
+      r.selector.startsWith("@media (min-width: 768px)") &&
+      r.declarations.includes("[data-placeholder]"),
+  );
+  assert.ok(
+    wide,
+    "expected a min-width: 768px media block rendering placeholder columns",
+  );
+  assert.match(
+    wide.declarations,
+    /display:\s*block/,
+    "placeholder columns render wide+ only",
+  );
+  const allRules = [
+    ...BASE_RULES,
+    ...MEDIA_RULES,
+    ...LAYOUT_BASE,
+    ...LAYOUT_MEDIA,
+  ];
+  for (const rule of allRules) {
+    assert.doesNotMatch(
+      rule.selector,
+      /\[data-role="empty"\]/,
+      'the data-role="empty" value is gone; placeholders use data-placeholder',
+    );
+  }
 });
 
 test("category tint bases are removed from the token layer", () => {

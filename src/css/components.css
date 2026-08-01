@@ -267,7 +267,8 @@
 /* Column tints: role-based (deviation 13). Each column carries the color
    of its role — SPIS, BEGRENSE, UNNGÅ — so the column ↔ role
    correspondence matches the legend and the mobile labels at a glance.
-   Empty placeholder columns have no role and stay untinted. */
+   Empty placeholder columns carry the role of their position, so the
+   same rules tint them too. */
 .content-col[data-role="spis"] {
   background-color: var(--tint-spis);
 }

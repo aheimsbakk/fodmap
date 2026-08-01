@@ -50,8 +50,9 @@ body {
   border-bottom: none;
 }
 
-/* Empty placeholder columns render wide+ only (§5.7). */
-.content-col[data-role="empty"] {
+/* Empty placeholder columns render wide+ only (§5.7). They carry the role
+   of their position (for the tint), so the marker is a separate attribute. */
+.content-col[data-placeholder] {
   display: none;
 }
 
@@ -90,7 +91,7 @@ body {
     border-top: none;
   }
 
-  .content-col[data-role="empty"] {
+  .content-col[data-placeholder] {
     display: block;
   }
 }

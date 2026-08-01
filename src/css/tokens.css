@@ -48,7 +48,8 @@
 
   /* §4.1 role-based column tints (deviation 13): the role backgrounds at
      low opacity, light enough that item text stays readable. Empty
-     placeholder columns have no role and stay untinted. */
+     placeholder columns carry the role of their position and get its
+     tint. */
   --tint-spis: rgba(160, 196, 157, 0.2);
   --tint-begrens: rgba(247, 215, 116, 0.25);
   --tint-unnga: rgba(209, 93, 93, 0.15);

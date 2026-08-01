@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.10.2] - 2026-08-01
+
+- **why:** User request: empty placeholder columns showed no background while their neighbors were tinted; give them the tint of the role they reserve
+- **model:** opencode/deepseek-v4-flash-free
+- **tags:** tints, placeholders, columns, css
+
+### Fixed
+
+- `src/index.html`: the four empty placeholder columns (Kjøtt, egg, fisk columns 2–3; Pålegg column 2; Krydder og urter column 2) carry the role of their position (`data-role="begrens"` / `"unnga"`) instead of `data-role="empty"`, so the role tint rules color them like any other column; the `data-placeholder` attribute marks them for the wide-only rendering rule
+- `src/css/layout.css`: the wide-only rules target `.content-col[data-placeholder]` instead of `[data-role="empty"]`
+- `src/css/components.css` and `src/css/tokens.css`: comments updated; the role tint rules are unchanged and now also apply to placeholders
+- `src/js/search.js`: no logic change — placeholders have no items or labels, so filtering never touches them (comment updated)
+- `tests/styles.test.js`: the "empty stays untinted" guard is replaced by guards asserting the placeholder rendering rules never override the role tint, the wide-only contract holds, and the `data-role="empty"` value is gone
+- `tests/search.test.js`: the placeholder test targets `[data-placeholder]` and asserts the positional role is present
+- `BLUEPRINT.md` §4.1, §5.7, §6.1, §7.2.8, and §12.2 deviation 13 document the tinted placeholders
+- `CODEBASE.md` §2.1 and §5.2 document the `data-placeholder` marker
+
 ## [0.10.1] - 2026-08-01
 
 - **why:** User request: remove the separator line above sub-group titles — under search the line floated above visible headings whose items were hidden

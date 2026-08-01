@@ -288,10 +288,13 @@ test("empty placeholder columns are never touched", async () => {
   await settle();
 
   const emptyCols = dom.window.document.querySelectorAll(
-    '.content-col[data-role="empty"]',
+    ".content-col[data-placeholder]",
   );
   assert.equal(emptyCols.length, 4);
   for (const col of emptyCols) {
+    // Placeholders carry the positional role (for the tint) but never
+    // search state: no hidden toggle, no items, no mobile label.
+    assert.ok(col.dataset.role, "placeholder carries the positional role");
     assert.ok(!col.classList.contains("hidden"));
     assert.equal(col.querySelectorAll("li.item").length, 0);
     assert.equal(col.querySelector(".role-label"), null);
