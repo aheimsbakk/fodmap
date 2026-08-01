@@ -400,9 +400,14 @@ Escape with an empty query and Escape outside the input are no-ops.
 4. Category heading: all items in the section stay visible when the heading
    matches; the heading text is highlighted with the marker style. Matches
    inside embedded icon markup are never highlighted.
-5. Column: never hidden as a cell. If it has no matches and the category
-   heading does not match, its mobile label and all its sub-group headings
-   are hidden (the tinted cell remains).
+5. Column: below 768 px a column whose content is fully filtered out
+   collapses entirely — if it has no matches and the category heading does
+   not match, the whole cell is hidden (its mobile label and sub-group
+   headings hide with it). The cell returns as soon as any item or
+   sub-group heading in it matches again, or the category heading matches.
+   From 768 px up the column is never hidden: only its mobile label and
+   sub-group headings collapse when nothing matches (the tinted cell
+   remains, keeping the 3-column rhythm). See deviation 14.
 6. Sub-group heading: visible when the list directly below it has at least
    one visible item, or when the heading itself matches the query. On a
    heading match, every item in the list below stays visible and the
@@ -708,6 +713,19 @@ Reviewed and confirmed unchanged: `Nøtte` (§8), `Banos` (§8),
     rhythm of the section next to their tinted neighbors. They are
     marked `data-placeholder`, render wide+ only, and stay excluded
     from filtering.
+14. On narrow viewports, columns left without visible content by a search
+    are hidden entirely (user request, 2026-08-01). The origin keeps the
+    tinted cell at every width; hiding the empty cells collapses the
+    stacked narrow layout and saves vertical space. The collapse is a
+    mobile-scoped CSS utility class (`.col-empty-mobile`, display none
+    below 768 px only) toggled by the search executor from a per-column
+    flag in the matcher plan (§7.2.5). Every re-render recomputes the
+    flag, so a column reappears as soon as any item or sub-group heading
+    in it matches again, or the category heading matches; every IDLE
+    render removes the class. From 768 px up the class is inert: the
+    tinted cell stays for the 3-column rhythm and the legend/column
+    correspondence. Placeholder columns are unaffected — the matcher
+    never marks them, and they are already wide-only (§5.7).
 
 ### 12.3 Negative contracts
 
@@ -731,6 +749,11 @@ Cover the search engine:
   (category and sub-group) excluding icon markup, item emphasis, restore on
   clear.
 - Visibility transitions: item, sub-group, mobile label, section.
+- Empty-column collapse (deviation 14): below 768 px a column with no
+  visible content is marked for hiding; it returns when an item or
+  sub-group heading in it matches, or the category heading matches;
+  placeholder columns are never marked; clearing the query removes the
+  marker.
 - Special inputs: regex metacharacters, spaces, uppercase.
 - Clear control: hides/shows, restores originals, returns focus.
 - Escape key: clears an active search exactly like the clear control while
@@ -765,7 +788,9 @@ render the reimplementation against the origin at 375 px, 768 px,
 columns, mobile labels vs legend, banner seams, and footer. Run live
 search flows (typing, highlighting, clear, section hiding, scroll blur)
 and compare screenshots. Spot-check the FILTERED state at the same
-widths.
+widths, including the narrow empty-column collapse (deviation 14) at
+375 px: an emptied column must be gone below 768 px and present as a
+tinted cell from 768 px up.
 
 ## 14. Stylesheet Architecture
 

@@ -102,7 +102,7 @@ Element IDs: `search-input`, `clear-search`, `text-scale-toggle`,
 | `base.css`       | base       | minimal reset, `body` (white bg, system sans-serif, `#333`), heading families + uppercase, `ul` normalization, `li` bullet marker (❖ U+2756), `li.item` `overflow-wrap: anywhere` (long tokens at 150 % scale)                                                                                                                                                                                                                           |
 | `layout.css`     | layout     | `.container` (max-width 1280 px, margins, z-20, padding), page padding scale, `.content-grid` (1 col → 3 cols at ≥ 768 px; 2 px solid borders; `border-b-0` variant for footnote sections), column border rules (dashed separators, mobile top lines), sticky offsets for `.search-widget` (top 0) and `.category-heading` (top 56 px / 64 px)                                                                                           |
 | `components.css` | components | masthead typography and title outline shadow, sub-title `white-space: nowrap` plus narrow-viewport size steps (≤ 457 / 372 / 329 px), search widget (heights 56/64 px, flex layout, `Aa` text-scale toggle), legend cells, role labels (3 color sets), category heading colors (per `[data-category]`), role-based column tints (per `[data-role]`, deviation 13), info/footnote banners, sub-group titles, halftone decorations, footer |
-| `utilities.css`  | utilities  | `.hidden`, `.mobile-only` (hidden ≥ 768 px), `.wide-only` (hidden < 768 px), `.sm-only` (hidden < 640 px, for the halftone decorations), `.marker` (search highlight span), `.item-highlight` (bold emphasis)                                                                                                                                                                                                                            |
+| `utilities.css`  | utilities  | `.hidden`, `.mobile-only` (hidden ≥ 768 px), `.wide-only` (hidden < 768 px), `.sm-only` (hidden < 640 px, for the halftone decorations), `.col-empty-mobile` (narrow-only collapse of columns with no visible content, deviation 14), `.marker` (search highlight span), `.item-highlight` (bold emphasis)                                                                                                                               |
 
 Authoring rules: mobile-first; no inline styles in markup; all values from
 tokens; each file under 300 lines (RULES §17); if a layer outgrows it,
@@ -115,12 +115,12 @@ the end of the body.
 
 `src/js/search.js` — the search engine:
 
-| Export                                   | Responsibility                                                                                                                                                                                                               | BLUEPRINT § |
-| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| `normalizeQuery(value)`                  | lowercase + trim                                                                                                                                                                                                             | §7.2.1      |
-| `buildMatcher()`                         | pure matcher: query + captured content → visibility/highlight plan for items and category/sub-group headings                                                                                                                 | §8          |
-| `applyPlan(document, plan)`              | executor: applies the plan to the DOM                                                                                                                                                                                        | §8          |
-| `initSearch(document, debounceMs = 300)` | load-time capture (`data-orig-*`), event wiring (input debounce 300 ms, Escape key clears like the clear control, clear control, passive scroll-blur > 50 px with a 200 ms grace window after each filter run), IDLE restore | §7, §9.5    |
+| Export                                   | Responsibility                                                                                                                                                                                                                                  | BLUEPRINT § |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `normalizeQuery(value)`                  | lowercase + trim                                                                                                                                                                                                                                | §7.2.1      |
+| `buildMatcher()`                         | pure matcher: query + captured content → visibility/highlight plan for items, category/sub-group headings, and a per-column empty flag (narrow collapse, deviation 14)                                                                          | §8          |
+| `applyPlan(document, plan)`              | executor: applies the plan to the DOM (toggles `.col-empty-mobile` on columns)                                                                                                                                                                  | §8          |
+| `initSearch(document, debounceMs = 300)` | load-time capture (`data-orig-*` + placeholder flag), event wiring (input debounce 300 ms, Escape key clears like the clear control, clear control, passive scroll-blur > 50 px with a 200 ms grace window after each filter run), IDLE restore | §7, §9.5    |
 
 `src/js/text-scale.js` — the text-size toggle:
 
@@ -192,6 +192,13 @@ the two modules share no state and boot independently.
   deviation 3), so matching and highlighting run directly on the item's
   plain text. Only heading markup (emoji + title) needs tag-safe
   highlighting via the exclusion regex.
+- **The narrow empty-column collapse is plan data, not CSS hacks.**
+  The matcher marks each column `empty` when it has no visible content
+  and the category heading does not match; the executor toggles the
+  `.col-empty-mobile` class from that flag (deviation 14). Because every
+  re-render recomputes the flag and the IDLE plan clears it, a column
+  returns exactly as soon as the query leaves content in it again.
+  Placeholder columns are marked in the capture and never flagged.
 
 ### 5.2 CSS
 
@@ -216,6 +223,13 @@ the two modules share no state and boot independently.
   (≥ 640 px), `md` (≥ 768 px) — the grid and legend flip happens at `md`.
   No `lg`-specific rules are needed beyond the body padding step
   (≥ 1024 px), which reuses the `sm`/`md` rule cascade.
+- **The empty-column collapse is a max-width media rule**
+  (`@media (max-width: 767.98px) { .col-empty-mobile { display: none } }`),
+  unlike the other responsive utilities which follow the base +
+  min-width pattern. A min-width override could not restore a column
+  that its own component rule displays as a grid item; scoping the
+  `display: none` to narrow keeps the wide+ grid and the
+  `[data-placeholder]` wide-only rules untouched (deviation 14).
 - **Sticky layering** follows BLUEPRINT §4.4: z-index 10/20/30/40 and
   offsets 56 px/64 px implemented as tokens
   (`--sticky-search-offset`, `--sticky-heading-offset`).
@@ -255,8 +269,12 @@ the two modules share no state and boot independently.
   match revealing its whole list, no diacritic folding), highlighting
   (marker vs item emphasis, no matches inside icon markup), visibility
   transitions (item, sub-group, mobile label, section, empty columns
-  untouched), metacharacter safety, clear/restore, debounce coalescing,
-  and the scroll-blur rule (simulated via `window.scrollY`).
+  untouched), the narrow empty-column collapse (deviation 14: a column
+  with no visible content gets `.col-empty-mobile`, it returns on an
+  item / sub-group / category heading match, placeholder columns are
+  never flagged, clear removes the class), metacharacter safety,
+  clear/restore, debounce coalescing, and the scroll-blur rule
+  (simulated via `window.scrollY`).
 - `tests/styles.test.js` guards the masthead sub-title contract
   (BLUEPRINT §12.2 deviation 8): the base rule declares
   `white-space: nowrap` and the narrow-viewport size steps exist.
@@ -266,7 +284,10 @@ the two modules share no state and boot independently.
   declares `overflow-wrap: anywhere`. It also guards the sub-group
   contract (§5.6, deviation 11): no rule may draw a separator line above
   `.sub-group-title`, no media query special-cases sub-group headings,
-  and the `--color-subgroup-line` token is gone. jsdom cannot measure
+  and the `--color-subgroup-line` token is gone. It also guards the
+  empty-column collapse contract (deviation 14): `.col-empty-mobile`
+  exists, its `display: none` lives in a `max-width` media query only,
+  and no rule outside it hides the class. jsdom cannot measure
   layout, so the guards assert the stylesheet declarations directly; the
   browser-level fit is verified with Playwright at 320–640 px widths.
 - `tests/text-scale.test.js` covers BLUEPRINT §13.1 (text-size toggle):

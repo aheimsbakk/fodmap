@@ -5,7 +5,7 @@ En statisk, frittstående nettside med én side som viser lav-FODMAP-matvarer p�
 ## Hva siden gjør
 
 - Viser 484 matvarer i 11 kategorier (SPIS, BEGRENSE, UNNGÅ).
-- Har søk med direkte filtrering: treff i varer og kategorier blir stående, og treffene utheves.
+- Har søk med direkte filtrering: treff i varer og kategorier blir stående, og treffene utheves. På mobil skjules tomme kolonner under søk og kommer tilbake så snart de har treff igjen.
 - Er responsiv: én kolonne på mobil, tre kolonner på større skjermer.
 - Består bare av HTML, CSS og én JavaScript-modul.
 
