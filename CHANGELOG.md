@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.10.4] - 2026-08-01
+
+- **why:** User request: the app now stands on its own — no artifact depends on `origin/fodmap.html` any longer, and the README is refocused as a user manual
+- **model:** openrouter/deepseek/deepseek-v4-flash-0731
+- **tags:** origin, decoupling, docs, readme, tests
+
+### Removed
+
+- `origin/fodmap.html` and the `origin/` directory are removed; nothing in the repo reads them
+- `BLUEPRINT.md`: the "Source of truth: `origin/fodmap.html`" header, the origin-vs-reimplementation goals, and the origin-based parity checks in §13 are gone
+
+### Changed
+
+- `BLUEPRINT.md`: §12.1 is now a canonical spellings table (previously origin → correction pairs, now the frozen final strings with the three reviewed-unchanged spellings), and §12.2 is rewritten as standalone design decisions; §13.2/§13.3 verify the page against the frozen §6.2 inventory instead of the origin file
+- `CODEBASE.md`: `origin/` removed from the repository map; §2.1, §5.2, and §5.3 describe canonical content and the frozen-inventory tests; the Playwright section verifies the page alone instead of rendering the origin side by side
+- `tests/content.test.js`: no longer loads `origin/fodmap.html`; it asserts the 11 canonical section headings, per-column item counts (total 484), and the §12.1 canonical spellings from duplicated test data
+- `src/js/search.js`: comment wording only, no behavior change
+- `README.md`: rewritten as a user manual in Norwegian klarspråk (open the page, search, text size, colors, sources); documents the text-size toggle and `scripts/validate-changelog.sh`; the deployed URL is `fodmap.sanntid.org` and both footer source links are listed; the no-internet claims are removed
+- `package.json`: description no longer calls the app a "reimplementation"
+- `docs/memory/`: entries record the standalone decision and the README-as-user-manual preference
+
 ## [0.10.3] - 2026-08-01
 
 - **why:** User request: empty columns left by a search wasted vertical space in the stacked mobile layout; hide them and restore them as soon as they have content again
