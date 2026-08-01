@@ -70,7 +70,7 @@ corrections applied (BLUEPRINT §12.1).
 | Info banner            | `div.info-banner`                                                                                                 |
 | Category section (×11) | `section.category-section[data-category]` → `h3.category-heading`, `div.content-grid`                             |
 | Category heading       | `h3.category-heading[data-category]` (icon span + title)                                                          |
-| Column                 | `div.content-col[data-role="spis\|begrens\|unnga\|empty"]`                                                        |
+| Column                 | `div.content-col[data-role="spis\|begrens\|unnga"]`; empty placeholder columns add `data-placeholder`             |
 | Mobile label           | `div.role-label.mobile-only`                                                                                      |
 | Item list              | `ul.item-list` → `li.item`                                                                                        |
 | Sub-group              | `h4.sub-group-title` + following `ul.item-list`                                                                   |
@@ -208,8 +208,10 @@ the two modules share no state and boot independently.
   selectors apply them. The column ↔ role correspondence matches the
   legend and the mobile labels at a glance; the markup carries the role
   on the column itself, so no heading-sibling cascade or per-column
-  color classes are needed. Empty placeholder columns
-  (`[data-role="empty"]`) get no tint rule and stay white.
+  color classes are needed. Empty placeholder columns carry the role of
+  their position and get the corresponding tint; `data-placeholder`
+  marks them for the wide-only rendering rule and keeps them excluded
+  from filtering.
 - **Breakpoints** are authored mobile-first: base (< 640 px), `sm`
   (≥ 640 px), `md` (≥ 768 px) — the grid and legend flip happens at `md`.
   No `lg`-specific rules are needed beyond the body padding step

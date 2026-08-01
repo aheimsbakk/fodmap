@@ -109,7 +109,8 @@ labels). Values are the role backgrounds at low opacity:
 | BEGRENSE | `rgba(247, 215, 116, 0.25)` |
 | UNNGÅ    | `rgba(209, 93, 93, 0.15)`   |
 
-Empty placeholder columns have no role and stay untinted (white).
+Empty placeholder columns carry the role of their position and get the
+corresponding tint (deviation 13).
 
 Support colors:
 
@@ -293,8 +294,11 @@ Three sections reserve empty columns to keep the 3-column rhythm:
 - Pålegg: column 2 is empty, rendered wide+ only.
 - Krydder og urter: column 2 is empty, rendered wide+ only.
 
-Empty columns keep no tint (white, §4.1), participate in the grid, and carry no
-mobile label. They are excluded from filtering.
+Empty columns carry the role of their position (BEGRENSE or UNNGÅ,
+§6.1) and receive that role's tint, so the color rhythm of the section
+stays complete. They participate in the grid, carry no mobile label, and
+are excluded from filtering. A `data-placeholder` attribute marks them
+for the wide-only rendering rule.
 
 ### 5.8 Footer
 
@@ -325,8 +329,9 @@ Section
 ├─ column layout    (standard | with-empty-columns | empty-middles)
 ├─ columns [3]
 │   └─ Column
-│      ├─ role          (spis | begrens | unnga | empty)
-│      ├─ mobile label  (present unless role = empty)
+│      ├─ role          (spis | begrens | unnga)
+│      ├─ placeholder   (empty column reserving a role position)
+│      ├─ mobile label  (absent on placeholder columns)
 │      └─ blocks [ ]    (each block is either a plain item list
 │                        or a sub-group: heading + item list)
 │          └─ Item
@@ -406,7 +411,7 @@ Escape with an empty query and Escape outside the input are no-ops.
    skipped.
 7. Section: hidden entirely if no item and no category or sub-group heading
    match anywhere in it.
-8. Empty placeholder columns: always untouched.
+8. Empty placeholder columns (`data-placeholder`): always untouched.
 
 ### 7.3 Restoration guarantee
 
@@ -698,7 +703,11 @@ Reviewed and confirmed unchanged: `Nøtte` (§8), `Banos` (§8),
     (SPIS / BEGRENSE / UNNGÅ, §4.1) so the column ↔ role correspondence
     is visible at a glance, matching the legend and the mobile labels.
     Category colors now apply to the heading background only. Empty
-    placeholder columns have no role and stay untinted (white).
+    placeholder columns carry the role of their position and get the
+    corresponding tint (2026-08-01): leaving them white broke the color
+    rhythm of the section next to their tinted neighbors. They are
+    marked `data-placeholder`, render wide+ only, and stay excluded
+    from filtering.
 
 ### 12.3 Negative contracts
 
