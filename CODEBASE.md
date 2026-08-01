@@ -1,4 +1,4 @@
-# CODEBASE.md — FODMAP Overview App (Reimplementation)
+# CODEBASE.md — FODMAP Overview App
 
 > Maps the language-agnostic architecture (`BLUEPRINT.md`) to concrete
 > physical files. Implementation language: vanilla JavaScript (ES modules),
@@ -22,8 +22,6 @@ work/
 ├── .gitignore
 ├── docs/
 │   └── memory/                  # session memory (skill-managed)
-├── origin/
-│   └── fodmap.html              # absolute source of truth (reference only, never edited)
 ├── README.md                    # project overview, quick start, script docs — in Norwegian
 ├── src/
 │   ├── index.html               # entry point: full static markup of the page
@@ -37,7 +35,7 @@ work/
 │       ├── search.js            # search engine: matcher (pure) + executor (DOM)
 │       └── text-scale.js        # text-size toggle: cycle + persist the level
 ├── tests/
-│   ├── content.test.js          # parity: origin vs src/index.html, with corrections map
+│   ├── content.test.js          # canonical inventory: section order, counts, spellings
 │   ├── search.test.js           # functional tests of the search engine
 │   ├── text-scale.test.js       # functional tests of the text-size toggle
 │   └── styles.test.js           # stylesheet contract guards (single-line sub-title)
@@ -56,8 +54,8 @@ work/
 Single document, `lang="no"`, UTF-8, responsive viewport meta. Loads the
 stylesheet set in layer order (tokens → base → layout → components →
 utilities) and the scripts as ES modules at the end of the body. Content is
-static markup, copied from `origin/fodmap.html` with the approved
-corrections applied (BLUEPRINT §12.1).
+static markup authored to the canonical content rules in BLUEPRINT §6.2
+(section inventory) and §12.1 (canonical spellings).
 
 | Blueprint component    | Markup element(s)                                                                                                 |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------- |
@@ -183,10 +181,11 @@ the two modules share no state and boot independently.
   the real `src/index.html`, which also exercises the element identity
   contract (BLUEPRINT §9.3).
 - **Restoration uses `data-orig-*` attributes** rather than a side table:
-  matches the origin's approach, survives any element relocation, and keeps
-  restore logic local to each node. Item text is trimmed at capture time
-  (items are authored multi-line for readability; the origin renders them
-  with no surrounding whitespace, so trimming preserves exact parity).
+  the captured content travels with each node, survives any element
+  relocation, and keeps restore logic local to that node. Item text is
+  trimmed at capture time (items are authored multi-line for readability,
+  but render without surrounding whitespace, so trimming preserves exact
+  text).
 - **Plain-text items simplify search.** Items carry no child markup
   (small-print notes are merged into the item text, BLUEPRINT §12.2
   deviation 3), so matching and highlighting run directly on the item's
@@ -207,8 +206,8 @@ the two modules share no state and boot independently.
   `--color-brod`, `--color-gronn`, `--color-frukt`, `--color-melk`,
   `--color-drikke`, `--color-kjott`, plus per-section headings
   (`#d1bfae`, `#e6c8c8`, `#b5c7b3`, `#d97744`) set via
-  `[data-category="..."]` selectors — this replaces the origin's
-  Tailwind utility classes with semantic selectors (deviation 1).
+  `[data-category="..."]` selectors — this replaces utility classes with
+  semantic selectors (deviation 1).
 - **Column tints are role-based** (BLUEPRINT §12.2 deviation 13): three
   tokens (`--tint-spis`, `--tint-begrens`, `--tint-unnga`) hold the role
   backgrounds at low opacity, and `.content-col[data-role="..."]`
@@ -252,18 +251,17 @@ the two modules share no state and boot independently.
   column track at the 150 % scale on narrow viewports. `anywhere`
   participates in min-content sizing, so the grid track shrinks with
   the wrap; `break-word` would not and the column would overflow.
-- **The 20 content corrections** (BLUEPRINT §12.1) are applied only in
-  `src/index.html`; `origin/fodmap.html` stays untouched and is read by
-  `tests/content.test.js` to prove parity.
+- **The canonical content** (BLUEPRINT §12.1) lives entirely in
+  `src/index.html`. `tests/content.test.js` verifies it against the frozen
+  inventory: section order, per-column counts (§6.2), and the canonical
+  spellings — a markup change to any frozen string fails the suite.
 
 ### 5.3 Testing
 
-- `tests/content.test.js` loads both `origin/fodmap.html` and
-  `src/index.html` in jsdom and asserts: 11 sections in the same order,
-  per-column `li` counts matching BLUEPRINT §6.2 (total 484), and text
-  equality everywhere except the explicit corrections map (origin → new),
-  which the test duplicates as data — a change to the map without a
-  matching markup change fails the suite.
+- `tests/content.test.js` loads `src/index.html` in jsdom and asserts:
+  11 sections in the canonical order (§6.2), per-column `li` counts
+  matching BLUEPRINT §6.2 (total 484), and the canonical spellings from
+  §12.1 present verbatim in the markup.
 - `tests/search.test.js` covers BLUEPRINT §13.1: normalization, matching
   (case-insensitivity, note participation, header match, sub-group header
   match revealing its whole list, no diacritic folding), highlighting
@@ -297,11 +295,11 @@ the two modules share no state and boot independently.
   inert path (§9.3).
 - **Full-browser verification (Playwright).** Beyond the Node unit tests,
   the environment provides the `playwright-cli` skill for real-browser
-  testing. Use it for BLUEPRINT §13.3 visual and behavioral parity:
-  render `origin/fodmap.html` and `src/index.html` side by side at
-  375 / 768 / 1024 / 1280 px widths; check responsive rules (grid
-  columns, mobile labels vs legend, sticky offsets, halftone
-  decorations); run live search flows (typing, highlighting, clear
-  control, section hiding, scroll blur) and compare screenshots.
+  testing. Use it for BLUEPRINT §13.3 visual and behavioral verification:
+  render `src/index.html` at 375 / 768 / 1024 / 1280 px widths; check the
+  responsive contract (grid columns, mobile labels vs legend, sticky
+  offsets, halftone decorations); run live search flows (typing,
+  highlighting, clear control, section hiding, scroll blur) and verify the
+  resulting document state.
 - TDD applies to bug fixes going forward (RULES §19); initial
   implementation tests are written alongside the module.
