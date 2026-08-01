@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.10.5] - 2026-08-01
+
+- **why:** Bug fix: after a reload, the browser restored the typed search text into the field while the filter state was never persisted, leaving text over a fully visible page
+- **model:** openrouter/deepseek/deepseek-v4-flash-0731
+- **tags:** search, reload, form-restore
+
+### Fixed
+
+- `src/js/search.js`: `initSearch` clears the input value on boot, so a browser-restored query is always discarded and boot renders from IDLE
+- `src/index.html`: the search input declares `autocomplete="off"` so the browser cannot restore a value after the boot script has run
+- `tests/search.test.js`: new test seeds a restored value before `initSearch` and asserts the field is cleared and the page is unfiltered
+- `BLUEPRINT.md` / `CODEBASE.md`: documented the boot-clear behavior and the `autocomplete="off"` input contract (§7.1, §9.1, §2.3, §5.1)
+
 ## [0.10.4] - 2026-08-01
 
 - **why:** User request: the app now stands on its own — no artifact depends on `origin/fodmap.html` any longer, and the README is refocused as a user manual

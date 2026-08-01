@@ -458,6 +458,22 @@ test("Escape outside the input never clears an active search", async () => {
   assert.ok(!clearButton(dom).classList.contains("hidden"));
 });
 
+// --- reload boot state (§7.1, §9.3) ----------------------------------------------
+
+test("on boot the search field is cleared even if the browser restored a value", () => {
+  // Browsers restore typed form values on reload, but the filter state is
+  // never persisted, so a restored query would show a filled field over an
+  // unfiltered, fully visible page. Boot must always start from IDLE.
+  const dom = new JSDOM(APP_HTML, { url: "http://localhost/" });
+  const inputEl = input(dom);
+  inputEl.value = "whisky"; // simulate browser form-state restoration
+  initSearch(dom.window.document, 1);
+
+  assert.equal(inputEl.value, "");
+  assert.equal(visibleItems(dom).length, items(dom).length);
+  assert.ok(clearButton(dom).classList.contains("hidden"));
+});
+
 // --- debounce (§9.5) ----------------------------------------------------------
 
 test("rapid input coalesces into a single debounced run", async () => {

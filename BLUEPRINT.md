@@ -384,6 +384,13 @@ Clear control activation (button click, or Escape key while the input is
 focused): empty the query, transition to IDLE, keep focus on the input.
 Escape with an empty query and Escape outside the input are no-ops.
 
+On load the input value is always cleared and boot renders from IDLE
+unconditionally: browsers restore typed form values on reload, but the
+filter state is never persisted, so a restored query would leave text in
+the field over a fully visible, unfiltered page. The input also opts out
+of browser form-value restoration (`autocomplete="off"`) so a value cannot
+be restored after the boot script has run.
+
 ### 7.2 Derived visibility rules (FILTERED state)
 
 1. Query = input value, lowercased, trimmed. No diacritic folding
@@ -480,6 +487,8 @@ A single document (`src/index.html` per user requirement). It must:
   text-size toggle degrade to inert; all content and layout must be
   intact).
 - Load one stylesheet set and the module scripts at the end.
+- Declare the search input with `autocomplete="off"` (boot always clears
+  it, see §7.1).
 - Require no network at all: no remote assets (fonts are the platform's
   native system stack).
 
