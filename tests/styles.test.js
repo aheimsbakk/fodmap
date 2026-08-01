@@ -204,3 +204,58 @@ test("items can break long tokens so scaled text never overflows", () => {
   // break-word does not.
   assert.match(BASE_RULE, /overflow-wrap:\s*anywhere\s*;/);
 });
+
+// --- role-based column tints (§4.1, deviation 13) ---------------------------
+
+test("role tint tokens live in the token layer", () => {
+  assert.match(TOKEN_ROOT, /--tint-spis:\s*rgba\(160,\s*196,\s*157,\s*0\.2\)/);
+  assert.match(
+    TOKEN_ROOT,
+    /--tint-begrens:\s*rgba\(247,\s*215,\s*116,\s*0\.25\)/,
+  );
+  assert.match(TOKEN_ROOT, /--tint-unnga:\s*rgba\(209,\s*93,\s*93,\s*0\.15\)/);
+});
+
+test("columns are tinted by role selector, not by position or category", () => {
+  const roleSelectors = [
+    '.content-col[data-role="spis"]',
+    '.content-col[data-role="begrens"]',
+    '.content-col[data-role="unnga"]',
+  ];
+  for (const selector of roleSelectors) {
+    const rule = BASE_RULES.find((r) => r.selector === selector);
+    assert.ok(rule, `expected a rule for ${selector}`);
+    assert.match(
+      rule.declarations,
+      /background-color:\s*var\(--tint-/,
+      `${selector} must reference a --tint-* token`,
+    );
+  }
+});
+
+test("empty placeholder columns stay untinted", () => {
+  // The search engine hides nothing but labels/headings in empty columns;
+  // a tinted empty cell would fake a role that is not there.
+  const tinted = BASE_RULES.filter(
+    (r) =>
+      r.selector.includes('[data-role="empty"]') &&
+      /background-color/.test(r.declarations),
+  );
+  assert.equal(tinted.length, 0, "no rule may tint [data-role='empty'] cells");
+});
+
+test("category tint bases are removed from the token layer", () => {
+  // Column tints come from the three role tokens; leftover category RGB
+  // bases would be dead code.
+  assert.doesNotMatch(TOKEN_ROOT, /--tint-brod:/);
+  assert.doesNotMatch(TOKEN_ROOT, /--tint-gronn:/);
+  assert.doesNotMatch(TOKEN_ROOT, /--tint-frukt:/);
+  assert.doesNotMatch(TOKEN_ROOT, /--tint-melk:/);
+  assert.doesNotMatch(TOKEN_ROOT, /--tint-notter:/);
+  assert.doesNotMatch(TOKEN_ROOT, /--tint-drikke:/);
+  assert.doesNotMatch(TOKEN_ROOT, /--tint-kjott:/);
+  assert.doesNotMatch(TOKEN_ROOT, /--tint-palegg:/);
+  assert.doesNotMatch(TOKEN_ROOT, /--tint-sukker:/);
+  assert.doesNotMatch(TOKEN_ROOT, /--tint-krydder:/);
+  assert.doesNotMatch(TOKEN_ROOT, /--tint-saus:/);
+});

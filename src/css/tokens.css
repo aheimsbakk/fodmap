@@ -33,29 +33,26 @@
   --color-dot-b: #a0c49d;
   --color-dot-c: #e6a147;
 
-  /* §4.1 category sets: heading background + column tint RGB base */
+  /* §4.1 category sets: heading background colors only. Column tints are
+     role-based (deviation 13), defined below. */
   --color-brod: #d59e5e;
-  --tint-brod: 213, 158, 94;
   --color-gronn: #8fb88a;
-  --tint-gronn: 143, 184, 138;
   --color-frukt: #d96f6f;
-  --tint-frukt: 217, 111, 111;
   --color-melk: #93b5c6;
-  --tint-melk: 147, 181, 198;
   --color-notter: #a9744f;
-  --tint-notter: 169, 116, 79;
   --color-drikke: #8ab6d6;
-  --tint-drikke: 138, 182, 214;
   --color-kjott: #e08c8c;
-  --tint-kjott: 224, 140, 140;
   --color-palegg: #d1bfae;
-  --tint-palegg: 209, 191, 174;
   --color-sukker: #e6c8c8;
-  --tint-sukker: 230, 200, 200;
   --color-krydder: #b5c7b3;
-  --tint-krydder: 181, 199, 179;
   --color-saus: #d97744;
-  --tint-saus: 217, 119, 68;
+
+  /* §4.1 role-based column tints (deviation 13): the role backgrounds at
+     low opacity, light enough that item text stays readable. Empty
+     placeholder columns have no role and stay untinted. */
+  --tint-spis: rgba(160, 196, 157, 0.2);
+  --tint-begrens: rgba(247, 215, 116, 0.25);
+  --tint-unnga: rgba(209, 93, 93, 0.15);
 
   /* §4.2 typography — native system stacks, no webfont downloads.
      Named families are platform fallbacks for browsers without

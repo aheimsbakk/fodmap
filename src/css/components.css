@@ -222,8 +222,8 @@
   box-shadow: var(--shadow-banner);
 }
 
-/* Heading background per category (§4.1). Column tints are set by the
-   matching sibling rules below. */
+/* Heading background per category (§4.1). Column tints are role-based
+   (deviation 13) and live in the block after these rules. */
 .category-heading[data-category="gronnsaker"] {
   background-color: var(--color-gronn);
 }
@@ -264,98 +264,20 @@
   background-color: var(--color-saus);
 }
 
-/* Column tints: 10 % / 20 % / 10 % opacity levels (§4.1). Default is the
-   brod set; every other category overrides via its heading sibling. */
-.content-col {
-  background-color: rgba(var(--tint-brod), 0.1);
+/* Column tints: role-based (deviation 13). Each column carries the color
+   of its role — SPIS, BEGRENSE, UNNGÅ — so the column ↔ role
+   correspondence matches the legend and the mobile labels at a glance.
+   Empty placeholder columns have no role and stay untinted. */
+.content-col[data-role="spis"] {
+  background-color: var(--tint-spis);
 }
 
-.content-col:nth-child(2) {
-  background-color: rgba(var(--tint-brod), 0.2);
+.content-col[data-role="begrens"] {
+  background-color: var(--tint-begrens);
 }
 
-.content-col:nth-child(3) {
-  background-color: rgba(var(--tint-brod), 0.1);
-}
-
-.category-heading[data-category="gronnsaker"] + .content-grid .content-col {
-  background-color: rgba(var(--tint-gronn), 0.1);
-}
-
-.category-heading[data-category="gronnsaker"]
-  + .content-grid
-  .content-col:nth-child(2) {
-  background-color: rgba(var(--tint-gronn), 0.2);
-}
-
-.category-heading[data-category="frukt"] + .content-grid .content-col {
-  background-color: rgba(var(--tint-frukt), 0.1);
-}
-
-.category-heading[data-category="frukt"]
-  + .content-grid
-  .content-col:nth-child(2) {
-  background-color: rgba(var(--tint-frukt), 0.2);
-}
-
-.category-heading[data-category="melk"] + .content-grid .content-col {
-  background-color: rgba(var(--tint-melk), 0.1);
-}
-
-.category-heading[data-category="melk"]
-  + .content-grid
-  .content-col:nth-child(2) {
-  background-color: rgba(var(--tint-melk), 0.2);
-}
-
-.category-heading[data-category="drikke"] + .content-grid .content-col {
-  background-color: rgba(var(--tint-drikke), 0.1);
-}
-
-.category-heading[data-category="drikke"]
-  + .content-grid
-  .content-col:nth-child(2) {
-  background-color: rgba(var(--tint-drikke), 0.2);
-}
-
-.category-heading[data-category="kjott"] + .content-grid .content-col {
-  background-color: rgba(var(--tint-kjott), 0.1);
-}
-
-.category-heading[data-category="kjott"]
-  + .content-grid
-  .content-col:nth-child(2) {
-  background-color: rgba(var(--tint-kjott), 0.2);
-}
-
-.category-heading[data-category="sukker"] + .content-grid .content-col {
-  background-color: rgba(var(--tint-sukker), 0.1);
-}
-
-.category-heading[data-category="sukker"]
-  + .content-grid
-  .content-col:nth-child(2) {
-  background-color: rgba(var(--tint-sukker), 0.2);
-}
-
-.category-heading[data-category="krydder"] + .content-grid .content-col {
-  background-color: rgba(var(--tint-krydder), 0.1);
-}
-
-.category-heading[data-category="krydder"]
-  + .content-grid
-  .content-col:nth-child(2) {
-  background-color: rgba(var(--tint-krydder), 0.2);
-}
-
-.category-heading[data-category="saus"] + .content-grid .content-col {
-  background-color: rgba(var(--tint-saus), 0.1);
-}
-
-.category-heading[data-category="saus"]
-  + .content-grid
-  .content-col:nth-child(2) {
-  background-color: rgba(var(--tint-saus), 0.2);
+.content-col[data-role="unnga"] {
+  background-color: var(--tint-unnga);
 }
 
 /* Mobile-only role labels (hidden ≥ 768 px via utilities.mobile-only) ----- */

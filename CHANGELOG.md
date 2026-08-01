@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.10.0] - 2026-08-01
+
+- **why:** User request: tint columns by role so SPIS/BEGRENSE/UNNGÅ columns are identifiable at a glance
+- **model:** opencode/deepseek-v4-flash-free
+- **tags:** tints, colors, roles, columns
+
+### Changed
+
+- `src/css/tokens.css`: the 11 category tint bases are replaced by three role tint tokens (`--tint-spis` `rgba(160, 196, 157, 0.2)`, `--tint-begrens` `rgba(247, 215, 116, 0.25)`, `--tint-unnga` `rgba(209, 93, 93, 0.15)`); category colors now apply to the heading background only
+- `src/css/components.css`: columns tint by role via `.content-col[data-role="spis|begrens|unnga"]` instead of the category-color cascade at 10 %/20 %/10 % opacity; empty placeholder columns stay untinted
+- `tests/styles.test.js`: four contract guards — role tint tokens exist, role selectors reference them, `[data-role="empty"]` gets no tint rule, and no category tint bases remain
+- `BLUEPRINT.md` §4.1, §5.6, §5.7, §6.1, and §12.2 deviation 13 document the role-based tinting
+- `CODEBASE.md` §2.2 and §5.2 document the role tint tokens and selectors
+
 ## [0.9.0] - 2026-07-31
 
 - **why:** User request: give every category a color set related to its content, remove the reused Brød colors, and replace the lavender sauce section
