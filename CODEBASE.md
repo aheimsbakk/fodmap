@@ -75,6 +75,10 @@ static markup authored to the canonical content rules in BLUEPRINT §6.2
 | Footnote banner        | `div.footnote-banner` (optional `span.footnote-icon`)                                                             |
 | Footer                 | `footer.page-footer` → `p.footer-disclaimer`, `p.footer-source`, `p.footer-credit` (with link)                    |
 
+The search input declares `autocomplete="off"` and is cleared on boot, so a
+browser-restored value never survives a reload: boot always renders from
+IDLE (§7.1).
+
 The `data-category` attribute repeats on the section element itself: the
 scripts and the content tests address sections by it, while the CSS
 heading-color rules consume the heading's copy through
@@ -113,12 +117,12 @@ the end of the body.
 
 `src/js/search.js` — the search engine:
 
-| Export                                   | Responsibility                                                                                                                                                                                                                                  | BLUEPRINT § |
-| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| `normalizeQuery(value)`                  | lowercase + trim                                                                                                                                                                                                                                | §7.2.1      |
-| `buildMatcher()`                         | pure matcher: query + captured content → visibility/highlight plan for items, category/sub-group headings, and a per-column empty flag (narrow collapse, deviation 14)                                                                          | §8          |
-| `applyPlan(document, plan)`              | executor: applies the plan to the DOM (toggles `.col-empty-mobile` on columns)                                                                                                                                                                  | §8          |
-| `initSearch(document, debounceMs = 300)` | load-time capture (`data-orig-*` + placeholder flag), event wiring (input debounce 300 ms, Escape key clears like the clear control, clear control, passive scroll-blur > 50 px with a 200 ms grace window after each filter run), IDLE restore | §7, §9.5    |
+| Export                                   | Responsibility                                                                                                                                                                                                                                                                                     | BLUEPRINT § |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `normalizeQuery(value)`                  | lowercase + trim                                                                                                                                                                                                                                                                                   | §7.2.1      |
+| `buildMatcher()`                         | pure matcher: query + captured content → visibility/highlight plan for items, category/sub-group headings, and a per-column empty flag (narrow collapse, deviation 14)                                                                                                                             | §8          |
+| `applyPlan(document, plan)`              | executor: applies the plan to the DOM (toggles `.col-empty-mobile` on columns)                                                                                                                                                                                                                     | §8          |
+| `initSearch(document, debounceMs = 300)` | boot: clear any browser-restored input value, then load-time capture (`data-orig-*` + placeholder flag); event wiring (input debounce 300 ms, Escape key clears like the clear control, clear control, passive scroll-blur > 50 px with a 200 ms grace window after each filter run), IDLE restore | §7, §9.5    |
 
 `src/js/text-scale.js` — the text-size toggle:
 
@@ -191,6 +195,11 @@ the two modules share no state and boot independently.
   deviation 3), so matching and highlighting run directly on the item's
   plain text. Only heading markup (emoji + title) needs tag-safe
   highlighting via the exclusion regex.
+- **Boot clears any restored input value in JS, not just via markup.**
+  `autocomplete="off"` is advisory and can race the deferred module's
+  execution, so `initSearch` also sets `input.value = ""` on boot as the
+  deterministic source of truth. This holds the invariant that boot always
+  renders from IDLE, never a filled field over a fully visible page (§7.1).
 - **The narrow empty-column collapse is plan data, not CSS hacks.**
   The matcher marks each column `empty` when it has no visible content
   and the category heading does not match; the executor toggles the
@@ -271,7 +280,8 @@ the two modules share no state and boot independently.
   with no visible content gets `.col-empty-mobile`, it returns on an
   item / sub-group / category heading match, placeholder columns are
   never flagged, clear removes the class), metacharacter safety,
-  clear/restore, debounce coalescing, and the scroll-blur rule
+  clear/restore, boot clearing of a browser-restored input value,
+  debounce coalescing, and the scroll-blur rule
   (simulated via `window.scrollY`).
 - `tests/styles.test.js` guards the masthead sub-title contract
   (BLUEPRINT §12.2 deviation 8): the base rule declares

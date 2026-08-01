@@ -241,6 +241,12 @@ export function initSearch(document, debounceMs = 300) {
   const input = document.getElementById("search-input");
   if (!input) return;
 
+  // Browsers restore typed form values on reload, but the filter state is
+  // never persisted, so a restored query would leave text in the field over
+  // a fully visible page. Boot always starts from IDLE: any restored value
+  // is discarded before the engine captures and wires anything (§7.1).
+  input.value = "";
+
   const clearButton = document.getElementById("clear-search");
   const win = document.defaultView;
   const capture = { sections: captureContent(document) };
