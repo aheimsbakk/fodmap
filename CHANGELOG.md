@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.10.1] - 2026-08-01
+
+- **why:** User request: remove the separator line above sub-group titles — under search the line floated above visible headings whose items were hidden
+- **model:** opencode/deepseek-v4-flash-free
+- **tags:** sub-group, separator, css, search
+
+### Fixed
+
+- `src/css/components.css`: `.sub-group-title` no longer draws a 1 px separator line or top padding; separation from the preceding block is margin-only (0.75 rem), identical at every width and in both search states. The ≥ 768 px first-block exception media query is removed with it
+- `src/css/tokens.css`: the unused `--color-subgroup-line` token is removed
+- `tests/styles.test.js`: the two separator-line tests are replaced by one guard — no `border-top` or `padding-top` on `.sub-group-title`, no media query special-casing sub-groups, and the token is gone from both stylesheets
+- `BLUEPRINT.md` §5.6, §4.1, and §12.2 deviation 11 document the line-free sub-group contract
+- `CODEBASE.md` §5.3 documents the new stylesheet guard
+
 ## [0.10.0] - 2026-08-01
 
 - **why:** User request: tint columns by role so SPIS/BEGRENSE/UNNGÅ columns are identifiable at a glance

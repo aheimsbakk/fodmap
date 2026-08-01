@@ -106,51 +106,51 @@ test("sub-title size steps down on narrow viewports so the line fits", () => {
 
 // --- sub-group separator (§5.6, deviation 11) -------------------------------
 
-test("every sub-group heading with content above it keeps the separator line", () => {
-  // The base rule declares the line for every sub-group. Only the
-  // first-block exception (separate test) may strip it, and only on wide
-  // screens where the mobile label is hidden.
+test("no sub-group heading declares a separator line", () => {
+  // User decision 2026-08-01: the separator line above sub-group titles is
+  // removed everywhere — under a FILTERED search a visible heading can sit
+  // below hidden items, leaving the line floating above it. Separation from
+  // the preceding block is margin-only, and the --color-subgroup-line token
+  // is deleted with the rule that used it.
   const base = declarationsFor(".sub-group-title");
-  assert.match(
+  assert.doesNotMatch(
     base,
-    /border-top:\s*1px\s+solid\s+var\(--color-subgroup-line\)/,
-    ".sub-group-title base rule must declare the top separator line",
+    /border-top/,
+    ".sub-group-title must not declare a top border",
   );
   assert.doesNotMatch(
     base,
-    /border-top:\s*none/,
-    "the base rule itself must not remove the line",
+    /padding-top/,
+    ".sub-group-title must not declare top padding (line clearance)",
   );
-});
-
-test("a sub-group opening its column drops the separator only at wide widths", () => {
-  // At ≥ 768 px the mobile label is hidden, so a sub-group that opens its
-  // column has nothing above it to separate from; a floating line there is
-  // the defect. Below 768 px the label sits above it, so the line stays —
-  // the exception must live inside a min-width media query. It must target
-  // true first blocks only (label directly followed by the sub-group, or
-  // the sub-group as first child), never :first-of-type: a sub-group below
-  // a main item list has content above it and keeps the line.
-  const wide = MEDIA_RULES.find(
-    (r) =>
-      r.selector.startsWith("@media (min-width: 768px)") &&
-      r.declarations.includes(".sub-group-title"),
+  const mediaSubGroup = MEDIA_RULES.filter((r) =>
+    r.declarations.includes(".sub-group-title"),
   );
-  assert.ok(wide, "expected a min-width: 768px media block");
-  assert.match(
-    wide.declarations,
-    /\.content-col\s*>\s*\.role-label\s*\+\s*\.sub-group-title/,
-    "first-block exception must target the label + sub-group pattern",
+  assert.equal(
+    mediaSubGroup.length,
+    0,
+    "no media query may special-case sub-group headings",
   );
-  assert.match(wide.declarations, /border-top:\s*none/);
-  const firstOfType = [...BASE_RULES, ...MEDIA_RULES].find(
-    (r) =>
-      r.selector.includes(".sub-group-title") &&
-      r.selector.includes(":first-of-type"),
+  const subGroupRules = [...BASE_RULES, ...MEDIA_RULES].filter((r) =>
+    r.selector.includes(".sub-group-title"),
   );
-  assert.ok(
-    !firstOfType,
-    "no :first-of-type rule may strip the separator (a main list above counts as content)",
+  assert.ok(subGroupRules.length >= 1, "expected a .sub-group-title rule");
+  for (const rule of subGroupRules) {
+    assert.doesNotMatch(
+      rule.declarations,
+      /border-top/,
+      `no rule may draw a line above a sub-group heading (${rule.selector})`,
+    );
+  }
+  assert.doesNotMatch(
+    COMPONENTS_CSS,
+    /--color-subgroup-line/,
+    "the sub-group line token must not be referenced",
+  );
+  assert.doesNotMatch(
+    TOKENS_CSS,
+    /--color-subgroup-line/,
+    "the sub-group line token must be removed from tokens.css",
   );
 });
 

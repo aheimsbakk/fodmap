@@ -314,33 +314,18 @@
 
 /* Sub-groups -------------------------------------------------------------- */
 
+/* No separator line above sub-group headings (user decision 2026-08-01;
+   deviation 11). The origin drew 1 px lines above most sub-list titles;
+   under a FILTERED search a visible heading can sit below hidden items,
+   leaving the line floating. Separation is margin-only, identical at
+   every width and in both search states. */
+
 .sub-group-title {
   margin: 0.75rem 0 0.25rem;
-  padding-top: 0.25rem;
   font-size: var(--size-subgroup);
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  border-top: 1px solid var(--color-subgroup-line);
-}
-
-/* Every sub-group heading gets the same separator line above it (user
-   decision 2026-07-31; deviation 11). The origin rendered only some titles
-   with a line (mt-0 / md:border-t-0 variants); uniform separators make the
-   blocks easier to scan. */
-
-/* A sub-group that opens its column has nothing above it at ≥ 768 px — the
-   mobile label is hidden there — so a separator would float at the top of
-   the tinted cell. Below 768 px the label sits above it and the line stays.
-   This mirrors the origin's md:border-t-0 md:pt-0 variants and fixes its
-   one inconsistent copy (§4 SPIS "Melk og meieriprodukter:"). */
-@media (min-width: 768px) {
-  .content-col > .role-label + .sub-group-title,
-  .content-col > .sub-group-title:first-child {
-    margin-top: 0;
-    padding-top: 0;
-    border-top: none;
-  }
 }
 
 /* Footnote banner --------------------------------------------------------- */
