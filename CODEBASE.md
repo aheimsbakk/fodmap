@@ -78,8 +78,10 @@ corrections applied (BLUEPRINT §12.1).
 | Footer                 | `footer.page-footer` → `p.footer-disclaimer`, `p.footer-source`, `p.footer-credit` (with link)                    |
 
 The `data-category` attribute repeats on the section element itself: the
-scripts and the content tests address sections by it, while the CSS tint
-rules consume the heading's copy through sibling selectors (CODEBASE §5.2).
+scripts and the content tests address sections by it, while the CSS
+heading-color rules consume the heading's copy through
+`[data-category]` selectors (CODEBASE §5.2). Column tints are
+role-based and address `[data-role]` directly on the column.
 
 Semantic hooks used by the script (data attributes, set at load time):
 
@@ -94,13 +96,13 @@ Element IDs: `search-input`, `clear-search`, `text-scale-toggle`,
 
 ### 2.2 Stylesheets (`src/css/`)
 
-| File             | Layer      | Content                                                                                                                                                                                                                                                                                                                                                                       |
-| ---------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `tokens.css`     | tokens     | CSS custom properties: every color from BLUEPRINT §4.1 (category sets incl. 10 %/20 %/10 % column tints), font families/weights, size scale §4.3 (content font-size tokens wrapped in `calc(var(--text-scale))`, §7.4), z-order §4.4, sticky offsets, effects §4.5                                                                                                            |
-| `base.css`       | base       | minimal reset, `body` (white bg, system sans-serif, `#333`), heading families + uppercase, `ul` normalization, `li` bullet marker (❖ U+2756), `li.item` `overflow-wrap: anywhere` (long tokens at 150 % scale)                                                                                                                                                                |
-| `layout.css`     | layout     | `.container` (max-width 1280 px, margins, z-20, padding), page padding scale, `.content-grid` (1 col → 3 cols at ≥ 768 px; 2 px solid borders; `border-b-0` variant for footnote sections), column border rules (dashed separators, mobile top lines), sticky offsets for `.search-widget` (top 0) and `.category-heading` (top 56 px / 64 px)                                |
-| `components.css` | components | masthead typography and title outline shadow, sub-title `white-space: nowrap` plus narrow-viewport size steps (≤ 457 / 372 / 329 px), search widget (heights 56/64 px, flex layout, `Aa` text-scale toggle), legend cells, role labels (3 color sets), category heading colors (per `[data-category]`), info/footnote banners, sub-group titles, halftone decorations, footer |
-| `utilities.css`  | utilities  | `.hidden`, `.mobile-only` (hidden ≥ 768 px), `.wide-only` (hidden < 768 px), `.sm-only` (hidden < 640 px, for the halftone decorations), `.marker` (search highlight span), `.item-highlight` (bold emphasis)                                                                                                                                                                 |
+| File             | Layer      | Content                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ---------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tokens.css`     | tokens     | CSS custom properties: every color from BLUEPRINT §4.1 (category heading colors + role-based column tints `--tint-spis/-begrens/-unnga`), font families/weights, size scale §4.3 (content font-size tokens wrapped in `calc(var(--text-scale))`, §7.4), z-order §4.4, sticky offsets, effects §4.5                                                                                                                                       |
+| `base.css`       | base       | minimal reset, `body` (white bg, system sans-serif, `#333`), heading families + uppercase, `ul` normalization, `li` bullet marker (❖ U+2756), `li.item` `overflow-wrap: anywhere` (long tokens at 150 % scale)                                                                                                                                                                                                                           |
+| `layout.css`     | layout     | `.container` (max-width 1280 px, margins, z-20, padding), page padding scale, `.content-grid` (1 col → 3 cols at ≥ 768 px; 2 px solid borders; `border-b-0` variant for footnote sections), column border rules (dashed separators, mobile top lines), sticky offsets for `.search-widget` (top 0) and `.category-heading` (top 56 px / 64 px)                                                                                           |
+| `components.css` | components | masthead typography and title outline shadow, sub-title `white-space: nowrap` plus narrow-viewport size steps (≤ 457 / 372 / 329 px), search widget (heights 56/64 px, flex layout, `Aa` text-scale toggle), legend cells, role labels (3 color sets), category heading colors (per `[data-category]`), role-based column tints (per `[data-role]`, deviation 13), info/footnote banners, sub-group titles, halftone decorations, footer |
+| `utilities.css`  | utilities  | `.hidden`, `.mobile-only` (hidden ≥ 768 px), `.wide-only` (hidden < 768 px), `.sm-only` (hidden < 640 px, for the halftone decorations), `.marker` (search highlight span), `.item-highlight` (bold emphasis)                                                                                                                                                                                                                            |
 
 Authoring rules: mobile-first; no inline styles in markup; all values from
 tokens; each file under 300 lines (RULES §17); if a layer outgrows it,
@@ -194,17 +196,20 @@ the two modules share no state and boot independently.
 ### 5.2 CSS
 
 - **Custom properties as the token layer** give the category color sets
-  (heading bg + 3 tint levels) a single source of truth:
+  (heading background) a single source of truth:
   `--color-brod`, `--color-gronn`, `--color-frukt`, `--color-melk`,
   `--color-drikke`, `--color-kjott`, plus per-section headings
   (`#d1bfae`, `#e6c8c8`, `#b5c7b3`, `#d97744`) set via
   `[data-category="..."]` selectors — this replaces the origin's
   Tailwind utility classes with semantic selectors (deviation 1).
-  Column tints default to the brod set (10 % / 20 % / 10 % opacity) and
-  every other category overrides them with heading-sibling rules
-  (`.category-heading[data-category="x"] + .content-grid .content-col`),
-  which keeps the tint source of truth in the tokens and the markup free
-  of per-column color classes.
+- **Column tints are role-based** (BLUEPRINT §12.2 deviation 13): three
+  tokens (`--tint-spis`, `--tint-begrens`, `--tint-unnga`) hold the role
+  backgrounds at low opacity, and `.content-col[data-role="..."]`
+  selectors apply them. The column ↔ role correspondence matches the
+  legend and the mobile labels at a glance; the markup carries the role
+  on the column itself, so no heading-sibling cascade or per-column
+  color classes are needed. Empty placeholder columns
+  (`[data-role="empty"]`) get no tint rule and stay white.
 - **Breakpoints** are authored mobile-first: base (< 640 px), `sm`
   (≥ 640 px), `md` (≥ 768 px) — the grid and legend flip happens at `md`.
   No `lg`-specific rules are needed beyond the body padding step

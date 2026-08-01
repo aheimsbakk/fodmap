@@ -57,7 +57,7 @@ Page shell                    (background, base typography, page padding)
    ├─ Category sections (11 ×)  each:
    │  ├─ Category heading     (sticky below search widget; icon + title)
    │  ├─ Content grid         (1 column narrow, 3 columns wide+)
-   │  │  └─ Column (3 ×)      (tinted background; optional mobile label;
+   │  │  └─ Column (3 ×)      (role-tinted background; optional mobile label;
    │  │                        optional sub-group headings; item list)
    │  └─ Footnote banner      (optional, joins the grid bottom edge)
    └─ Footer                  (source link, disclaimer)
@@ -82,24 +82,34 @@ Page shell                    (background, base typography, page padding)
 | Category heading (default) | `#d59e5e` | heading background     |
 | Category heading ink       | `#000`    | heading text/border    |
 
-Category color sets (heading background + column tint base):
+Category color sets (heading background only):
 
-| Category                             | Heading bg | Column tint base |
-| ------------------------------------ | ---------- | ---------------- |
-| Brød, ris og pasta                   | `#d59e5e`  | `213, 158, 94`   |
-| Grønnsaker og belgfrukter            | `#8fb88a`  | `143, 184, 138`  |
-| Frukt, tørket frukt og bær           | `#d96f6f`  | `217, 111, 111`  |
-| Melk, meieriprodukter & Alternativer | `#93b5c6`  | `147, 181, 198`  |
-| Nøtter og frø                        | `#a9744f`  | `169, 116, 79`   |
-| Drikke                               | `#8ab6d6`  | `138, 182, 214`  |
-| Kjøtt, egg, fisk                     | `#e08c8c`  | `224, 140, 140`  |
-| Pålegg                               | `#d1bfae`  | `209, 191, 174`  |
-| Sukker, søtning og annet             | `#e6c8c8`  | `230, 200, 200`  |
-| Krydder og urter                     | `#b5c7b3`  | `181, 199, 179`  |
-| Smakstilsetning, saus, dressing      | `#d97744`  | `217, 119, 68`   |
+| Category                             | Heading bg |
+| ------------------------------------ | ---------- |
+| Brød, ris og pasta                   | `#d59e5e`  |
+| Grønnsaker og belgfrukter            | `#8fb88a`  |
+| Frukt, tørket frukt og bær           | `#d96f6f`  |
+| Melk, meieriprodukter & Alternativer | `#93b5c6`  |
+| Nøtter og frø                        | `#a9744f`  |
+| Drikke                               | `#8ab6d6`  |
+| Kjøtt, egg, fisk                     | `#e08c8c`  |
+| Pålegg                               | `#d1bfae`  |
+| Sukker, søtning og annet             | `#e6c8c8`  |
+| Krydder og urter                     | `#b5c7b3`  |
+| Smakstilsetning, saus, dressing      | `#d97744`  |
 
-Column tint levels: column 1 = base at 10 % opacity, column 2 = base at
-20 % opacity, column 3 = base at 10 % opacity.
+Column tints are role-based, per user request (2026-08-01, deviation 13):
+each column carries the color of its role, so the column ↔ role
+correspondence is visible at a glance (matching the legend and the mobile
+labels). Values are the role backgrounds at low opacity:
+
+| Role     | Tint                        |
+| -------- | --------------------------- |
+| SPIS     | `rgba(160, 196, 157, 0.2)`  |
+| BEGRENSE | `rgba(247, 215, 116, 0.25)` |
+| UNNGÅ    | `rgba(209, 93, 93, 0.15)`   |
+
+Empty placeholder columns have no role and stay untinted (white).
 
 Support colors:
 
@@ -261,6 +271,7 @@ Full width, white background, 2 px solid black border, 0.25 rem padding,
   - Wide+: side by side. Column separators: 1 px dashed right line on all
     but the last column. Mobile labels hidden. Legend above the grid carries
     the role names.
+  - Each column's background carries its role tint (§4.1) at every width.
 - Item list: no list markers; each item prefixed by a ❖ bullet (U+2756)
   positioned at the left edge; items 0.85 rem, line-height 1.2, 0.25 rem
   bottom margin.
@@ -285,7 +296,7 @@ Three sections reserve empty columns to keep the 3-column rhythm:
 - Pålegg: column 2 is empty, rendered wide+ only.
 - Krydder og urter: column 2 is empty, rendered wide+ only.
 
-Empty columns keep the category tint, participate in the grid, and carry no
+Empty columns keep no tint (white, §4.1), participate in the grid, and carry no
 mobile label. They are excluded from filtering.
 
 ### 5.8 Footer
@@ -313,7 +324,7 @@ deviation 6), and the credit line is a new addition (user decision
 Section
 ├─ title            (Norwegian heading text)
 ├─ icon             (emoji identifier, see 9.2)
-├─ color set        (heading bg + column tint base, see 4.1)
+├─ color set        (heading background only, see 4.1)
 ├─ column layout    (standard | with-empty-columns | empty-middles)
 ├─ columns [3]
 │   └─ Column
@@ -630,7 +641,7 @@ Reviewed and confirmed unchanged: `Nøtte` (§8), `Banos` (§8),
    a sauce-red terracotta (`#d97744` / `217, 119, 68`), chosen for its
    content association (tomato-based sauces) and its distance from the
    pink/red family already used by Frukt, Kjøtt, and Sukker. Applies to
-   the heading background and the three column tint levels.
+   the heading background only (column tints are role-based, deviation 13).
 8. The masthead sub-title never wraps (user requirement, 2026-07-31).
    The origin wraps onto two lines at narrow viewports; the
    reimplementation declares `white-space: nowrap` and steps the size
@@ -686,8 +697,15 @@ Reviewed and confirmed unchanged: `Nøtte` (§8), `Banos` (§8),
     walnut brown (`#a9744f` / `169, 116, 79`), and Pålegg uses its own
     beige heading (`#d1bfae` / `209, 191, 174`) as the tint base too,
     matching the one-set-per-category pattern of the other nine
-    categories. Applies to the heading background and the three column
-    tint levels.
+    categories. Applies to the heading background only (column tints are
+    role-based, deviation 13).
+13. Column tints are role-based per user request (2026-08-01). The origin
+    tints columns with the category color (10 % / 20 % / 10 % opacity);
+    the reimplementation tints each column with its role color
+    (SPIS / BEGRENSE / UNNGÅ, §4.1) so the column ↔ role correspondence
+    is visible at a glance, matching the legend and the mobile labels.
+    Category colors now apply to the heading background only. Empty
+    placeholder columns have no role and stay untinted (white).
 
 ### 12.3 Negative contracts
 
