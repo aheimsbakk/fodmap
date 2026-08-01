@@ -1,66 +1,130 @@
 # FODMAP — matvareoversikt
 
-En statisk, frittstående nettside med én side som viser lav-FODMAP-matvarer på norsk. Siden er en gjenimplementering av `origin/fodmap.html` uten rammeverk, byggetrinn eller kjøretidsavhengigheter.
+En nettside som viser hvilke matvarer du kan spise, bør begrense eller unngå
+når du følger lav-FODMAP-kost. Siden er én enkelt nettside. Du trenger ingen
+app og ingen innlogging.
 
 ## Hva siden gjør
 
-- Viser 484 matvarer i 11 kategorier (SPIS, BEGRENSE, UNNGÅ).
-- Har søk med direkte filtrering: treff i varer og kategorier blir stående, og treffene utheves. På mobil skjules tomme kolonner under søk og kommer tilbake så snart de har treff igjen.
-- Er responsiv: én kolonne på mobil, tre kolonner på større skjermer.
-- Består bare av HTML, CSS og én JavaScript-modul.
+- Viser 484 matvarer i 11 kategorier, merket SPIS, BEGRENSE eller UNNGÅ.
+- Lar deg søke: matvarer og kategorier uten treff skjules, og treffene utheves.
+- Lar deg øke tekststørrelsen.
+- Tilpasser seg skjermen: én kolonne på mobil, tre kolonner på større skjermer.
 
-## Hurtigstart
+## Åpne siden
 
-Start en statisk filserver:
+**På nettet**
 
-```bash
-python3 -m http.server 8000 --directory src
-# Åpne http://localhost:8000 i nettleseren
-```
+Den publiserte siden ligger på
+[fodmap.sanntid.org](https://fodmap.sanntid.org).
 
-Du kan også åpne `src/index.html` direkte i nettleseren.
+**Lokalt på egen maskin**
 
-## Bruk
+1. Åpne en terminal i prosjektmappen.
+2. Start en lokal tjener:
 
-### Søk
+   ```bash
+   python3 -m http.server 8000 --directory src
+   ```
 
-Skriv i søkefeltet øverst på siden. Bare varer og kategorier som matcher søket, blir stående, og treffene utheves. Bruk ×-knappen, eller tøm feltet, for å vise hele listen igjen. Siden viser alt innhold også uten skript — bare søket blir borte.
+3. Åpne `http://localhost:8000` i nettleseren.
+
+Du kan også åpne `src/index.html` direkte i nettleseren. Innholdet vises
+alltid. I noen nettlesere starter søket bare når siden serveres, for
+eksempel fra en lokal tjener eller fra den publiserte siden.
+
+## Bruke siden
+
+### Søke
+
+1. Skriv et søkeord i feltet øverst på siden.
+2. Les resultatet: matvarer og kategorier uten treff skjules, og treffene
+   utheves med en ramme.
+3. Tøm søket med ×-knappen eller Esc-tasten for å se hele listen igjen.
+
+På mobil skjules tomme kolonner under søk. De kommer tilbake så snart noe i
+dem treffer igjen.
+
+Uten skript viser siden hele innholdet, men søket og tekststørrelse-knappen
+er av.
+
+### Endre tekststørrelse
+
+Bruk Aa-knappen i søkefeltet. Knappen bytter tekststørrelse mellom 100, 125
+og 150 prosent. Valget ditt huskes neste gang du åpner siden.
+
+### Forstå fargene
+
+- **SPIS**, grønn farge: du kan spise matvaren.
+- **BEGRENSE**, gul farge: du bør begrense mengden.
+- **UNNGÅ**, rød farge: du bør unngå matvaren.
+
+På store skjermer vises tegnforklaringen øverst på siden. På mobil vises
+merkelappen over innholdet i hver kolonne.
+
+## Innhold og kilde
+
+Innholdet tar utgangspunkt i de to kildene som også står i footeren på
+siden:
+
+- [Norsk Helseinformatikk (NHI.no) – Dette er FODMAP-reduserte matvarer](https://nhi.no/kosthold/forebyggende-kost-og-sykdom/dette-er-fodmap-reduserte-matvarer)
+- [NKFM – Lav FODMAP-mat ved IBS](https://www.helse-bergen.no/nasjonal-kompetansetjeneste-for-funksjonelle-mage-tarmsykdommer-nkfm/lav-fodmap-mat-ved-ibs)
+
+Sjekk disse nettstedene hvis du vil sammenligne innholdet med oppdateringer.
+
+## Vedlikehold og utvikling
 
 ### Tester og formatering
 
 ```bash
-npm test          # kjør testsuiten (Nodes innebygde testkjører)
-npm run format    # formater kildefilene med Prettier
+npm test          # kjører testsuiten
+npm run format    # formaterer kildefilene med Prettier
 ```
 
-### Skript
+### Verktøyskript
 
-`scripts/verify_codebase_sync.sh` sjekker at alle fysiske stier som er oppført i `CODEBASE.md`, finnes. Kjør skriptet etter strukturendringer:
+`scripts/verify_codebase_sync.sh` sjekker at alle filene og mappene som er
+oppført i `CODEBASE.md`, finnes. Kjør skriptet etter strukturendringer:
 
 ```bash
 ./scripts/verify_codebase_sync.sh
 ```
 
-Tilstandskode 0 betyr at alle stier finnes. Ved en annen tilstandskode viser skriptet hvilke stier som mangler.
+Tilstandskode 0 betyr at alle stier finnes. Ellers skriver skriptet hvilke
+stier som mangler.
 
-`scripts/bump-version.sh` øker versjonen i `VERSION` og oppdaterer versjonsmerket i footeren på siden (`FODMAP vX.Y.Z // Kilder:` i `src/index.html`). Standard trinn er patch. Skriptet feiler hvis markøren i footeren mangler, så versjonen aldri endres uten at footeren oppdateres:
+`scripts/bump-version.sh` øker versjonen i `VERSION` og oppdaterer
+versjonstallet i footeren på siden. Standard steg er patch, men du kan velge
+steg med et argument:
 
 ```bash
-./scripts/bump-version.sh        # patch: 0.3.0 → 0.3.1
-./scripts/bump-version.sh minor  # minor: 0.3.0 → 0.4.0
-./scripts/bump-version.sh major  # major: 0.3.0 → 1.0.0
+./scripts/bump-version.sh        # patch: 0.10.3 → 0.10.4
+./scripts/bump-version.sh minor  # minor: 0.10.3 → 0.11.0
+./scripts/bump-version.sh major  # major: 0.10.3 → 1.0.0
 ```
 
-Skriptet skriver den nye versjonen til `VERSION` og skriver den ut på slutten.
+Skriptet stopper hvis versjonsmerket i footeren mangler, så versjonen aldri
+endres uten at footeren oppdateres samtidig.
 
-## Konfigurasjon
+`scripts/validate-changelog.sh` kontrollerer at den øverste overskriften i
+`CHANGELOG.md` (format `## [x.y.z] - YYYY-MM-DD`) stemmer med `VERSION` og
+dagens dato:
 
-- Utviklingsavhengigheter (eksakte versjoner i `package.json`): `jsdom` for DOM-emulering i tester, `prettier` for formatering.
-- Ingen eksterne fonter: siden bruker plattformens innebygde systemfont (system-ui), så typografien er avhengig av skrifttypene som allerede finnes på enheten. Siden laster ingen eksterne ressurser og fungerer helt uten nett. Ikoner er emoji-tegn; tegn med dobbel fremstilling (⚖️ ℹ️ ⚠️ ☕ 🌶️) har variasjonsvelger.
-- Innholdet følger `BLUEPRINT.md` §12.1: ordrett fra originalen, med unntak av de godkjente rettelsene som er listet der.
+```bash
+./scripts/validate-changelog.sh
+```
 
-## Kilde og oppdateringer
+### Tekniske valg
 
-Matvarelisten kommer fra `origin/fodmap.html`. Når listen skal sjekkes for oppdateringer, er kilden Nasjonal kompetansetjeneste for funksjonelle mage-tarmsykdommer (NKFM) ved Helse Bergen:
+- Ren HTML, CSS og JavaScript med to moduler (`search.js` og
+  `text-scale.js`). Ingen rammeverk og ingen byggetrinn.
+- Ingen eksterne fonter eller tredjepartsressurser.
+- Innholdet er fastsatt i `BLUEPRINT.md` §12.1 og verifisert av testsuiten.
+- Utviklingsavhengighetene (eksakte versjoner i `package.json`) er `jsdom`
+  for DOM-emulering i tester og `prettier` for formatering.
 
-[NKFM – Lav FODMAP-mat ved IBS](https://www.helse-bergen.no/nasjonal-kompetansetjeneste-for-funksjonelle-mage-tarmsykdommer-nkfm/lav-fodmap-mat-ved-ibs)
+### Lisens og kildekode
+
+- Lisens: MIT (se `LICENSE`).
+- Kildekode: [github.com/aheimsbakk/fodmap](https://github.com/aheimsbakk/fodmap/).
+- Feil eller ønsker? Opprett en sak i GitHub-repoet.

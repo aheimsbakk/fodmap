@@ -1,16 +1,17 @@
-# BLUEPRINT.md — FODMAP Overview App (Reimplementation)
+# BLUEPRINT.md — FODMAP Overview App
 
-> Status: Greenfield. Source of truth: `origin/fodmap.html` (single-page FODMAP
-> overview in Norwegian). This document is the language-agnostic architecture
-> for the reimplementation. Physical file mapping lives in `CODEBASE.md`.
+> This document is the language-agnostic architecture for the app and the
+> authoritative specification of its content. It references no external source
+> file; the page and the automated tests are the implementation of this
+> document. Physical file mapping lives in `CODEBASE.md`.
 
 ## 1. System Goals
 
-Reimplement the origin as a static, dependency-free single-page app that:
+Provide a static, dependency-free single-page app that:
 
-1. Looks identical to the origin on all screen sizes (mobile, tablet, desktop).
-2. Behaves identically to the origin: full content rendering without scripts,
-   plus the interactive food search with live filtering and highlighting.
+1. Renders consistently across all screen sizes (mobile, tablet, desktop).
+2. Renders all content without scripts, plus the interactive food search
+   with live filtering and highlighting.
 3. Uses only plain markup documents, stylesheets, and vanilla scripts
    (one module per concern). No frameworks, no runtime library downloads,
    no remote assets, no build step. Typography uses the platform's native
@@ -141,8 +142,7 @@ renders identically offline. Requested weights map to the installed faces
 of the platform; missing faces are synthesized. Oswald's condensed look is
 approximated by bold weight plus the existing uppercase and letter-spacing
 rules; Bebas Neue's narrow display face cannot be reproduced with system
-fonts, so the masthead title renders wider than the origin (deliberate
-deviation, §12.2).
+fonts, so the masthead title renders wider (deliberate deviation 5, §12.2).
 
 Letter spacing: main title +2 px, sub-title `tracking-widest`, labels and
 banners `tracking-wider`. Search input text: uppercase, `tracking-wider`.
@@ -183,11 +183,9 @@ margin; sub-group titles 0.8 rem bold; mobile labels 0.875 rem bold;
 columns 0.75 rem padding; heading border 2 px solid black; grid border
 2 px solid black (left, right, bottom); dashed separators 1 px.
 
-List text is 0.85 rem at every width: the origin's `li` rule (0.85 rem)
-overrides the responsive `ul` size classes, and the reimplementation
-reproduces that rendering. Sub-group titles are 0.8 rem on narrow and
-0.875 rem from 640 px (the origin's `ul` classes win there because the
-Tailwind stylesheet loads after the origin's own rules).
+List text is 0.85 rem at every width. Sub-group titles are 0.8 rem on
+narrow and 0.875 rem from 640 px. These values are fixed and do not
+follow the responsive size steps of the other content text.
 
 ### 4.4 Depth and sticky offsets
 
@@ -312,10 +310,9 @@ github.com/aheimsbakk/fodmap // Lisens MIT" where the repository name
 is a link to `https://github.com/aheimsbakk/fodmap/` (open in a new
 tab). Only the disclaimer line is bold; the source and credit lines
 are regular weight. The three lines are separated by equal 0.5 rem
-gaps. The source line replaces the origin's
-"01 // FODMAP | Kilde:" line (user decision; see §12.2
-deviation 6), and the credit line is a new addition (user decision
-2026-07-31; see §12.2 deviation 10).
+gaps. The source line is a user-requested addition (see §12.2 deviation 6),
+and the credit line is a user-requested addition (2026-07-31; see §12.2
+deviation 10).
 
 ## 6. Content Data Model
 
@@ -488,8 +485,8 @@ A single document (`src/index.html` per user requirement). It must:
 
 ### 9.2 Icon set
 
-Emoji glyphs from the system font, mapped to the origin's Font Awesome
-icons. No runtime icon library.
+Emoji glyphs from the system font replace a runtime icon library
+(§12.2 deviation 2). No icon library is loaded.
 
 | Origin icon (FA 6)   | Replacement emoji | Used in                         |
 | -------------------- | ----------------- | ------------------------------- |
@@ -574,149 +571,125 @@ platform's native system font stack (§4.2), so the page is fully functional
 offline; the only external references are the two attribution links in the
 footer.
 
-## 12. Fidelity
+## 12. Content Specification
 
-### 12.1 Verbatim content
+### 12.1 Canonical content
 
 All Norwegian text — headings, items, portion notes, footnotes, banners,
-brand names, casing, punctuation — is copied from the origin, except for
-the user-approved corrections below. Item counts per column must match
-section 6.2 exactly.
+brand names, casing, punctuation — is fixed by this document. The page and
+the automated tests implement it verbatim. Item counts per column must
+match section 6.2 exactly.
 
-Approved corrections (user decision, 2026-07-31):
+The canonical spellings below were set on 2026-07-31 to correct known
+typos in the source material. The page must use exactly these strings,
+and `tests/content.test.js` asserts them. The reviewed spellings
+`Nøtte` (§8), `Banos` (§8), and `Lollosalat` (§2) look like typos but
+are intentional and must stay unchanged.
 
-| Location    | Origin                                                             | Corrected                                                          |
-| ----------- | ------------------------------------------------------------------ | ------------------------------------------------------------------ |
-| Masthead    | Vanlige matvarer på                                                | Vanlige matvarer                                                   |
-| §2 SPIS     | Sopp: hermetsisk sjampinjong, Østers                               | Sopp: hermetisk sjampinjong, østers                                |
-| §2 SPIS     | Purre-kun det grønne                                               | Purre – kun det grønne                                             |
-| §2 SPIS     | Rødbeter, syltet                                                   | Rødbeter, syltede                                                  |
-| §2 BEGRENSE | Squash (0.75 dl)                                                   | Squash (0,75 dl)                                                   |
-| §3 SPIS     | Banan (15 stk)                                                     | Banan i biter (15 stk)                                             |
-| §3 BEGRENSE | Avokodo (1/8 av en hel)                                            | Avokado (1/8 av en hel)                                            |
-| §3 BEGRENSE | Blåbær, amerikanske og hvite inn (40 gram)                         | Blåbær, amerikanske og hvite inni (40 gram)                        |
-| §3 BEGRENSE | Tranebær (1ss)                                                     | Tranebær (1 ss)                                                    |
-| §4 heading  | Melk, meieriprodukter & Alternativer                               | Melk, meieriprodukter & alternativer                               |
-| §4 BEGRENSE | Kokosmelk, (0,6 dl)                                                | Kokosmelk (0,6 dl)                                                 |
-| §4 UNNGÅ    | Rømme, kesam                                                       | Rømme                                                              |
-| §8 SPIS     | Sardiner i vann, olje eller gele.                                  | Sardiner i vann, olje eller gele                                   |
-| §8 SPIS     | Spekeskinke (strynskinke, Strandaskinke, serranoskinke, westfaler) | Spekeskinke (strynskinke, strandaskinke, serranoskinke, westfaler) |
-| §9 SPIS     | Sirup, Glukose                                                     | Sirup, glukose                                                     |
-| §9 SPIS     | Aceculfat K                                                        | Acesulfam K                                                        |
-| §9 UNNGÅ    | Erytritol (Sukrin) (E938)                                          | Erytritol (Sukrin) (E 968)                                         |
-| §9 UNNGÅ    | Polydextrose (E1200)                                               | Polydextrose (E 1200)                                              |
-| §10 SPIS    | Bukkehomkløver/methi                                               | Bukkehornkløver/methi                                              |
-| §10 SPIS    | Kajennepepper                                                      | Cayennepepper                                                      |
-| §11 UNNGÅ   | Kjøttbuljond, cups (Magi)                                          | Kjøttbuljong (Maggi)                                               |
+| Location    | Canonical spelling                                                 |
+| ----------- | ------------------------------------------------------------------ |
+| Masthead    | Vanlige matvarer                                                   |
+| §2 SPIS     | Sopp: hermetisk sjampinjong, østers                                |
+| §2 SPIS     | Purre – kun det grønne                                             |
+| §2 SPIS     | Rødbeter, syltede                                                  |
+| §2 BEGRENSE | Squash (0,75 dl)                                                   |
+| §3 SPIS     | Banan i biter (15 stk)                                             |
+| §3 BEGRENSE | Avokado (1/8 av en hel)                                            |
+| §3 BEGRENSE | Blåbær, amerikanske og hvite inni (40 gram)                        |
+| §3 BEGRENSE | Tranebær (1 ss)                                                    |
+| §4 heading  | Melk, meieriprodukter & alternativer                               |
+| §4 BEGRENSE | Kokosmelk (0,6 dl)                                                 |
+| §4 UNNGÅ    | Rømme                                                              |
+| §8 SPIS     | Sardiner i vann, olje eller gele                                   |
+| §8 SPIS     | Spekeskinke (strynskinke, strandaskinke, serranoskinke, westfaler) |
+| §9 SPIS     | Sirup, glukose                                                     |
+| §9 SPIS     | Acesulfam K                                                        |
+| §9 UNNGÅ    | Erytritol (Sukrin) (E 968)                                         |
+| §9 UNNGÅ    | Polydextrose (E 1200)                                              |
+| §10 SPIS    | Bukkehornkløver/methi                                              |
+| §10 SPIS    | Cayennepepper                                                      |
+| §11 UNNGÅ   | Kjøttbuljong (Maggi)                                               |
 
-Reviewed and confirmed unchanged: `Nøtte` (§8), `Banos` (§8),
-`Lollosalat` (§2).
+### 12.2 Design decisions and behavior notes
 
-### 12.2 Documented deviations from the origin (behavior parity notes)
-
-1. Tailwind utility classes are replaced by semantic stylesheet classes.
-   Visual output is unchanged.
-2. The Font Awesome JavaScript CDN is replaced by corresponding emoji.
-   Emoji are system-rendered and vary by platform, so the icon area is a
-   deliberate visual deviation from the origin's monochrome icons,
-   consistent with the masthead's existing emoji.
+1. Semantics: stylesheet classes are semantic and hand-written; no utility
+   class framework is used. Visual output follows §4–§11.
+2. Icons: emoji glyphs from the system font replace an icon library.
+   Emoji are system-rendered and vary by platform, so the icon area looks
+   different per platform — the same variability already accepted for the
+   masthead's emoji.
 3. Item small-print notes are merged into the item text as plain
-   parenthesized notes from the start. The origin renders two items
-   ("Brød, surdeig, spelt" and "Cornflakes, glutenfri", §1 SPIS) with a
-   styled small-print line and flattens that styling after the first
-   search. Deviation is deliberate: the styling covers only two items,
-   and the origin's own search removes it anyway.
-4. The clear control in the origin is a button without an explicit type;
-   the reimplementation declares an explicit type (non-visual).
-5. Google Fonts (Oswald, Bebas Neue, Open Sans) are replaced by the
-   platform's native system font stack (user decision, 2026-07-31: no
-   third-party font dependency). Rendering varies by platform and by
-   installed faces. Oswald's condensed headings are approximated by bold
-   weight with the existing uppercase and letter-spacing rules; Bebas
-   Neue's narrow display face is not reproducible with system fonts, so
-   the masthead title renders wider. This is the same platform-variability
-   trade-off already accepted for emoji (deviation 2).
-6. The footer source line is replaced per user request (2026-07-31):
-   "01 // FODMAP | Kilde:" with one NHI.no link becomes
-   "FODMAP v0.3.0 // Kilder:" with two links (NHI.no and NKFM – Lav
-   FODMAP-mat ved IBS). The disclaimer line below is unchanged. The
-   version text must track the `VERSION` file.
-7. The Smakstilsetning, saus, dressing category color set is changed per
-   user request (2026-07-31): the origin's gray-green
-   (`#a4b8a2` / `164, 184, 162`) was visually indistinguishable from the
-   Krydder og urter set (`#b5c7b3` / `181, 199, 179`). It is replaced by
-   a sauce-red terracotta (`#d97744` / `217, 119, 68`), chosen for its
+   parenthesized notes. There is no separate small-print styling; the
+   styling applies consistently at all times and under every search state.
+4. The clear control is a button with an explicit `type="button"`
+   (non-visual).
+5. Typography uses the platform's native system font stack (user decision,
+   2026-07-31: no third-party font dependency). Rendering varies by
+   platform and by installed faces. Condensed heading faces are
+   approximated by bold weight with the existing uppercase and
+   letter-spacing rules; the narrow display face used by the original
+   masthead is not reproducible with system fonts, so the masthead title
+   renders wider. This is the same platform-variability trade-off already
+   accepted for emoji (deviation 2).
+6. The footer source line reads "FODMAP v<version> // Kilder:" with two
+   links (NHI.no and NKFM – Lav FODMAP-mat ved IBS); the version text
+   must track the `VERSION` file. The disclaimer line below it is bold;
+   the source and credit lines are regular weight (§5.8).
+7. The Smakstilsetning, saus, dressing category heading color is a
+   sauce-red terracotta (`#d97744` / `217, 119, 68`), chosen for its
    content association (tomato-based sauces) and its distance from the
    pink/red family already used by Frukt, Kjøtt, and Sukker. Applies to
    the heading background only (column tints are role-based, deviation 13).
-8. The masthead sub-title never wraps (user requirement, 2026-07-31).
-   The origin wraps onto two lines at narrow viewports; the
-   reimplementation declares `white-space: nowrap` and steps the size
+8. The masthead sub-title never wraps (user requirement, 2026-07-31):
+   `white-space: nowrap` keeps the tagline on one line, and the size steps
    down at ≤ 457 px (1 rem), ≤ 372 px (0.875 rem), and ≤ 329 px
-   (0.8125 rem) so the single line also fits without horizontal
-   overflow at every width down to 320 px.
+   (0.8125 rem) so the single line fits without horizontal overflow at
+   every width down to 320 px.
 9. A text-size toggle is added per user request (2026-07-31): a cycling
    `Aa` button in the search widget raises content text through
-   100 % / 125 % / 150 %. The origin has no such control. Scaling
-   applies to the content font-size tokens only (`calc` on
-   `--text-scale`); the masthead titles, spacing, borders, search
-   widget height, and sticky offsets stay fixed so the view remains
-   compact. Items declare `overflow-wrap: anywhere` so unbreakable
-   tokens ("Maltodextrin/maltose/maltekstrakt") wrap instead of pushing
-   the column track wider at 150 %. The level is persisted in local
-   storage (key
-   `fodmap-text-scale`) — the one storage exception to §10 — and
-   degrades to session-only when storage is unavailable. The toggle is
-   not part of the search engine module; it lives in its own module
-   and state machine (§7.4).
-10. A footer credit line is added per user request (2026-07-31):
+   100 % / 125 % / 150 %. Scaling applies to the content font-size tokens
+   only (`calc` on `--text-scale`); the masthead titles, spacing, borders,
+   search widget height, and sticky offsets stay fixed so the view remains
+   compact. Items declare `overflow-wrap: anywhere` so unbreakable tokens
+   ("Maltodextrin/maltose/maltekstrakt") wrap instead of pushing the
+   column track wider at 150 %. The level is persisted in local storage
+   (key `fodmap-text-scale`) — the one storage exception to §10 — and
+   degrades to session-only when storage is unavailable. The toggle is not
+   part of the search engine module; it lives in its own module and state
+   machine (§7.4).
+10. The footer includes a credit line (user request, 2026-07-31):
     "Utviklet av Arnulf Heimsbakk // Kildekode på
-    github.com/aheimsbakk/fodmap // Lisens MIT" with the repository
-    name linked to `https://github.com/aheimsbakk/fodmap/` (new tab).
-    The origin has no such line. It renders in the footer's small gray
-    secondary style below the source line. The footer order is:
-    disclaimer, source line, credit line, with equal 0.5 rem gaps
-    between the three text lines. A separator (em dash, then dashed,
-    then a solid 2 px rule matching the footer border) sat between
-    the disclaimer and the source line for one day and was removed on
-    user request; the current footer has no separator. Bold weight
-    moved from the source line to the disclaimer line on user request
-    (2026-07-31); the source line now renders regular weight.
-11. Sub-group headings have no separator line, per user request
-    (2026-08-01). The origin draws a 1 px light line above most sub-list
-    titles; the reimplementation drops the line everywhere. A uniform
-    separator with a wide-screen flush variant was added on 2026-07-31
-    and removed again on 2026-08-01: in the FILTERED state a visible
-    sub-group heading can sit below hidden items, leaving the line
-    floating above it. Separation from the preceding block is
-    margin-only (0.75 rem top margin); the `--color-subgroup-line`
-    token is gone, and no media query special-cases first sub-groups —
-    the heading renders identically at every width and in both search
-    states.
-12. The Nøtter og frø and Pålegg category color sets are changed per user
-    request (2026-07-31). The origin reuses the Brød set for Nøtter og
-    frø (same heading and column tints) and the Brød tint base for
-    Pålegg's columns. Each now gets a distinct set: Nøtter og frø a
-    walnut brown (`#a9744f` / `169, 116, 79`), and Pålegg uses its own
-    beige heading (`#d1bfae` / `209, 191, 174`) as the tint base too,
-    matching the one-set-per-category pattern of the other nine
-    categories. Applies to the heading background only (column tints are
-    role-based, deviation 13).
-13. Column tints are role-based per user request (2026-08-01). The origin
-    tints columns with the category color (10 % / 20 % / 10 % opacity);
-    the reimplementation tints each column with its role color
-    (SPIS / BEGRENSE / UNNGÅ, §4.1) so the column ↔ role correspondence
-    is visible at a glance, matching the legend and the mobile labels.
-    Category colors now apply to the heading background only. Empty
-    placeholder columns carry the role of their position and get the
-    corresponding tint (2026-08-01): leaving them white broke the color
-    rhythm of the section next to their tinted neighbors. They are
-    marked `data-placeholder`, render wide+ only, and stay excluded
-    from filtering.
+    github.com/aheimsbakk/fodmap // Lisens MIT" with the repository name
+    linked to `https://github.com/aheimsbakk/fodmap/` (new tab). The
+    footer renders three text lines — disclaimer, source line, credit
+    line — with equal 0.5 rem gaps between them and no separator. Only the
+    disclaimer line is bold. The credit line sits in the footer's small
+    gray secondary style below the source line (§5.8).
+11. Sub-group headings have no separator line (user request, 2026-08-01).
+    In the FILTERED state a visible sub-group heading can sit below
+    hidden items, so a line above it would float detached. Separation
+    from the preceding block is margin-only (0.75 rem top margin); the
+    `--color-subgroup-line` token is gone, and no media query
+    special-cases first sub-groups — the heading renders identically at
+    every width and in both search states.
+12. Every category has its own heading color set. Nøtter og frø uses a
+    walnut brown (`#a9744f` / `169, 116, 79`), and Pålegg uses a beige
+    (`#d1bfae` / `209, 191, 174`); both are distinct from the Brød set
+    they initially shared, matching the one-set-per-category pattern of
+    the other categories. Applies to the heading background only (column
+    tints are role-based, deviation 13).
+13. Column tints are role-based per user request (2026-08-01): each
+    column carries the color of its role (SPIS / BEGRENSE / UNNGÅ, §4.1)
+    so the column ↔ role correspondence is visible at a glance, matching
+    the legend and the mobile labels. Category colors apply to the heading
+    background only. Empty placeholder columns carry the role of their
+    position and get the corresponding tint (2026-08-01): leaving them
+    white broke the color rhythm of the section next to their tinted
+    neighbors. They are marked `data-placeholder`, render wide+ only, and
+    stay excluded from filtering.
 14. On narrow viewports, columns left without visible content by a search
-    are hidden entirely (user request, 2026-08-01). The origin keeps the
-    tinted cell at every width; hiding the empty cells collapses the
-    stacked narrow layout and saves vertical space. The collapse is a
+    are hidden entirely (user request, 2026-08-01): the collapse shrinks
+    the stacked narrow layout and saves vertical space. The collapse is a
     mobile-scoped CSS utility class (`.col-empty-mobile`, display none
     below 768 px only) toggled by the search executor from a per-column
     flag in the matcher plan (§7.2.5). Every re-render recomputes the
@@ -772,25 +745,24 @@ Text-size toggle (§7.4):
   (matches, highlights, and visibility stay intact), and clearing a
   search never resets the level.
 
-### 13.2 Content parity tests (automated)
+### 13.2 Content inventory tests (automated)
 
-- Section count, heading order, and heading text equal to origin, except
-  the approved corrections (§12.1).
-- Per-column item counts equal to section 6.2 (total 484).
-- Sampled item text equality against origin, except the approved
-  corrections (§12.1).
+- Section count (11), heading order, and heading text equal to the
+  canonical inventory in §6.2 and §12.1.
+- Per-column item counts equal to §6.2 (total 484).
+- The canonical spellings in §12.1 are present verbatim in the markup.
 
-### 13.3 Visual and behavioral parity (full-browser)
+### 13.3 Visual and behavioral verification (full-browser)
 
-Run in a real browser (Playwright, available in this environment):
-render the reimplementation against the origin at 375 px, 768 px,
-1024 px, and 1280 px widths and compare masthead, sticky offsets, grid
-columns, mobile labels vs legend, banner seams, and footer. Run live
-search flows (typing, highlighting, clear, section hiding, scroll blur)
-and compare screenshots. Spot-check the FILTERED state at the same
-widths, including the narrow empty-column collapse (deviation 14) at
-375 px: an emptied column must be gone below 768 px and present as a
-tinted cell from 768 px up.
+Run in a real browser (Playwright, available in this environment): render
+the page at 375 px, 768 px, 1024 px, and 1280 px widths and verify the
+responsive contract — masthead, sticky offsets, grid columns, mobile
+labels vs legend, banner seams, and footer. Run live search flows (typing,
+highlighting, clear, section hiding, scroll blur) and verify the resulting
+document state. Spot-check the FILTERED state at the same widths,
+including the narrow empty-column collapse (deviation 14) at 375 px: an
+emptied column must be gone below 768 px and present as a tinted cell
+from 768 px up.
 
 ## 14. Stylesheet Architecture
 
