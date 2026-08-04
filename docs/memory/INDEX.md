@@ -12,3 +12,4 @@
 | FODMAP standalone without origin        | decision   | high       | fodmap, origin, blueprint, content-tests, standalone   |         | archive/2026-08-01-fodmap-standalone.md           |
 | README is user documentation            | preference | medium     | readme, documentation, norwegian, klarsprak            |         | archive/2026-08-01-fodmap-readme-manual.md        |
 | FODMAP search cleared on reload         | decision   | low        | fodmap, search, reload, form-restore                   |         | archive/2026-08-01-fodmap-reload-clear-search.md  |
+| FODMAP versioned data format decided    | decision   | high       | fodmap, data-format, history, frontmatter, merge       |         | archive/2026-08-04-fodmap-data-format.md          |

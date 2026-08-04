@@ -21,7 +21,11 @@ work/
 ├── .opencode/                   # agent configuration and skills
 ├── .gitignore
 ├── docs/
-│   └── memory/                  # session memory (skill-managed)
+│   ├── config-format.md            # technical spec of data/config.json (proposed)
+│   ├── config-guide.md             # user guide: editing config.json
+│   ├── data-format.md              # data/config format spec (proposed, not yet implemented)
+│   ├── data-lifecycle.md           # user guide: yearly data update and release lifecycle
+│   └── memory/                     # session memory (skill-managed)
 ├── README.md                    # project overview, quick start, script docs — in Norwegian
 ├── src/
 │   ├── index.html               # entry point: full static markup of the page
