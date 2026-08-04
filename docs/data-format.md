@@ -42,10 +42,11 @@ Rules:
 - **Later folders hold deltas only**: changed/updated items, newly added
   items, and items set to `visible: false`. Unchanged items do not appear
   in delta folders.
-- Section folders are named after the **section key** in `config.json`
+- Section folders are named after the **section id** in `config.json`
   (UTF-8 allowed, §5).
 - The **filename (slug) is the item's permanent id** (§4.3). It never
-  changes, even when the display name changes.
+  changes, even when the display name changes. File names may contain
+  any UTF-8 character (e.g. Norwegian `æ`, `ø`, `å`).
 - Item files for the current state are built by merging oldest → newest
   (§7).
 
@@ -177,14 +178,26 @@ below. The Markdown body holds free-form notes.
 
 ### 4.1 Frontmatter fields
 
-| Field         | Required         | Meaning                                       |
-| ------------- | ---------------- | --------------------------------------------- |
-| `name`        | baseline: yes    | primary text, verbatim                        |
-| `group`       | baseline: yes    | group key from `config.json`                  |
-| `amount`      | no               | portion note; rendered as `name (amount)`     |
-| `subgroup`    | no               | subgroup key from `config.json`               |
-| `visible`     | no, default true | `false` hides the item from search and tables |
-| `attribution` | no               | source URL for the item's data                |
+| Field         | Required         | Meaning                                                 |
+| ------------- | ---------------- | ------------------------------------------------------- |
+| `name`        | baseline: yes    | primary text, verbatim                                  |
+| `group`       | baseline: yes    | group key from `config.json`                            |
+| `amount`      | no               | portion note; rendered as `name (amount)`               |
+| `subgroup`    | no               | subgroup key from `config.json`                         |
+| `visible`     | no, default true | `false` hides the item from search and tables           |
+| `attribution` | no               | source URL(s) for the item's data; one string or a list |
+
+`attribution` accepts either a single string or a YAML list of strings.
+Both forms store the same data; the list form is for items backed by more
+than one source:
+
+```yaml
+attribution: https://example.com/fodmap.pdf # single URL
+
+attribution: # multiple URLs
+  - https://example.com/fodmap.pdf
+  - https://example.com/fodmap-utspr.pdf
+```
 
 In the baseline, `name` and `group` are required. In a delta file any
 field may be omitted — omitted fields are inherited (§7.2).
@@ -201,6 +214,11 @@ links, caveats. Notes accumulate across releases; newer notes are
   `name` change never renames the file.
 - Slugs are unique **per section** (folder). The same slug may exist in
   different section folders (e.g. "Reker" in Kjøtt and Pålegg).
+- **UTF-8 letters are allowed in filenames.** When a filename is made
+  from a name, write the letters as they are. Never transliterate a
+  Unicode character to ASCII. Example: `Brød, glutenfritt og fint` →
+  `brød-glutenfritt-og-fint.md`, **not** `brod-glutenfritt-og-fint.md`
+  (see §5).
 
 ### 4.4 Example
 
@@ -210,7 +228,9 @@ name: Erytritol (Sukrin) (E 968)
 group: unngå
 subgroup: søtstoff-polyoler
 visible: true
-attribution: https://example.com/fodmap-2021.pdf
+attribution:
+  - https://example.com/fodmap.pdf
+  - https://example.com/fodmap-utspr.pdf
 ---
 
 Kan tolereres av noen i små mengder – verifiser forskningsgrunnlaget (2020).
@@ -219,6 +239,9 @@ Kan tolereres av noen i små mengder – verifiser forskningsgrunnlaget (2020).
 ## 5. Encoding
 
 - All files are UTF-8. Keys and values may contain any Unicode character.
+- **File and folder names are UTF-8.** Any Unicode character is allowed
+  (including Norwegian `æ`, `ø`, `å`); names are referenced literally and
+  never transliterated to ASCII.
 - Key conventions: lowercase (`unngå`, `søtstoff-polyoler`) is recommended
   but not enforced. Keys are case-sensitive.
 - The Norwegian content text (names, titles) must match the canonical

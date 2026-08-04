@@ -1,0 +1,8 @@
+---
+name: Nutella (som pålegg inntil 1 skive, tilsvarende 15 gram)
+group: spis
+subgroup: annet
+attribution:
+  - https://nhi.no/kosthold/forebyggende-kost-og-sykdom/dette-er-fodmap-reduserte-matvarer
+  - https://media.nhi.no/syssiteassets/pdf/fodmap-utskr-6sider-pdf
+---

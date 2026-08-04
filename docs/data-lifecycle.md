@@ -54,10 +54,9 @@ name: Erytritol (Sukrin) (E 968)
 group: begrens
 subgroup: søtstoff-polyoler
 visible: true
-attribution: https://example.com/updated-fodmap.pdf
+attribution:
+  - https://example.com/updated-fodmap.pdf
 ---
-
-2025: begrenset mengde kan tolereres – verifiser forskningsgrunnlaget (2020).
 ```
 
 New notes go on top. Older notes stay below; never edit them.
@@ -134,13 +133,18 @@ group: spis
 
 ### 3.6 Update the source of an item
 
-Change the `attribution` URL:
+Change the `attribution` field. It can be a single URL or a list:
 
 ```markdown
 ---
-attribution: https://example.com/new-source.pdf
+attribution:
+  - https://example.com/new-source.pdf
+  - https://example.com/second-source.pdf
 ---
 ```
+
+An empty value clears the attribution entirely (`attribution:` with
+nothing after it, or an empty list).
 
 ### 3.7 Adjust names in config
 
@@ -158,6 +162,8 @@ entry.
 
 - **Edit newest, never oldest.** Release folders are history.
 - **The filename is the id.** Rename via `name`, never by moving files.
+  UTF-8 letters are allowed in filenames — never transliterate a Unicode
+  character to ASCII (`ø` → `o`, `å` → `a`).
 - **Absent means inherit.** Omit a field to keep the older value.
 - **Empty means clear.** `field:` with nothing clears an inherited value.
 - **Notes append on top.** Never rewrite or delete old notes.
