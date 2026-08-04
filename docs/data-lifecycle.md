@@ -52,7 +52,7 @@ the Markdown body:
 ---
 name: Erytritol (Sukrin) (E 968)
 group: begrens
-subgroup: sotstoff-polyoler
+subgroup: søtstoff-polyoler
 visible: true
 attribution: https://example.com/updated-fodmap.pdf
 ---
@@ -147,6 +147,12 @@ attribution: https://example.com/new-source.pdf
 All section, group, and subgroup names live in `data/config.json`. Change
 the value there to rename a heading across the whole page. The keys stay
 stable; item files reference keys, never names.
+
+Sections and groups are open sets — you can also add or remove them. To
+add a section or group, add an entry to the matching array in
+`config.json` (see `config-guide.md` §4.3 and §4.5b). To remove one,
+first move or delete every item that references its id, then delete the
+entry.
 
 ## 4. Rules of thumb
 

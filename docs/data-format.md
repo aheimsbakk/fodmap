@@ -53,51 +53,58 @@ Rules:
 
 One global file. Ids/keys are free-form (lowercase recommended), values
 UTF-8. Full reference in `config-format.md` (technical) and
-`config-guide.md` (user). Config covers both the page text (masthead,
+`config-guide.md` (user). Config covers both the page text (head,
 search, banners, footer) and the named collections:
 
-| Field           | Type   | Meaning                                                      |
-| --------------- | ------ | ------------------------------------------------------------ |
-| `schema`        | number | format version (§9); `1` for the first release               |
-| `collation`     | string | locale for alphabetical sorting, e.g. `"no-NO"`              |
-| `page`          | object | page-level text: title, masthead, search, banner, footer     |
-| `sections`      | array  | ordered sections; each entry has `id` (the folder name)      |
-| `groups`        | array  | ordered groups; each entry has `id`, `label`, `icon`, `tint` |
-| `subgroups`     | object | subgroup key → display title                                 |
-| `footnoteTypes` | object | footnote key → icon definition                               |
+| Field            | Type   | Meaning                                                       |
+| ---------------- | ------ | ------------------------------------------------------------- |
+| `schema`         | number | format version (§9); `1` for the first release                |
+| `collation`      | string | locale for alphabetical sorting, e.g. `"no-NO"`               |
+| `page`           | object | page-level text: head, search, banner, colors, footer         |
+| `sections`       | array  | ordered sections; each entry has `id` (the folder name)       |
+| `groups`         | array  | ordered groups; each entry has `id`, `label`, `emoji`, colors |
+| `subgroups`      | object | subgroup key → display title                                  |
+| `footnote-types` | object | footnote key → emoji or null                                  |
 
 Sections and groups are **arrays with explicit `id`s** so their order
 (page order, column order) is part of the data and survives any parser.
-Subgroups and footnote types are keyed objects (lookup only, order
-irrelevant).
+The number of sections and the number of groups are both arbitrary — the
+maintainer defines the ids and the array length. Subgroups and footnote
+types are keyed objects (lookup only, order irrelevant).
 
 ### 3.1 Sections
 
-A section is a top-level category (the 11 page sections). Its `id` is
-the folder name for that section. Each entry:
+A section is a top-level category on the page. **Sections are arbitrary**:
+the maintainer defines the `id` and may add, remove, or reorder any
+number of them. Its `id` is the folder name for that section. Each entry:
 
-| Field      | Type   | Meaning                                                      |
-| ---------- | ------ | ------------------------------------------------------------ |
-| `id`       | string | unique section key; folder name                              |
-| `title`    | string | displayed heading text (Norwegian, verbatim)                 |
-| `icon`     | string | emoji glyph                                                  |
-| `color`    | string | heading background color (optional)                          |
-| `empty`    | array  | group ids rendered as empty placeholder columns (optional)   |
-| `footnote` | object | `{ "type": <footnoteTypes key>, "text": string }` (optional) |
+| Field              | Type   | Meaning                                                       |
+| ------------------ | ------ | ------------------------------------------------------------- |
+| `id`               | string | unique section key; folder name                               |
+| `title`            | string | displayed heading text (Norwegian, verbatim)                  |
+| `emoji`            | string | emoji glyph                                                   |
+| `background-color` | string | heading background color (optional)                           |
+| `footnote`         | object | `{ "type": <footnote-types key>, "text": string }` (optional) |
+
+Empty placeholder columns are not declared here; a section folder with
+no item for a group renders that group's column as a placeholder.
 
 ### 3.2 Groups
 
-A group is the role column an item sits in (SPIS / BEGRENSE / UNNGÅ).
-The page has exactly three; array position is the column order. Each
-entry has `id`, `label` (badge text), `icon` (emoji), and optional
-`tint` (role background color).
+A group is the column an item sits in (for example SPIS / BEGRENSE /
+UNNGÅ). **Groups are arbitrary**: the maintainer defines the `id` and
+may add or remove any number of them. There is no fixed count; array
+position is the left-to-right column order. Each entry has `id`,
+`label` (badge text), `emoji`, and the optional colors
+`background-color` (label background), `text-color` (label text / border
+ink), and `column-color` (column tint).
 
 ### 3.3 Subgroups
 
 A subgroup is a heading inside a column that groups items. The key is
-referenced from item frontmatter; the value is the displayed title
-(including the trailing colon where one shows). Order is alphabetical by
-title, not by object order.
+referenced from item frontmatter; the value is the displayed title,
+shown verbatim (a trailing colon, where present, is part of the value).
+Order is alphabetical by title, not by object order.
 
 ### 3.4 Footnote types
 
@@ -114,21 +121,20 @@ have no icon). Keyed by section `footnote.type`.
     {
       "id": "sukker",
       "title": "Sukker, søtning og annet",
-      "icon": "🧊",
-      "color": "#e6c8c8",
+      "emoji": "🧊",
+      "background-color": "#e6c8c8",
       "footnote": {
         "type": "tips",
         "text": "TIPS: Matvarer merket \"naturlig lett\" og \"naturlig søtet\" inneholder ofte fruktose/fruktkonsentrat."
       }
     },
     {
-      "id": "kjott",
+      "id": "kjøtt",
       "title": "Kjøtt, egg, fisk",
-      "icon": "🍗",
-      "color": "#e08c8c",
-      "empty": ["begrens", "unnga"],
+      "emoji": "🍗",
+      "background-color": "#e08c8c",
       "footnote": {
-        "type": "marinader",
+        "type": "plain",
         "text": "MARINADER, PANERING OG FERDIGMAT: Sjekk ALLTID for løk og hvitløk!"
       }
     }
@@ -137,20 +143,26 @@ have no icon). Keyed by section `footnote.type`.
     {
       "id": "spis",
       "label": "SPIS",
-      "icon": "👍",
-      "tint": "rgba(160, 196, 157, 0.2)"
+      "emoji": "👍",
+      "background-color": "#a0c49d",
+      "text-color": "#1e3a1e",
+      "column-color": "rgba(160, 196, 157, 0.2)"
     },
     {
       "id": "begrens",
       "label": "BEGRENSE",
-      "icon": "⚖️",
-      "tint": "rgba(247, 215, 116, 0.25)"
+      "emoji": "⚖️",
+      "background-color": "#f7d774",
+      "text-color": "#4a3c08",
+      "column-color": "rgba(247, 215, 116, 0.25)"
     },
     {
-      "id": "unnga",
+      "id": "unngå",
       "label": "UNNGÅ",
-      "icon": "✋",
-      "tint": "rgba(209, 93, 93, 0.15)"
+      "emoji": "✋",
+      "background-color": "#d15d5d",
+      "text-color": "#ffffff",
+      "column-color": "rgba(209, 93, 93, 0.15)"
     }
   ]
 }
@@ -195,8 +207,8 @@ links, caveats. Notes accumulate across releases; newer notes are
 ```markdown
 ---
 name: Erytritol (Sukrin) (E 968)
-group: unnga
-subgroup: sotstoff-polyoler
+group: unngå
+subgroup: søtstoff-polyoler
 visible: true
 attribution: https://example.com/fodmap-2021.pdf
 ---
@@ -207,14 +219,15 @@ Kan tolereres av noen i små mengder – verifiser forskningsgrunnlaget (2020).
 ## 5. Encoding
 
 - All files are UTF-8. Keys and values may contain any Unicode character.
-- Key conventions: lowercase (`unnga`, `sotstoff-polyoler`) is recommended
+- Key conventions: lowercase (`unngå`, `søtstoff-polyoler`) is recommended
   but not enforced. Keys are case-sensitive.
 - The Norwegian content text (names, titles) must match the canonical
   content in `BLUEPRINT.md` §12.1 verbatim.
 
 ## 6. Column layout
 
-A section renders three columns, in the array order of `config.groups`. A
+A section renders one column per group, in the array order of
+`config.groups`. A
 column is one **bare block** (items with no `subgroup`), if any, followed
 by its **subgroup blocks** sorted alphabetically by **resolved title**
 (value in `config.subgroups`), each subgroup's items also sorted
@@ -280,5 +293,6 @@ not specified here:
 - Validation and tests for the data.
 - The "what changed this year" report generation.
 - Migration tooling for old release trees.
-- Page-level text configuration (masthead, banners, footer) — the format
-  may grow to cover it.
+
+Page-level text (head, search, banners, footer) and its colors are now
+covered by `data/config.json` (§3).

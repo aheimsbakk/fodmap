@@ -2,9 +2,13 @@
 
 > Technical specification of the single global configuration file
 > `data/config.json`. It defines every configurable name (sections,
-> groups, subgroups, footnote types) and the page-level text (masthead,
+> groups, subgroups, footnote types) and the page-level text (head,
 > banners, footer). The item data (`data-format.md`) references the
-> ids defined here. This is a proposal; not yet implemented.
+> ids defined here.
+>
+> **Source of truth.** `data/config.json` is the authoritative format at
+> the moment. The field names and structure documented here mirror that
+> file.
 
 ## 1. Purpose
 
@@ -28,89 +32,135 @@ and page text:
 
 Top-level object with these fields:
 
-| Field           | Type   | Required | Meaning                                |
-| --------------- | ------ | -------- | -------------------------------------- |
-| `schema`        | number | yes      | format version (§7); `1`               |
-| `collation`     | string | yes      | BCP 47 locale for alphabetical sorting |
-| `page`          | object | yes      | page-level text (§3.1)                 |
-| `sections`      | array  | yes      | ordered section definitions (§3.2)     |
-| `groups`        | array  | yes      | ordered group definitions (§3.3)       |
-| `subgroups`     | object | yes      | subgroup key → display title (§3.4)    |
-| `footnoteTypes` | object | yes      | footnote key → icon definition (§3.5)  |
+| Field            | Type   | Required | Meaning                                |
+| ---------------- | ------ | -------- | -------------------------------------- |
+| `schema`         | number | yes      | format version (§7); `1`               |
+| `collation`      | string | yes      | BCP 47 locale for alphabetical sorting |
+| `page`           | object | yes      | page-level text (§3.1)                 |
+| `sections`       | array  | yes      | ordered section definitions (§3.2)     |
+| `groups`         | array  | yes      | ordered group definitions (§3.3)       |
+| `subgroups`      | object | yes      | subgroup key → display title (§3.4)    |
+| `footnote-types` | object | yes      | footnote key → emoji or null (§3.5)    |
 
 ### 3.1 Page
 
-Static text of the page shell: title, masthead, search, info banner, and
-footer. The column legend is not configured here — it derives from the
-`groups` entries (label + icon).
+Static text and presentation of the page shell: head (masthead), search,
+info banner, page colors, and footer. The browser-tab title is **not
+stored** — it is derived as `head.subtitle` + `" "` + `head.title`. The
+column legend is not configured here — it derives from the `groups`
+entries (label + emoji + colors).
 
-| Field        | Type   | Required | Meaning                                |
-| ------------ | ------ | -------- | -------------------------------------- |
-| `title`      | string | yes      | document `<title>` (with FODMAP in it) |
-| `masthead`   | object | yes      | `{ emojis, subtitle, title }` (below)  |
-| `search`     | object | yes      | `{ icon, placeholder, clear, scale }`  |
-| `infoBanner` | object | yes      | `{ icon, text }` BEGRENSE explanation  |
-| `footer`     | object | yes      | disclaimer, sources, credit (below)    |
+| Field         | Type   | Required | Meaning                                        |
+| ------------- | ------ | -------- | ---------------------------------------------- |
+| `head`        | object | yes      | masthead `{ emoji, subtitle, title, *-color }` |
+| `search`      | object | yes      | search widget text and colors (below)          |
+| `info-banner` | object | yes      | `{ emoji, text, text-color }` BEGRENSE note    |
+| `colors`      | object | yes      | page-level color tokens (below)                |
+| `footer`      | object | yes      | footer colors + lines (below)                  |
 
-`masthead`:
+`head`:
 
-| Field      | Type   | Meaning                           |
-| ---------- | ------ | --------------------------------- |
-| `emojis`   | object | `{ left, right }` flanking emojis |
-| `subtitle` | string | tagline ("Vanlige matvarer")      |
-| `title`    | string | main display title ("FODMAP")     |
+| Field            | Type   | Meaning                           |
+| ---------------- | ------ | --------------------------------- |
+| `emoji`          | object | `{ left, right }` flanking emojis |
+| `subtitle`       | string | tagline ("Vanlige matvarer")      |
+| `title`          | string | main display title ("FODMAP")     |
+| `title-color`    | string | main title color                  |
+| `subtitle-color` | string | tagline color                     |
+| `outline-color`  | string | main title outline color          |
 
 `search`:
 
-| Field         | Type   | Meaning                       |
-| ------------- | ------ | ----------------------------- |
-| `icon`        | string | magnifier emoji               |
-| `placeholder` | string | input placeholder text        |
-| `clear`       | string | clear-control glyph (`×`)     |
-| `scale`       | string | text-size toggle label (`Aa`) |
+| Field               | Type   | Meaning                                              |
+| ------------------- | ------ | ---------------------------------------------------- |
+| `emoji`             | string | magnifier emoji                                      |
+| `placeholder`       | string | input placeholder text                               |
+| `placeholder-color` | string | placeholder text color                               |
+| `clear`             | string | clear-control glyph (`×`)                            |
+| `scale`             | string | text-size toggle label (`Aa`)                        |
+| `marker`            | object | search highlight, `{ background-color, text-color }` |
+
+`colors` (page-level design tokens):
+
+| Field                    | Type   | Meaning                 |
+| ------------------------ | ------ | ----------------------- |
+| `background-color`       | string | page background         |
+| `text-color`             | string | body text               |
+| `heading-color`          | string | heading text/border ink |
+| `column-separator-color` | string | column dashed separator |
+| `column-top-line-color`  | string | narrow column top line  |
+| `halftone-left-color`    | string | left decoration dot     |
+| `halftone-right-color`   | string | right decoration dot    |
+| `halftone-both-color`    | string | shared decoration dot   |
 
 `footer`:
 
-| Field        | Type   | Meaning                                   |
-| ------------ | ------ | ----------------------------------------- |
-| `disclaimer` | string | bold disclaimer sentence                  |
-| `sources`    | array  | `{ label, url }` attribution links        |
-| `credit`     | object | `{ text, repo, repoUrl, license }` credit |
+| Field             | Type   | Meaning                             |
+| ----------------- | ------ | ----------------------------------- |
+| `secondary-color` | string | secondary text color                |
+| `hover-color`     | string | link hover color                    |
+| `lines`           | array  | ordered footer lines (§3.1.1 below) |
+
+**3.1.1 Footer lines**
+
+`footer.lines` is an ordered array of lines. Every line has the same
+shape — `{ "separator": string, "segments": [ … ] }` — so the generator
+renders them all with one function. The **first line is the bold
+disclaimer**; that is a rendering rule, not data.
+
+Each `segments` entry is one of:
+
+- a **string** → plain text; or
+- an **object** `{ "text": string, "url": string }` → a link (new tab).
+
+Segments are joined with the line's `separator`. A `{{version}}`
+placeholder in any segment is substituted from the `VERSION` file.
 
 ### 3.2 Sections
 
 Ordered array of section definitions. A section is a top-level category
-(the 11 page sections). The **`id` is also the folder name** of that
-section.
+on the page. **Sections are arbitrary**: the maintainer defines the
+`id` and may add, remove, or reorder any number of sections. The
+**`id` is also the folder name** of that section.
 
-| Field      | Type   | Required | Meaning                                              |
-| ---------- | ------ | -------- | ---------------------------------------------------- |
-| `id`       | string | yes      | unique section key; folder name; referenced by items |
-| `title`    | string | yes      | displayed heading text (Norwegian, verbatim)         |
-| `icon`     | string | yes      | emoji glyph                                          |
-| `color`    | string | no       | heading background color                             |
-| `empty`    | array  | no       | group ids rendered as empty placeholder columns      |
-| `footnote` | object | no       | `{ "type": <footnoteTypes key>, "text": string }`    |
+| Field              | Type   | Required | Meaning                                              |
+| ------------------ | ------ | -------- | ---------------------------------------------------- |
+| `id`               | string | yes      | unique section key; folder name; referenced by items |
+| `title`            | string | yes      | displayed heading text (Norwegian, verbatim)         |
+| `emoji`            | string | yes      | emoji glyph                                          |
+| `background-color` | string | no       | heading background color                             |
+| `footnote`         | object | no       | `{ "type": <footnote-types key>, "text": string }`   |
+
+Empty placeholder columns are not declared here. They are derived from
+the data: a section folder that has no items for a group renders that
+group's column position as a placeholder.
 
 ### 3.3 Groups
 
-Ordered array of group definitions. A group is a role column (SPIS /
-BEGRENSE / UNNGÅ). The page has exactly three. **The array position is
-the left-to-right column order.**
+Ordered array of group definitions. A group is a column (the role label,
+as in SPIS / BEGRENSE / UNNGÅ). **Groups are arbitrary**: the maintainer
+defines the `id` and may add or remove any number of groups. There is no
+fixed count. **The array position is the left-to-right column order.**
 
-| Field   | Type   | Required | Meaning                                            |
-| ------- | ------ | -------- | -------------------------------------------------- |
-| `id`    | string | yes      | unique group key; referenced from item frontmatter |
-| `label` | string | yes      | displayed badge text                               |
-| `icon`  | string | yes      | emoji glyph                                        |
-| `tint`  | string | no       | role background color (low opacity)                |
+| Field              | Type   | Required | Meaning                                            |
+| ------------------ | ------ | -------- | -------------------------------------------------- |
+| `id`               | string | yes      | unique group key; referenced from item frontmatter |
+| `label`            | string | yes      | displayed badge text                               |
+| `emoji`            | string | yes      | emoji glyph                                        |
+| `background-color` | string | no       | label background color                             |
+| `color`            | string | no       | label text / border ink                            |
+| `column-color`     | string | no       | column background tint (low opacity)               |
+
+The page column legend and the per-column mobile labels derive from the
+`groups` entries automatically (their `label`, `emoji`, and colors).
 
 ### 3.4 Subgroups
 
 Keyed object (not an array): a subgroup is a heading inside a column.
 The key is referenced from item frontmatter; the value is the displayed
-title (including the trailing colon where the rendered heading shows
-one). Order is irrelevant — subgroups display alphabetically by title.
+title, shown verbatim. Whether a heading shows a trailing colon is part
+of the value. Order is irrelevant — subgroups display alphabetically by
+title.
 
 | Field | Type   | Required | Meaning                          |
 | ----- | ------ | -------- | -------------------------------- |
@@ -119,82 +169,117 @@ one). Order is irrelevant — subgroups display alphabetically by title.
 
 ### 3.5 Footnote types
 
-Keyed object: footnote banners can carry an icon. Some notes have no
-icon; the value is then `null`.
+Keyed object: footnote banners can carry an icon. The value is the emoji
+glyph, or `null` for a footnote with no icon. A plain value (not an
+object) keeps it minimal — it matches the `subgroups` key → string form.
 
-| Field | Type            | Required | Meaning                                     |
-| ----- | --------------- | -------- | ------------------------------------------- |
-| key   | string          | yes      | referenced from a section's `footnote.type` |
-| value | `{ "icon": … }` | yes      | icon glyph or `null`                        |
+| Field | Type           | Required | Meaning                                     |
+| ----- | -------------- | -------- | ------------------------------------------- |
+| key   | string         | yes      | referenced from a section's `footnote.type` |
+| value | string or null | yes      | emoji glyph, or `null` for none             |
 
 ### 3.6 Full example
+
+Abbreviated from the authoritative `data/config.json` (which lists all
+current sections, groups, subgroups, and the complete `page` block).
 
 ```json
 {
   "schema": 1,
   "collation": "no-NO",
   "page": {
-    "title": "Vanlige matvarer FODMAP",
-    "masthead": {
-      "emojis": { "left": "🥦🍓", "right": "🧀🥖" },
+    "head": {
+      "emoji": { "left": "🥦🍓", "right": "🧀🥖" },
       "subtitle": "Vanlige matvarer",
-      "title": "FODMAP"
+      "title": "FODMAP",
+      "title-color": "#c43838",
+      "subtitle-color": "#d85c5c",
+      "outline-color": "#000000"
     },
     "search": {
-      "icon": "🔍",
+      "emoji": "🔍",
       "placeholder": "SØK ETTER MATVARE (F.EKS. LØK, EPLE)...",
+      "placeholder-color": "#9ca3af",
       "clear": "×",
-      "scale": "Aa"
+      "scale": "Aa",
+      "marker": {
+        "background-color": "#ffffff",
+        "text-color": "#000000"
+      }
     },
-    "infoBanner": {
-      "icon": "ℹ️",
-      "text": "BEGRENSE: Opp til 1 matvare per måltid. Matvaren har lav FODMAP opp til mengden oppgitt i BEGRENSE-kolonnen."
+    "info-banner": {
+      "emoji": "ℹ️",
+      "text": "BEGRENSE: Opp til 1 matvare per måltid. Matvaren har lav FODMAP opp til mengden oppgitt i BEGRENSE-kolonnen.",
+      "text-color": "#374151"
+    },
+    "colors": {
+      "background-color": "#ffffff",
+      "text-color": "#333333",
+      "heading-color": "#000000",
+      "column-separator-color": "rgba(0, 0, 0, 0.3)",
+      "column-top-line-color": "rgba(0, 0, 0, 0.1)",
+      "halftone-left-color": "#c43838",
+      "halftone-right-color": "#a0c49d",
+      "halftone-both-color": "#e6a147"
     },
     "footer": {
-      "disclaimer": "Rådfør deg alltid med lege eller klinisk ernæringsfysiolog før du starter på en eliminasjonsdiett",
-      "sources": [
+      "secondary-color": "#4b5563",
+      "hover-color": "#dc2626",
+      "lines": [
         {
-          "label": "Norsk Helseinformatikk (NHI.no)",
-          "url": "https://nhi.no/kosthold/forebyggende-kost-og-sykdom/dette-er-fodmap-reduserte-matvarer"
+          "separator": "  ",
+          "segments": [
+            "Rådfør deg alltid med lege eller klinisk ernæringsfysiolog før du starter på en eliminasjonsdiett"
+          ]
         },
         {
-          "label": "NKFM – Lav FODMAP-mat ved IBS",
-          "url": "https://www.helse-bergen.no/nasjonal-kompetansetjeneste-for-funksjonelle-mage-tarmsykdommer-nkfm/lav-fodmap-mat-ved-ibs"
+          "separator": "  ",
+          "segments": [
+            "FODMAP v{{version}} // Kilder:",
+            {
+              "text": "Norsk Helseinformatikk (NHI.no)",
+              "url": "https://nhi.no/kosthold/forebyggende-kost-og-sykdom/dette-er-fodmap-reduserte-matvarer"
+            }
+          ]
+        },
+        {
+          "separator": " // ",
+          "segments": [
+            "Utviklet av Arnulf Heimsbakk",
+            {
+              "text": "Kildekode på github.com/aheimsbakk/fodmap",
+              "url": "https://github.com/aheimsbakk/fodmap/"
+            },
+            "Lisens MIT"
+          ]
         }
-      ],
-      "credit": {
-        "text": "Utviklet av Arnulf Heimsbakk // Kildekode på",
-        "repo": "github.com/aheimsbakk/fodmap",
-        "repoUrl": "https://github.com/aheimsbakk/fodmap/",
-        "license": "Lisens MIT"
-      }
+      ]
     }
   },
   "sections": [
     {
-      "id": "brod",
+      "id": "brød",
       "title": "Brød, ris og pasta",
-      "icon": "🌾",
-      "color": "#d59e5e"
-    },
-    {
-      "id": "sukker",
-      "title": "Sukker, søtning og annet",
-      "icon": "🧊",
-      "color": "#e6c8c8",
+      "emoji": "🌾",
+      "background-color": "#d59e5e",
       "footnote": {
-        "type": "tips",
-        "text": "TIPS: Matvarer merket \"naturlig lett\" og \"naturlig søtet\" inneholder ofte fruktose/fruktkonsentrat."
+        "type": "viktig",
+        "text": "VIKTIG: Glutenfrie produkter kan likevel inneholde høy FODMAP-ingredienser. Gjelder spesielt grove produkter."
       }
     },
     {
-      "id": "kjott",
+      "id": "grønnsaker",
+      "title": "Grønnsaker og belgfrukter",
+      "emoji": "🥕",
+      "background-color": "#8fb88a"
+    },
+    {
+      "id": "kjøtt",
       "title": "Kjøtt, egg, fisk",
-      "icon": "🍗",
-      "color": "#e08c8c",
-      "empty": ["begrens", "unnga"],
+      "emoji": "🍗",
+      "background-color": "#e08c8c",
       "footnote": {
-        "type": "marinader",
+        "type": "plain",
         "text": "MARINADER, PANERING OG FERDIGMAT: Sjekk ALLTID for løk og hvitløk!"
       }
     }
@@ -203,31 +288,39 @@ icon; the value is then `null`.
     {
       "id": "spis",
       "label": "SPIS",
-      "icon": "👍",
-      "tint": "rgba(160, 196, 157, 0.2)"
+      "emoji": "👍",
+      "background-color": "#a0c49d",
+      "text-color": "#1e3a1e",
+      "column-color": "rgba(160, 196, 157, 0.2)"
     },
     {
       "id": "begrens",
       "label": "BEGRENSE",
-      "icon": "⚖️",
-      "tint": "rgba(247, 215, 116, 0.25)"
+      "emoji": "⚖️",
+      "background-color": "#f7d774",
+      "text-color": "#4a3c08",
+      "column-color": "rgba(247, 215, 116, 0.25)"
     },
     {
-      "id": "unnga",
+      "id": "unngå",
       "label": "UNNGÅ",
-      "icon": "✋",
-      "tint": "rgba(209, 93, 93, 0.15)"
+      "emoji": "✋",
+      "background-color": "#d15d5d",
+      "text-color": "#ffffff",
+      "column-color": "rgba(209, 93, 93, 0.15)"
     }
   ],
   "subgroups": {
-    "sotstoff": "Søtstoff:",
-    "sotstoff-polyoler": "Søtstoff (polyoler):",
-    "annet": "Annet:"
+    "belgfrukter": "Belgfrukter",
+    "ost": "Ost",
+    "søtstoff": "Søtstoff",
+    "søtstoff-polyoler": "Søtstoff (polyoler)",
+    "annet": "Annet"
   },
-  "footnoteTypes": {
-    "viktig": { "icon": "⚠️" },
-    "tips": { "icon": "⚠️" },
-    "marinader": { "icon": null }
+  "footnote-types": {
+    "viktig": "⚠️",
+    "tips": "ℹ️",
+    "plain": null
   }
 }
 ```
@@ -242,28 +335,33 @@ A reference to a missing id makes the data invalid.
 | section folder name (path)    | the `id` of a `sections` entry |
 | item field `group`            | the `id` of a `groups` entry   |
 | item field `subgroup`         | a key in `subgroups`           |
-| section field `footnote.type` | a key in `footnoteTypes`       |
-| section field `empty` (array) | the `id`s of `groups` entries  |
+| section field `footnote.type` | a key in `footnote-types`      |
+
+A section folder with no item for a given group id renders that group's
+column as an empty placeholder (§3.2).
 
 ## 5. Ids, keys, and values
 
 - **Id** (`sections`, `groups`): stable identifier, referenced by item
   data and by folder names. Never renames an id once data references it —
   rename the value instead. Uniqueness is required within each array.
-- **Key** (`subgroups`, `footnoteTypes`): stable lookup key, same rule.
+- **Count is dynamic**: the number of sections and groups is arbitrary.
+  The maintainer defines the ids and the array length; there is no fixed
+  set of sections or of columns (see §3.2 and §3.3).
+- **Key** (`subgroups`, `footnote-types`): stable lookup key, same rule.
 - **Value**: display text or attributes.
 - **Encoding**: UTF-8 for ids, keys, and values.
 - **Case**: lowercase ids/keys recommended, not enforced; case-sensitive.
 
 ## 6. Order semantics
 
-| Block           | Order source                                   |
-| --------------- | ---------------------------------------------- |
-| `sections`      | array position = page order of the sections    |
-| `groups`        | array position = left-to-right column order    |
-| `page.*`        | fixed structure; single values and link arrays |
-| `subgroups`     | none — display alphabetically by value         |
-| `footnoteTypes` | none — keyed lookup only                       |
+| Block            | Order source                                   |
+| ---------------- | ---------------------------------------------- |
+| `sections`       | array position = page order of the sections    |
+| `groups`         | array position = left-to-right column order    |
+| `page.*`         | fixed structure; single values and link arrays |
+| `subgroups`      | none — display alphabetically by value         |
+| `footnote-types` | none — keyed lookup only                       |
 
 Explicit arrays make the order part of the data, immune to parser
 ordering differences. Subgroup and footnote type order is irrelevant and
