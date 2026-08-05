@@ -1,28 +1,5 @@
 # Changelog
 
-## [0.10.6] - 2026-08-05
-
-- **why:** Docs cleanup: compress the architecture documents, fix documentation sync gaps, remove dead stylesheet code, and delete the findings analysis file
-- **model:** opencode/deepseek-v4-flash-free
-- **tags:** docs, cleanup, dead-code, merge, tokens
-
-### Changed
-
-- `BLUEPRINT.md` (1147 → 1025 lines) and `CODEBASE.md` (457 → 402 lines): deviation notes and verification detail condensed, implementation rationale made mapping-focused; frozen tables, deviation numbering 1–19, and the §12.1 spelling table are unchanged; stale `--tint-*` names and references to the flattened §13 are corrected
-- `docs/config-format.md`, `docs/config-guide.md`, `docs/data-format.md`, `docs/data-lifecycle.md`: group color fields and the `page.info-button` block documented; stale "not yet implemented" / "build later" claims replaced with the real build command
-- `src/css/components.css`: removed ~97 lines of dead legend, transliterated-category, and role-tint rules that duplicated the generated `roles.css`; role and section colors now come only from the generated layer and the `--role-*` tokens
-- `scripts/build/lib/render-tokens.js`: no longer emits the unused `--color-spis-*` / `--color-begrens-*` / `--color-unnga-*` and `--tint-*` tokens; `src/css/tokens.css` regenerated (12 lines shorter)
-
-### Fixed
-
-- `scripts/build/lib/merge.js`: parses YAML list continuation lines, so list-form `attribution` fields are no longer dropped as an explicit clear
-- `docs/memory/`: role-tint decision updated to `--role-*-tint` ownership; user-request dates archived in `2026-08-05-fodmap-user-requests.md`
-
-### Removed
-
-- `findings.md`: the 2026-08-01 PDF-comparison analysis that fed the 2025-05 release; its source PDF is gone and nothing references it
-- `docs/memory/archive/2026-08-01-fodmap-role-tints.md`: superseded by the 2026-08-05 role-tint-tokens entry
-
 ## [0.10.5] - 2026-08-01
 
 - **why:** Bug fix: after a reload, the browser restored the typed search text into the field while the filter state was never persisted, leaving text over a fully visible page
