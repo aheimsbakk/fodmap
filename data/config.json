@@ -26,7 +26,7 @@
     },
     "info-banner": {
       "emoji": "ℹ️",
-      "text": "BEGRENSE: Opp til 1 matvare per måltid. Matvaren har lav FODMAP opp til mengden oppgitt i BEGRENSE-kolonnen.",
+      "text": "BEGRENS: Opp til 1 matvare per måltid. Matvaren har lav FODMAP opp til mengden oppgitt i BEGRENS-kolonnen.",
       "text-color": "#374151"
     },
     "colors": {
@@ -192,7 +192,7 @@
     },
     {
       "id": "begrens",
-      "label": "BEGRENSE",
+      "label": "BEGRENS",
       "emoji": "⚖️",
       "background-color": "#f7d774",
       "text-color": "#4a3c08",
