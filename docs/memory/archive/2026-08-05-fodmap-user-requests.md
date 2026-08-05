@@ -37,3 +37,8 @@ The bullet slot scales with the text scale 2026-08-05 on user request
 `calc(1.25rem * var(--text-scale))` drives `li.item`'s padding-left, the
 bullet slot, and the tooltip hotspot — the one scaled spacing, noted as
 a deviation-9 exception (§4.3, §5.6).
+
+PWA installability was requested 2026-08-05 ("make this web page
+installable, as a pwa", "do not make a cache system"): manifest +
+cache-free service worker + icons derived from the favicon (deviation 20,
+§9.6).

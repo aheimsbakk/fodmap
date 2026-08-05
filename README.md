@@ -13,6 +13,7 @@ app og ingen innlogging.
 - Viser forklaringstekster bak ℹ️-knapper på enkelte matvarer.
 - Viser når en matvare ble endret når du holder musepekeren over merket.
 - Tilpasser seg skjermen: én kolonne på mobil, tre kolonner på større skjermer.
+- Kan installeres som app på mobil og datamaskin, med 🥗 som app-ikon.
 
 ## Åpne siden
 
@@ -35,6 +36,21 @@ Den publiserte siden ligger på
 Du kan også åpne `src/index.html` direkte i nettleseren. Innholdet vises
 alltid. I noen nettlesere starter søket bare når siden serveres, for
 eksempel fra en lokal tjener eller fra den publiserte siden.
+
+## Installere siden som app
+
+Siden kan installeres på startskjermen eller i app-listen, akkurat som en
+vanlig app. App-ikonet er 🥗.
+
+- **På mobil (Android):** åpne siden i Chrome, trykk på menyen (⋮) og
+  velg «Legg til på startskjermen» eller «Installer app».
+- **På iPhone/iPad:** åpne siden i Safari, trykk på Del-knappen og velg
+  «Legg til på startskjermen».
+- **På datamaskin:** åpne siden i Chrome eller Edge og velg «Installer
+  FODMAP» i adressefeltet eller i menyen.
+
+Appen mellomlagrer ikke innhold. Hver gang du åpner siden, lastes den
+ferskt fra nettet. Du får derfor alltid den nyeste utgaven av innholdet.
 
 ## Bruke siden
 
@@ -181,9 +197,13 @@ filene i `src/` er utdaterte. Arbeidsflyten ligger i
 
 ### Tekniske valg
 
-- Ren HTML, CSS og JavaScript med tre moduler (`search.js`,
-  `text-scale.js` og `note-popover.js`). Ingen rammeverk og ingen
-  kjøretidsavhengigheter i nettleseren.
+- Ren HTML, CSS og JavaScript med fire moduler (`search.js`,
+  `text-scale.js`, `note-popover.js` og `pwa.js`). Ingen rammeverk og
+  ingen kjøretidsavhengigheter i nettleseren.
+- Siden kan installeres som app (PWA) gjennom et manifest
+  (`manifest.webmanifest`) og en tjenestearbeider (`sw.js`).
+  Tjenestearbeideren mellomlagrer ingenting: alle forespørsler går rett
+  til nettet, så innholdet er alltid ferskt.
 - Innholdet ligger som data i `data/`, og et byggetrinn genererer siden:
   `./scripts/build.sh`. Den ferdige siden i `src/` er vanlige statiske
   filer og trenger ikke byggetrinn når den vises.

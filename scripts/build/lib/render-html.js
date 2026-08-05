@@ -223,6 +223,10 @@ export function renderDocument(cfg, itemsBySection, version) {
     <title>${esc(webTitle(page))}</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="favicon-32x32.png" sizes="32x32" type="image/png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="${escAttr(page.head["title-color"])}" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
     <link rel="stylesheet" href="css/tokens.css" />
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/layout.css" />
@@ -298,6 +302,7 @@ ${sectionsHtml}
     <script type="module" src="js/search.js"></script>
     <script type="module" src="js/text-scale.js"></script>
     <script type="module" src="js/note-popover.js"></script>
+    <script type="module" src="js/pwa.js"></script>
   </body>
 </html>
 `;
