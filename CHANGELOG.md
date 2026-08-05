@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.12.2] - 2026-08-05
+
+- **why:** Replace PNG icons with SVG so the salad bowl emoji renders at any resolution without raster artifacts
+- **model:** kompis/qwen-3.6-think-coding-mtp
+- **tags:** icons, svg, pwa, favicon
+
+### Changed
+
+- `src/favicon.svg`: simplified to a single `<text>` element with the 🥗 emoji
+- `src/icon-192.svg`, `src/icon-512.svg`, `src/apple-touch-icon.svg`: new SVG icons replacing the raster PNGs
+- `src/index.html`: icon and touch-icon links now reference `.svg` instead of `.png`
+- `src/manifest.webmanifest`: icon entries point to `.svg` with `type: image/svg+xml`
+
+### Removed
+
+- `src/favicon-32x32.png`, `src/icon-192.png`, `src/icon-512.png`, `src/apple-touch-icon.png`
+
 ## [0.12.1] - 2026-08-05
 
 - **why:** Patch the 2025-05 content: items in the UNNGÅ column should carry no portion amount, so consumers no longer see suggested amounts on "avoid" items

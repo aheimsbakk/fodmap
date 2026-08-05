@@ -71,7 +71,7 @@ test("declares the installability metadata (§9.6)", () => {
     "theme color must come from the config masthead color",
   );
   assert.ok(
-    html.includes(`rel="apple-touch-icon" href="apple-touch-icon.png"`),
+    html.includes(`rel="apple-touch-icon" href="apple-touch-icon.svg"`),
     "missing apple-touch icon",
   );
   assert.ok(
@@ -80,7 +80,7 @@ test("declares the installability metadata (§9.6)", () => {
   );
 });
 
-test("the manifest lists valid icons with matching raster dimensions (§9.6)", () => {
+test("the manifest lists valid SVG icons (§9.6)", () => {
   const manifestPath = new URL("../src/manifest.webmanifest", import.meta.url);
   const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
   assert.equal(manifest.display, "standalone");
@@ -91,17 +91,14 @@ test("the manifest lists valid icons with matching raster dimensions (§9.6)", (
   for (const expected of ["192x192", "512x512"]) {
     const entry = manifest.icons.find((i) => i.sizes === expected);
     assert.ok(entry, `manifest must declare a ${expected} icon`);
-    assert.equal(entry.type, "image/png");
+    assert.equal(entry.type, "image/svg+xml");
     assert.equal(entry.purpose, "any");
-    const pngPath = new URL(`../src/${entry.src}`, import.meta.url);
-    const png = readFileSync(pngPath);
+    const svgPath = new URL(`../src/${entry.src}`, import.meta.url);
+    const svg = readFileSync(svgPath, "utf8");
     assert.ok(
-      png.subarray(0, 8).equals(Buffer.from("89504e470d0a1a0a", "hex")),
-      `${entry.src} must be a PNG`,
+      svg.includes("<svg") && svg.includes("</svg>"),
+      `${entry.src} must be a valid SVG`,
     );
-    const [w, h] = expected.split("x").map(Number);
-    assert.equal(png.readUInt32BE(16), w, `${entry.src} width`);
-    assert.equal(png.readUInt32BE(20), h, `${entry.src} height`);
   }
 });
 

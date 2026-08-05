@@ -222,11 +222,12 @@ export function renderDocument(cfg, itemsBySection, version) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>${esc(webTitle(page))}</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="icon" href="favicon-32x32.png" sizes="32x32" type="image/png" />
+    <link rel="icon" href="icon-192.svg" sizes="192x192" type="image/svg+xml" />
+    <link rel="icon" href="icon-512.svg" sizes="512x512" type="image/svg+xml" />
     <link rel="manifest" href="manifest.webmanifest" />
     <meta name="theme-color" content="${escAttr(page.head["title-color"])}" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.svg" />
     <link rel="stylesheet" href="css/tokens.css" />
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/layout.css" />
