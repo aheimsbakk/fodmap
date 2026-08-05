@@ -16,15 +16,15 @@ The file lives at `data/config.json`, next to the release folders.
 
 Config.json has eight parts:
 
-| Part             | Holds                                         | Used by                     |
-| ---------------- | --------------------------------------------- | --------------------------- |
-| `schema`         | the format version                            | readers of the file         |
-| `collation`      | the sorting language                          | alphabetical order          |
-| `page`           | head, search, banner, colors, footer, markers | the page shell              |
-| `sections`       | the 11 categories                             | section headings and icons  |
-| `groups`         | the role columns (e.g. SPIS, BEGRENSE, UNNGÅ) | role labels, emojis, colors |
-| `subgroups`      | group headings inside columns                 | headings like "Ost"         |
-| `footnote-types` | footnote styles (with or without icon)        | section footnotes           |
+| Part             | Holds                                                   | Used by                     |
+| ---------------- | ------------------------------------------------------- | --------------------------- |
+| `schema`         | the format version                                      | readers of the file         |
+| `collation`      | the sorting language                                    | alphabetical order          |
+| `page`           | head, search, banner, colors, footer, markers, tooltips | the page shell              |
+| `sections`       | the 11 categories                                       | section headings and icons  |
+| `groups`         | the role columns (e.g. SPIS, BEGRENSE, UNNGÅ)           | role labels, emojis, colors |
+| `subgroups`      | group headings inside columns                           | headings like "Ost"         |
+| `footnote-types` | footnote styles (with or without icon)                  | section footnotes           |
 
 ## 2. The golden rule: change values, never ids or keys
 
@@ -219,6 +219,28 @@ usual bullet (see `data-format.md` §7.4). The glyphs live in
 Change a value to use another glyph. Values are optional: a missing key
 falls back to the default. The markers only apply to items present in
 the **newest** release folder; older deltas never get a marker.
+
+### 4.12 Change the bullet tooltips
+
+Each item bullet shows a small hover tooltip (BLUEPRINT §6.7). The text
+lives in `page.tooltips`:
+
+```json
+"tooltips": {
+  "default": "Dato {{date}}",
+  "new": "Dato {{date}}",
+  "moved": "Flyttet fra {{from}} til {{to}}, dato {{date}}",
+  "updated": "Dato {{date}}"
+}
+```
+
+- `{{date}}` becomes the release folder that last touched the item, for
+  example `2021` for items unchanged since the baseline, `2025-05` for
+  items from the newest release.
+- `{{from}}` and `{{to}}` become the group labels (`SPIS`, `BEGRENSE`,
+  `UNNGÅ`) on items moved between columns.
+- A missing key falls back to `default`. To turn the tooltips off,
+  remove the `default` entry.
 
 ## 5. Before you save
 

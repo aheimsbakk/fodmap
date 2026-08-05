@@ -3,7 +3,7 @@
 // Spec: docs/data-format.md §7, BLUEPRINT §6.3 and §6.6.
 
 import { readdirSync, readFileSync } from "fs";
-import { join } from "path";
+import { join, basename } from "path";
 
 // Release folder names are zero-padded dates — YYYY, YYYY-MM, or YYYY-MM-DD.
 // That pattern sorts chronological under a plain string comparison, which is
@@ -68,18 +68,22 @@ function comparableShallow({
 
 // Classify how the item changed in the newest release. earlier = the files up
 // to (excluding) the newest release; lastFiles = the files in the newest
-// release. Returns "new" | "moved" | "updated" | null (BLUEPRINT §6.6).
+// release. Returns { marker: "new" | "moved" | "updated" | null, fromGroup? } —
+// fromGroup is the group the item had before the newest release, set on moved
+// items only, and feeds the bullet tooltip "from" side (BLUEPRINT §6.6, §6.7).
 function computeChange(earlier, lastFiles) {
-  if (earlier.length === 0) return "new";
+  if (earlier.length === 0) return { marker: "new" };
   const prevState = mergeStates(earlier);
   const finalState = mergeStates([...earlier, ...lastFiles]);
-  if (finalState.group !== prevState.group) return "moved";
+  if (finalState.group !== prevState.group) {
+    return { marker: "moved", fromGroup: prevState.group };
+  }
   const before = comparableShallow(prevState);
   const after = comparableShallow(finalState);
   for (const key of Object.keys(before)) {
-    if (before[key] !== after[key]) return "updated";
+    if (before[key] !== after[key]) return { marker: "updated" };
   }
-  return null;
+  return { marker: null };
 }
 
 // Merge all releases (oldest→newest) and group merged items by section.
@@ -115,13 +119,25 @@ export function loadItems(releases, sectionFilter) {
     const state = mergeStates(files);
     state.slug = files[files.length - 1].item.slug;
     state.section = key.split("/")[0];
+    // The tooltip date: the folder of the item's newest file — the release
+    // that last touched the item, which is the baseline for untouched items
+    // (BLUEPRINT §6.7).
+    state.releaseDate = basename(
+      releases[files[files.length - 1].releaseIndex],
+    );
 
     const lastFiles = files.filter((f) => f.releaseIndex === lastRelease);
     const earlier = files.filter((f) => f.releaseIndex < lastRelease);
-    state.change =
+    const result =
       hasEarlierRelease && lastFiles.length
         ? computeChange(earlier, lastFiles)
         : null;
+    state.change = result ? result.marker : null;
+    // The "from" side of a move, for the bullet tooltip (§6.6, §6.7);
+    // present only on moved items.
+    if (result && result.marker === "moved") {
+      state.changedFrom = result.fromGroup;
+    }
 
     if (!state.group) continue; // skip items without a group
     if (!bySection.has(state.section)) bySection.set(state.section, []);

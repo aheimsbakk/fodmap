@@ -84,3 +84,17 @@ li.item[data-change="moved"]::before {
 li.item[data-change="updated"]::before {
   content: var(--marker-updated);
 }
+
+/* Bullet tooltip hotspot (deviation 19): the ::before bullet cannot carry a
+   title attribute, so an empty span sits over the bullet and exposes the
+   config-driven tooltip text as a native browser title on hover. The cursor
+   advertises the affordance; the span is aria-hidden in the markup because
+   the marker glyph itself conveys the change. */
+li.item .item-bullet {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1.1rem;
+  height: 1.2em;
+  cursor: help;
+}

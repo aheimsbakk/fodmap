@@ -193,6 +193,39 @@ test("an item moved to a new group in the newest release is marked moved", () =>
   const a = findItem(loadItems(listReleases(root)), "s", "a");
   assert.equal(a.group, "unngå");
   assert.equal(a.change, "moved");
+  // The previous group feeds the bullet tooltip (§6.7): "from" side.
+  assert.equal(a.changedFrom, "spis");
+});
+
+test("only moved items carry the previous group id", () => {
+  const root = makeTree({
+    2021: {
+      s: [
+        { slug: "a", frontmatter: { name: "A", group: "spis" } },
+        { slug: "b", frontmatter: { name: "B", group: "spis" } },
+      ],
+    },
+    2025: {
+      s: [
+        { slug: "a", frontmatter: { group: "begrens" } }, // moved
+        { slug: "b", frontmatter: { name: "B2" } }, // updated
+      ],
+    },
+  });
+  const map = loadItems(listReleases(root));
+  const a = findItem(map, "s", "a");
+  const b = findItem(map, "s", "b");
+  assert.equal(a.changedFrom, "spis", "moved items carry the previous group");
+  assert.equal(
+    b.changedFrom,
+    undefined,
+    "updated items carry no previous group",
+  );
+  const baseline = makeTree({
+    2021: { s: [{ slug: "x", frontmatter: { name: "X", group: "spis" } }] },
+  });
+  const c = findItem(loadItems(listReleases(baseline)), "s", "x");
+  assert.equal(c.changedFrom, undefined, "baseline-only items carry none");
 });
 
 test("an item changed in place is marked updated", () => {
@@ -253,5 +286,42 @@ test("a two-delta move where the newest release only updates in place stays upda
     a.change,
     "updated",
     "the move happened before the newest folder",
+  );
+});
+
+test("items carry the release date of their newest file (tooltip date)", () => {
+  // The tooltip date is the folder that last touched the item, not the
+  // newest folder (BLUEPRINT §6.7): untouched items date from the baseline.
+  const root = makeTree({
+    2021: {
+      s: [
+        { slug: "a", frontmatter: { name: "A", group: "spis" } }, // baseline only
+        { slug: "b", frontmatter: { name: "B", group: "spis" } }, // touched in 2024 + 2025
+        { slug: "c", frontmatter: { name: "C", group: "spis" } }, // new in 2025
+      ],
+    },
+    2024: { s: [{ slug: "b", frontmatter: { name: "B2" } }] },
+    2025: {
+      s: [
+        { slug: "b", frontmatter: { amount: "5 g" } },
+        { slug: "c", frontmatter: { name: "C", group: "spis" } },
+      ],
+    },
+  });
+  const map = loadItems(listReleases(root));
+  assert.equal(
+    findItem(map, "s", "a").releaseDate,
+    "2021",
+    "baseline-only items date from the baseline",
+  );
+  assert.equal(
+    findItem(map, "s", "b").releaseDate,
+    "2025",
+    "the newest file's folder wins",
+  );
+  assert.equal(
+    findItem(map, "s", "c").releaseDate,
+    "2025",
+    "items added in the newest release date from it",
   );
 });

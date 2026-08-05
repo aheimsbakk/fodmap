@@ -90,6 +90,12 @@
       "moved": "🔄",
       "updated": "🆙",
       "default": "🔸"
+    },
+    "tooltips": {
+      "default": "Dato {{date}}",
+      "new": "Dato {{date}}",
+      "moved": "Flyttet fra {{from}} til {{to}}, dato {{date}}",
+      "updated": "Dato {{date}}"
     }
   },
   "sections": [

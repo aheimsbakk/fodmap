@@ -308,6 +308,14 @@ bullet (BLUEPRINT §6.6). The glyphs — including the default bullet — are
 configurable in `page.markers` (`config-format.md` §3.1). Changes made in
 an earlier delta — but left alone by the newest release — are never marked.
 
+For `moved` items the build additionally records the group the item had
+before the newest release (the "from" side of the move), so the page can
+explain the move in the bullet tooltip (BLUEPRINT §6.7). Every item's
+tooltip date is the folder name of its newest file — the release that
+last touched the item — so an item unchanged since the baseline shows
+the baseline date. The tooltip text itself is configured in
+`page.tooltips` (`config-format.md` §3.1.3).
+
 ## 8. Release folders and sorting
 
 | Format       | Example      |

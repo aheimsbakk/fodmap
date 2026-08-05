@@ -58,6 +58,7 @@ entries (label + emoji + colors).
 | `colors`      | object | yes      | page-level color tokens (below)                |
 | `footer`      | object | yes      | footer colors + lines (below)                  |
 | `markers`     | object | no       | change-marker emojis (below)                   |
+| `tooltips`    | object | no       | bullet tooltip templates (below)               |
 
 `head`:
 
@@ -134,6 +135,29 @@ missing.
 | `new`     | string | no       | emoji for items new in the newest release |
 | `moved`   | string | no       | emoji for items moved to a new group      |
 | `updated` | string | no       | emoji for items updated in place          |
+
+**3.1.3 Bullet tooltips**
+
+`page.tooltips` holds the hover-tooltip templates for the item bullets
+(BLUEPRINT §6.7). The keys match the markers (§3.1.2). The build fills
+the placeholders from data: `{{date}}` becomes the folder name of the
+release that last touched the item — the one holding its newest file
+(`YYYY` / `YYYY-MM` / `YYYY-MM-DD`; the newest release for marked
+items) — `{{from}}` the label of the group the item had before the
+newest release (moved items only), and `{{to}}` the label of the item's
+current group.
+
+| Field     | Type   | Required | Meaning                                                                    |
+| --------- | ------ | -------- | -------------------------------------------------------------------------- |
+| `default` | string | no       | tooltip for unchanged items ("Dato {{date}}")                              |
+| `new`     | string | no       | tooltip for items new in the newest release                                |
+| `moved`   | string | no       | tooltip for moved items ("Flyttet fra {{from}} til {{to}}, dato {{date}}") |
+| `updated` | string | no       | tooltip for items updated in place                                         |
+
+All values are optional; a missing key for a marker kind falls back to
+the `default` template, and with no `default` template the item renders
+without a tooltip. An item with no change marker always uses the
+`default` template.
 
 ### 3.2 Sections
 
@@ -279,6 +303,12 @@ current sections, groups, subgroups, and the complete `page` block).
       "new": "🆕",
       "moved": "🔄",
       "updated": "🆙"
+    },
+    "tooltips": {
+      "default": "Dato {{date}}",
+      "new": "Dato {{date}}",
+      "moved": "Flyttet fra {{from}} til {{to}}, dato {{date}}",
+      "updated": "Dato {{date}}"
     }
   },
   "sections": [

@@ -330,7 +330,11 @@ Full width, white background, 2 px solid black border, 0.25 rem padding,
   bottom margin. Items merged from the newest release replace the bullet
   with their change marker emoji (§6.6, §4.7): a `data-change` attribute
   on the `li` swaps the `::before` content via CSS, so the item text node
-  stays plain and search behavior is unchanged (deviation 3).
+  stays plain and search behavior is unchanged (deviation 3). Every
+  bullet also shows a hover tooltip: an empty `span.item-bullet` hotspot
+  over the bullet carries a native browser title with config-driven text
+  (§6.7), so the `::before` glyph, the plain item text, and search are
+  untouched.
 - Item structure: primary text plus optional parenthesized portion note.
   All notes are inline plain text; there is no small-print styling
   (see §12.2 deviation 3).
@@ -426,6 +430,11 @@ Derived item state (build-time, from the merge, §6.3):
 └─ change                  (optional marker: "new" / "moved" / "updated",
                              or absent — how the item changed in the newest
                              release, if its file is present there; §6.6)
+└─ changedFrom             (previous group id; set on moved items only,
+                             the "from" side of the move, §6.6)
+└─ releaseDate             (folder name of the item's newest file — the
+                             release that last touched the item; feeds
+                             the bullet tooltip date, §6.7)
 
 Section (derived, one per config section with items)
 ├─ heading                 (icon + title, per-section color)
@@ -515,6 +524,42 @@ is nothing for the "newest release" to have changed relative to.
 
 The 2025-05 release yields 29 `new`, 31 `moved`, and 1 `updated` marker
 on the rendered page; the content tests assert these counts (§13.4).
+
+For `moved` items the merge also records `changedFrom` — the group id the
+item had before the newest release — which feeds the bullet tooltip
+(§6.7).
+
+### 6.7 Bullet tooltips (derived)
+
+Every item bullet shows a hover tooltip whose text is config-driven, not
+hardcoded: the templates live in `page.tooltips` in the config file
+(keys `default`, `new`, `moved`, `updated` — the same set as the
+markers, §4.7), and the build fills the placeholders from data:
+
+| Placeholder | Value                                                                                                                                                                                      |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `{{date}}`  | the folder name of the release that last touched the item — the one holding its newest file (`YYYY` / `YYYY-MM` / `YYYY-MM-DD`); for marked items this is always the newest release (§6.6) |
+| `{{from}}`  | the label of the item's group before the newest release (moved only)                                                                                                                       |
+| `{{to}}`    | the label of the item's current group                                                                                                                                                      |
+
+The date answers "when was this item last changed?", not "when is the
+catalog from?": an item untouched since the baseline shows the baseline
+folder name (2021), while an item merged from the newest release shows
+that release's name (2025-05). Marked items are always in the newest
+release folder, so their date is the newest release by construction.
+
+The current Norwegian templates are frozen in the config: `default`,
+`new`, and `updated` render "Dato <release>" (the item's own last-change
+date), and `moved` renders "Flyttet fra <label> til <label>, dato
+<release>". An item with no marker uses the `default` template; a
+missing template for a marker kind falls back to the `default` template;
+with no `default` template the item renders without a tooltip.
+
+The tooltip is a native browser title on an empty `span.item-bullet`
+hotspot positioned over the bullet glyph — the `::before` bullet cannot
+carry a title attribute. The hotspot is `aria-hidden` (the marker emoji
+already conveys the change) and is untouched by search: it carries no
+searchable text and filtering never re-renders it (§5.6, §7.3).
 
 ## 7. State Management
 
@@ -966,6 +1011,17 @@ longer carry an amount.
     attribute, so the item text node stays plain and search behaves
     exactly as before (deviation 3). For the 2025-05 release this marks
     29 new, 31 moved, and 1 updated item (§6.5).
+19. Item bullets carry a hover tooltip (user request, 2026-08-05): an
+    empty `span.item-bullet` hotspot over the bullet shows a native
+    browser tooltip with the config-driven text of `page.tooltips`
+    (§6.7) — the date of the release that last touched the item for
+    unchanged items ("Dato 2021" for items untouched since the
+    baseline), the newest release date for new and updated items, and
+    "Flyttet fra <forrige gruppe> til <gruppe>, dato <dato>" for moved
+    items. Native titles keep the page dependency-free and script-free;
+    the strings are editable in `config.json`, like the marker glyphs
+    (§4.7). The hotspot is empty and `aria-hidden`, so the item text
+    stays plain and search behavior is unchanged (deviation 3).
 
 ### 12.3 Negative contracts
 
@@ -1058,6 +1114,12 @@ Cover the merge and render pipeline:
 - Config integrity: every section folder, item `group`, `subgroup`, and
   `footnote.type` reference resolves to a config id or key (§4 of
   `docs/config-format.md`).
+- Bullet tooltips (§6.7): every rendered item carries a title built from
+  the config templates — the date of the release that last touched the
+  item for default items ("Dato 2021" for the current baseline items),
+  the newest release date for new and updated items, and
+  "Flyttet fra <label> til <label>, dato <release>" for moved items,
+  whose `changedFrom` holds the previous group id.
 
 ## 14. Stylesheet Architecture
 

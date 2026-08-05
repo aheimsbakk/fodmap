@@ -27,6 +27,8 @@ export function build() {
   }
   const items = loadItems(releaseDirs, sections);
 
+  // Each item carries its own release date (the folder of its newest
+  // file); the bullet tooltips substitute it for {{date}} (§6.7).
   const html = renderDocument(cfg, items, version);
   const tokens = renderTokens(cfg);
   const roles = renderRoleSectionCss(cfg);

@@ -7,6 +7,12 @@ function esc(s) {
     .replace(/>/g, "&gt;");
 }
 
+// Attribute values additionally escape double quotes; esc() alone is only
+// safe for text content.
+function escAttr(s) {
+  return esc(s).replace(/"/g, "&quot;");
+}
+
 // Browser-tab title is derived from the masthead (BLUEPRINT §3.1).
 function webTitle(page) {
   return `${page.head.subtitle} ${page.head.title}`;
@@ -54,16 +60,37 @@ function itemText(item) {
   return item.amount ? `${item.name} (${item.amount})` : item.name;
 }
 
+// Bullet tooltip text (§6.7): the template comes from page.tooltips, keyed
+// by the item's marker kind (or the default bullet), and the placeholders
+// are filled from the item's own release date and the config group labels.
+// A missing kind template falls back to default; with no default template
+// the item renders without a tooltip.
+function itemTitle(item, tooltips, labelOf) {
+  const kind = item.change || "default";
+  const template = tooltips[kind] || tooltips.default;
+  if (!template) return "";
+  return template
+    .replaceAll("{{date}}", item.releaseDate || "")
+    .replaceAll("{{from}}", item.changedFrom ? labelOf(item.changedFrom) : "")
+    .replaceAll("{{to}}", labelOf(item.group));
+}
+
 function renderItem(it) {
   const text = itemText(it);
   // data-change selects the marker bullet (§6.6): the emoji lives in the CSS
   // tokens (--marker-*), so the live text node stays plain and search is
   // unaffected, exactly like the note-button glyph (§4.6).
   const change = it.change ? ` data-change="${it.change}"` : "";
+  // The tooltip is a native browser title on an empty hotspot span over the
+  // bullet: the ::before bullet cannot carry a title attribute. The span is
+  // aria-hidden (the marker emoji already conveys the change) and carries no
+  // searchable text, so capture and restore are untouched (§6.7).
+  const title = it.title ? ` title="${escAttr(it.title)}"` : "";
   // The button stays empty: the info glyph and its "matched" variant come
   // from the CSS tokens (--info-emoji / --info-emoji-matched), so the live
   // text node never changes and search restore is unaffected (§4.6).
   let html = `              <li class="item"${change}>`;
+  html += `<span class="item-bullet" aria-hidden="true"${title}></span>`;
   html += `<span class="item-text">${esc(text)}</span>`;
   if (it.note) {
     html += ` <button type="button" class="note-toggle" aria-label="Mer informasjon"></button>`;
@@ -156,6 +183,18 @@ export function renderDocument(cfg, itemsBySection, version) {
     footnoteTypes: cfg["footnote-types"],
     collator,
   };
+
+  // Precompute each item's bullet tooltip (§6.7): the strings come from
+  // page.tooltips, the item's own release date, and the group labels, so
+  // the config owns all wording.
+  const tooltips = page.tooltips || {};
+  const labelOf = (id) =>
+    (cfg.groups.find((g) => g.id === id) || {}).label || "";
+  for (const items of itemsBySection.values()) {
+    for (const item of items) {
+      item.title = itemTitle(item, tooltips, labelOf);
+    }
+  }
 
   const sectionsHtml = cfg.sections
     .filter((s) => itemsBySection.has(s.id))
