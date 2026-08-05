@@ -1,9 +1,12 @@
 # BLUEPRINT.md — FODMAP Overview App
 
-> This document is the language-agnostic architecture for the app and the
-> authoritative specification of its content. It references no external source
-> file; the page and the automated tests are the implementation of this
-> document. Physical file mapping lives in `CODEBASE.md`.
+> This document is the language-agnostic architecture for the app. It is
+> authoritative for the page structure, behavior, and design; the content
+> data model (§6) is the specification of the content pipeline. The
+> concrete Norwegian content lives as data under `data/` (physical mapping
+> in `CODEBASE.md`), and a developer-time build step turns that data into
+> the static page. The generated page and the automated tests are the
+> implementation of this document.
 
 ## 1. System Goals
 
@@ -13,11 +16,15 @@ Provide a static, dependency-free single-page app that:
 2. Renders all content without scripts, plus the interactive food search
    with live filtering and highlighting.
 3. Uses only plain markup documents, stylesheets, and vanilla scripts
-   (one module per concern). No frameworks, no runtime library downloads,
-   no remote assets, no build step. Typography uses the platform's native
+   (one module per concern) at runtime. No frameworks, no runtime library
+   downloads, no remote assets. Typography uses the platform's native
    system fonts.
-4. Keeps the stylesheets clean, token-driven, and mobile-first responsive.
-5. Keeps all Norwegian content verbatim (see section 12, Fidelity).
+4. Keeps content in data, not markup: the Norwegian text and structure
+   live in release data plus one config file, and a developer-time build
+   step merges them into the static page. The browser never runs the
+   build; it receives plain files only.
+5. Keeps the stylesheets clean, token-driven, and mobile-first responsive.
+6. Keeps all Norwegian content verbatim (see section 12, Fidelity).
 
 ## 2. Scope
 
@@ -28,11 +35,17 @@ Provide a static, dependency-free single-page app that:
 - Responsive layout for narrow (base), medium (≥ 640 px), wide (≥ 768 px),
   and extra-wide (≥ 1024 px) viewports.
 - Search interaction: debounced live filtering, term highlighting, clear
-  control, section/column/item visibility transitions.
+  control, section/column/item visibility transitions. Reasoning notes
+  participate in matching (§7.2).
+- Note affordance: an item may carry a reasoning note, revealed by an
+  inline info button and popover; the note is searchable (§7.5).
 - Text-size toggle: a control in the search widget that cycles the content
   text size through 100 % / 125 % / 150 % (see §12.2 deviation 9).
-- Automated tests for the search engine, the text-size toggle, and content
-  parity.
+- Content pipeline: release data under `data/` (config + item files),
+  the oldest→newest merge rules (§6.3), and the developer-time build
+  step that generates the page.
+- Automated tests for the search engine, the text-size toggle, the content
+  pipeline, and content parity.
 
 ### Out of scope
 
@@ -59,12 +72,17 @@ Page shell                    (background, base typography, page padding)
    │  ├─ Category heading     (sticky below search widget; icon + title)
    │  ├─ Content grid         (1 column narrow, 3 columns wide+)
    │  │  └─ Column (3 ×)      (role-tinted background; optional mobile label;
-   │  │                        optional sub-group headings; item list)
+   │  │                        optional sub-group headings; item list; items
+   │  │                        may carry a note info button + popover)
    │  └─ Footnote banner      (optional, joins the grid bottom edge)
    └─ Footer                  (source link, disclaimer)
 ```
 
 ## 4. Design Tokens
+
+Color values are single-sourced in `data/config.json` and written into
+the token layer by the build step (§6.1, §14). The tables below are the
+canonical values; the generated layer must reproduce them exactly.
 
 ### 4.1 Color palette
 
@@ -211,6 +229,24 @@ below the search widget.
   two radial-gradient layers offset 8 px, 16 px grid, 80 % opacity,
   positioned 10 px from their corner.
 
+### 4.6 Note info-button tokens
+
+The note affordance (§7.5) is styled from tokens so the button scales
+with the text scale:
+
+| Token                         | Default  | Use                                   |
+| ----------------------------- | -------- | ------------------------------------- |
+| `--info-emoji`                | `ℹ️`     | button glyph                          |
+| `--info-emoji-matched`        | `☑️`     | glyph when the note matches the query |
+| `--info-button-width`         | `1.2em`  | button size                           |
+| `--info-button-height`        | `1.2em`  | button size                           |
+| `--info-button-font-size`     | `0.75em` | glyph size                            |
+| `--info-button-border-radius` | `50%`    | round button                          |
+| `--info-button-margin-left`   | `0.4rem` | gap after the item text               |
+
+The glyph swap is a CSS `::before` content rule toggled by a class; the
+button's live text node never changes, so search restore is unaffected.
+
 ## 5. Layout and Responsive Behavior
 
 ### 5.1 Page shell
@@ -276,6 +312,10 @@ Full width, white background, 2 px solid black border, 0.25 rem padding,
 - Item structure: primary text plus optional parenthesized portion note.
   All notes are inline plain text; there is no small-print styling
   (see §12.2 deviation 3).
+- Note affordance: an item may carry a reasoning note (why the item is in
+  its column, a source link, a caveat). It renders as an inline info
+  button with a popover: hover or focus shows the note, a click pins it
+  open, and clicking anywhere outside closes it (§4.6, §7.5).
 - Sub-groups: uppercase bold small heading; separated from the preceding
   block by margin only (0.75 rem top margin). No separator line at any
   width or search state (deviation 11).
@@ -293,7 +333,7 @@ Three sections reserve empty columns to keep the 3-column rhythm:
 - Krydder og urter: column 2 is empty, rendered wide+ only.
 
 Empty columns carry the role of their position (BEGRENSE or UNNGÅ,
-§6.1) and receive that role's tint, so the color rhythm of the section
+§6.2) and receive that role's tint, so the color rhythm of the section
 stays complete. They participate in the grid, carry no mobile label, and
 are excluded from filtering. A `data-placeholder` attribute marks them
 for the wide-only rendering rule.
@@ -316,31 +356,82 @@ deviation 10).
 
 ## 6. Content Data Model
 
-### 6.1 Abstract schema
+Content is data, not markup. Two inputs feed the page: one global config
+file and a set of date-named release folders holding item files. The
+build step merges the releases (§6.3) and renders the page from the
+merged state plus the config (§8).
+
+### 6.1 Sources and authority
+
+| Source          | Holds                                                                                                                             |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| config file     | global names (sections, groups, subgroups, footnote types) and page text (masthead, search, banners, footer, colors, note button) |
+| release folders | the item files; the oldest folder is the full baseline, later folders are deltas                                                  |
+
+The Norwegian text — headings, items, portion notes, footnotes, banners,
+footer lines — lives only in these files, verbatim as fixed in §12.1.
+The generated page is a rendering of the data, never an independent copy.
+
+### 6.2 Abstract schema
 
 ```
-Section
-├─ title            (Norwegian heading text)
-├─ icon             (emoji identifier, see 9.2)
-├─ color set        (heading background only, see 4.1)
-├─ column layout    (standard | with-empty-columns | empty-middles)
-├─ columns [3]
-│   └─ Column
-│      ├─ role          (spis | begrens | unnga)
-│      ├─ placeholder   (empty column reserving a role position)
-│      ├─ mobile label  (absent on placeholder columns)
-│      └─ blocks [ ]    (each block is either a plain item list
-│                        or a sub-group: heading + item list)
-│          └─ Item
-│             ├─ text         (primary text)
-│             └─ portion note (optional parenthesized suffix, inline)
-└─ footnote       (optional banner text + icon)
+Config
+├─ schema, collation       (format version, sort locale)
+├─ page                    (head, search, info-banner, colors, footer
+│                           lines, note info-button)
+├─ sections [ ]            (id, title, icon, heading color, optional
+│                           footnote; array order = page order)
+├─ groups [ ]              (id, label, icon, colors, column tint; array
+│                           order = left-to-right columns)
+├─ subgroups { }           (key → heading title)
+└─ footnote-types { }      (key → emoji, or null)
+
+Release (folder, date name)
+├─ baseline (oldest)       (every item exactly once)
+└─ delta (later)           (only changed, added, or removed items)
+
+Item (one file; the filename is the stable slug id)
+├─ name                    (primary text, verbatim)
+├─ group                   (column; key from config)
+├─ amount                  (optional portion note, parenthesized)
+├─ subgroup                (optional heading; key from config)
+├─ visible                 (default true; false removes the item)
+├─ attribution             (optional source URL(s))
+└─ note                    (optional reasoning note, append-only body)
+
+Section (derived, one per config section with items)
+├─ heading                 (icon + title, per-section color)
+├─ columns                 (one per config group, in array order)
+│   └─ blocks              (bare item list, then sub-group blocks)
+└─ footnote banner         (optional, from the section's footnote)
 ```
 
-### 6.2 Section inventory (parity reference)
+### 6.3 Merge rules
+
+The current state of an item is the merge of its file across all releases,
+oldest → newest:
+
+1. An item is identified by its slug within its section folder.
+2. Absent fields are inherited from the older state.
+3. Explicitly empty values clear the inherited value.
+4. `visible: false` removes the item from the page; `visible: true`
+   restores it.
+5. The note body accumulates: the newest note is prepended above older
+   ones; notes are append-only.
+
+### 6.4 Column layout derivation
+
+A section renders one column per config group, in the config array order.
+A column holds its bare items first, then its sub-group blocks sorted by
+resolved title, each with its items sorted by name (config collation). A
+section with no item for a group renders that group's column as an empty
+placeholder (§5.7).
+
+### 6.5 Section inventory (parity reference)
 
 Counts are item totals per column (main list + sub-groups), and sub-group
-count per column. These are frozen parity assertions.
+count per column. These are frozen parity assertions, verified against the
+merged data and the generated page (§13.2).
 
 | #   | Section                              | Icon        | Columns (SPIS / BEGRENSE / UNNGÅ)           | Footnotes |
 | --- | ------------------------------------ | ----------- | ------------------------------------------- | --------- |
@@ -396,11 +487,13 @@ be restored after the boot script has run.
 1. Query = input value, lowercased, trimmed. No diacritic folding
    (a search for "lok" does not match "Løk"; "løk" does).
 2. Match = case-insensitive substring containment in an item's full text
-   (including its portion note), in a category heading text, or in a
-   sub-group heading text.
+   (including its portion note and its reasoning note, §7.5), in a
+   category heading text, or in a sub-group heading text.
 3. Item: visible if it matches, the section heading matches, or the
    sub-group heading directly above it matches. Highlighted (emphasis)
-   if it matches; otherwise plain.
+   if its article text matches; otherwise plain. A match on the reasoning
+   note alone reveals the item and flips its note-button glyph to the
+   matched state (§4.6, §7.5); the popover text is never re-rendered.
 4. Category heading: all items in the section stay visible when the heading
    matches; the heading text is highlighted with the marker style. Matches
    inside embedded icon markup are never highlighted.
@@ -450,11 +543,42 @@ Transitions (single control, a cycling `Aa` button in the search widget):
   (private mode, blocked cookies) degrade to session-only behavior:
   the toggle still works, the choice is simply not remembered.
 
+### 7.5 Note-popover state machine
+
+The note affordance (§5.6) has a third, independent interaction state per
+item — the note popover.
+
+| State  | Condition              | Effects                                                                                                             |
+| ------ | ---------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| CLOSED | popover hidden         | `hidden` on the popover; button glyph `ℹ️`                                                                          |
+| SHOWN  | pointer hover or focus | popover visible                                                                                                     |
+| PINNED | button click           | popover stays visible while the pointer leaves; a second click on the button or any click outside unpins and closes |
+
+Transitions:
+
+- Hover enter on the button or the popover → SHOWN; hover leave → CLOSED,
+  unless PINNED.
+- Button click toggles PINNED: pin opens and holds; a second click unpins
+  and closes. A click anywhere outside a pinned button and its popover
+  unpins and closes.
+- Keyboard activation of the button (Enter/Space) behaves as a click
+  (native button semantics).
+- Search interacts with the popover only through the glyph: a query that
+  matches the note text toggles the matched glyph on the button (§7.2.3);
+  it never opens, closes, or rewrites a popover. Every interactive
+  affordance is inert without scripts.
+
 ## 8. Data Flow
 
 ```
+# Build time (developer)
+config + release folders ──> merge oldest→newest (inherit, clear, remove,
+      prepend) ──> render index.html + tokens.css + roles.css ──> static site
+
+# Runtime (browser)
 input change ──> debounce 300 ms ──> normalize (lowercase + trim)
-      ──> match items + headings (category and sub-group) ──> derive visibility plan
+      ──> match items (article + note) + headings (category and sub-group)
+      ──> derive visibility plan
       ──> apply plan (hide/show + highlight) ──> toggle clear control
 
 clear control or Escape ──> empty input ──> restore originals ──> IDLE
@@ -462,8 +586,10 @@ clear control or Escape ──> empty input ──> restore originals ──> ID
 toggle ──> next level ──> set data-text-scale on root ──> tokens recompute
       ──> persist level (local storage, failure-safe)
 
-page load ──> capture item text/markup + heading markup ──> attach listeners
-      ──> restore stored text-scale level
+note hover/click ──> show / pin / close the item's popover (own state)
+
+page load ──> capture article text + note text + heading markup ──> attach
+      listeners ──> restore stored text-scale level
 
 scroll ──> if input focused and scrolled past 50 px, and no filter run
           in the last 200 ms ──> blur input
@@ -475,6 +601,11 @@ the plan to the document. This separation makes the engine testable
 without a browser and keeps application of changes idempotent. The
 text-scale toggle is a pure state flip: it sets one attribute and lets
 the stylesheet tokens recompute; no DOM traversal or content rewrites.
+The note popover never enters the filter pipeline: search reads the note
+text but writes only the button's matched class.
+
+The build pipeline is likewise pure in its render half: merged data +
+config in, document strings out, written by a thin CLI.
 
 ## 9. Contracts
 
@@ -486,11 +617,15 @@ A single document (`src/index.html` per user requirement). It must:
 - Render the full page content with scripts disabled (search and the
   text-size toggle degrade to inert; all content and layout must be
   intact).
-- Load one stylesheet set and the module scripts at the end.
+- Load the stylesheet set — tokens, base, layout, components, roles,
+  utilities — and the module scripts (search, text-scale, note-popover)
+  at the end of the body.
 - Declare the search input with `autocomplete="off"` (boot always clears
   it, see §7.1).
 - Require no network at all: no remote assets (fonts are the platform's
   native system stack).
+- Be generated, not hand-edited: the document is a build artifact; the
+  content authority is the data (§6.1).
 
 ### 9.2 Icon set
 
@@ -533,12 +668,16 @@ The script locates elements by stable, semantic identity:
 | Category heading  | required per section                               |
 | Column            | required per section (3)                           |
 | Item              | optional per column                                |
+| Item article span | required per item; carries the searchable text     |
+| Note toggle       | optional per item; absent → no note affordance     |
+| Note popover      | optional per item; sibling of the note toggle      |
 | Sub-group heading | optional per column                                |
 | Mobile label      | optional per column                                |
 
 ### 9.4 Error boundaries
 
-- Missing optional elements (mobile labels, sub-groups) → skipped.
+- Missing optional elements (mobile labels, sub-groups, note toggles,
+  note popovers) → skipped.
 - Empty columns → skipped by filtering.
 - Malformed captured content → element treated as non-matching.
 - No exception may propagate out of the filter pipeline; a failed element
@@ -580,18 +719,23 @@ platform's native system font stack (§4.2), so the page is fully functional
 offline; the only external references are the two attribution links in the
 footer.
 
+The build step is a developer-time dependency: it needs a JavaScript
+runtime with the standard library only — no packages, no network. It never
+runs in the browser and never ships with the page.
+
 ## 12. Content Specification
 
 ### 12.1 Canonical content
 
 All Norwegian text — headings, items, portion notes, footnotes, banners,
-brand names, casing, punctuation — is fixed by this document. The page and
-the automated tests implement it verbatim. Item counts per column must
-match section 6.2 exactly.
+brand names, casing, punctuation — is fixed by this document. The data
+files under `data/` hold it, the generated page renders it, and the
+automated tests assert it — all verbatim. Item counts per column must
+match section 6.5 exactly.
 
 The canonical spellings below were set on 2026-07-31 to correct known
-typos in the source material. The page must use exactly these strings,
-and `tests/content.test.js` asserts them. The reviewed spellings
+typos in the source material. The data must use exactly these strings,
+and the content tests assert them. The reviewed spellings
 `Nøtte` (§8), `Banos` (§8), and `Lollosalat` (§2) look like typos but
 are intentional and must stay unchanged.
 
@@ -708,6 +852,23 @@ are intentional and must stay unchanged.
     tinted cell stays for the 3-column rhythm and the legend/column
     correspondence. Placeholder columns are unaffected — the matcher
     never marks them, and they are already wide-only (§5.7).
+15. Items may carry a reasoning note (why the item is in its column, a
+    source link, a caveat), stored in the item's data body (§6.2). The
+    page renders it as an inline info button with a popover: hover to
+    view, click to pin, click outside to close (§7.5). Search indexes the
+    note text; a query that matches only the note reveals the item and
+    flips the button glyph to the matched state (`☑️`, §4.6) instead of
+    highlighting text, because the popover is never re-rendered by the
+    filter.
+16. The page is generated from data at build time (2026-08-05): the
+    document, the color token layer, and the role/section CSS are build
+    artifacts rendered from the config file and the merged release data
+    (§6, §14). Hand-authored markup is replaced by generated markup; the
+    base, layout, and component CSS layers and the three script modules
+    stay hand-authored. The runtime page remains plain static files — the
+    build step is developer-time only (§1, §8). During the migration the
+    generated output is written outside the site directory so it can be
+    diffed against the hand-authored files before they are retired.
 
 ### 12.3 Negative contracts
 
@@ -716,6 +877,8 @@ are intentional and must stay unchanged.
   category headings.
 - No content reordering across breakpoints (narrow stacking is the same
   order as the wide columns, left to right).
+- No runtime template evaluation: the browser receives plain files only;
+  the build runs before deploy, never in the page.
 
 ## 13. Verification
 
@@ -724,9 +887,10 @@ are intentional and must stay unchanged.
 Cover the search engine:
 
 - Normalization: lowercase, trim, empty query.
-- Matching: case-insensitivity, portion note participation,
-  heading match reveals whole section, sub-group heading match reveals its
-  whole list, no diacritic folding.
+- Matching: case-insensitivity, portion note participation, reasoning
+  note participation (a note-only match reveals the item), heading match
+  reveals whole section, sub-group heading match reveals its whole list,
+  no diacritic folding.
 - Highlight: single/multiple occurrences, emphasis marker in headings
   (category and sub-group) excluding icon markup, item emphasis, restore on
   clear.
@@ -736,6 +900,9 @@ Cover the search engine:
   sub-group heading in it matches, or the category heading matches;
   placeholder columns are never marked; clearing the query removes the
   marker.
+- Note-button state: a note-only match toggles the matched glyph; every
+  other state (article match, no match, IDLE) restores the plain glyph;
+  the popover's open/pinned state survives search runs untouched.
 - Special inputs: regex metacharacters, spaces, uppercase.
 - Clear control: hides/shows, restores originals, returns focus.
 - Escape key: clears an active search exactly like the clear control while
@@ -757,9 +924,10 @@ Text-size toggle (§7.4):
 ### 13.2 Content inventory tests (automated)
 
 - Section count (11), heading order, and heading text equal to the
-  canonical inventory in §6.2 and §12.1.
-- Per-column item counts equal to §6.2 (total 484).
-- The canonical spellings in §12.1 are present verbatim in the markup.
+  canonical inventory in §6.5 and §12.1.
+- Per-column item counts equal to §6.5 (total 484).
+- The canonical spellings in §12.1 are present verbatim in the data files
+  and in the generated markup.
 
 ### 13.3 Visual and behavioral verification (full-browser)
 
@@ -773,18 +941,39 @@ including the narrow empty-column collapse (deviation 14) at 375 px: an
 emptied column must be gone below 768 px and present as a tinted cell
 from 768 px up.
 
+### 13.4 Data and build pipeline tests (automated)
+
+Cover the merge and render pipeline:
+
+- Merge: baseline + deltas produce the expected per-item state; absent
+  fields inherit, explicit empty clears, `visible: false` removes,
+  `visible: true` restores, notes prepend oldest → newest (§6.3).
+- Render: the generated document contains exactly the sections, columns,
+  items, and footnote banners of §6.5, the config-driven legend, and the
+  three module scripts; the generated token and role CSS reproduce the
+  config colors (§4, §14).
+- Config integrity: every section folder, item `group`, `subgroup`, and
+  `footnote.type` reference resolves to a config id or key (§4 of
+  `docs/config-format.md`).
+
 ## 14. Stylesheet Architecture
 
 The stylesheet layer structure (physical files mapped in `CODEBASE.md`):
 
 1. Tokens: color palette, typography, sizes, z-order, shadows, breakpoints.
-2. Base: reset, body typography, list normalization.
-3. Layout: page shell, container, grid system, sticky behavior.
-4. Components: masthead, search widget, labels, banners, headings, columns,
-   lists, sub-groups, decorations, footer.
-5. Utilities: responsive toggles (mobile-only, wide-only), hidden state,
+   Color values are generated from the config file at build time; the
+   static tokens (typography, sizes, z-order, effects) stay hand-authored.
+2. Roles: per-group and per-section color rules, generated from the config
+   arrays so the page supports an arbitrary number of groups and sections.
+3. Base: reset, body typography, list normalization.
+4. Layout: page shell, container, grid system, sticky behavior.
+5. Components: masthead, search widget, labels, banners, headings, columns,
+   lists, sub-groups, note affordance, decorations, footer.
+6. Utilities: responsive toggles (mobile-only, wide-only), hidden state,
    search marker styling.
 
 Rules: mobile-first authoring; no duplicated declarations across layers;
-no inline styles in the document; every color and size sourced from tokens;
-each stylesheet file stays small enough for one focused responsibility.
+generated layers never duplicate hand-authored rules and hand-authored
+rules never restate generated color values; no inline styles in the
+document; every color and size sourced from tokens; each stylesheet file
+stays small enough for one focused responsibility.

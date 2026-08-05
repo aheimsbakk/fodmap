@@ -418,3 +418,59 @@
   margin: 0.5rem 0 0;
   color: var(--color-footer-secondary);
 }
+
+/* Note (i) affordance: item reasoning note ----------------------------- */
+
+.item {
+  position: relative;
+}
+
+.note-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--info-button-width);
+  height: var(--info-button-height);
+  margin-left: var(--info-button-margin-left);
+  padding: 0;
+  line-height: 1;
+  font-size: var(--info-button-font-size);
+  color: var(--color-accent);
+  background: none;
+  border: 1px solid var(--color-accent-light);
+  border-radius: var(--info-button-border-radius);
+  cursor: pointer;
+  vertical-align: baseline;
+}
+
+/* Info glyph; switches to the "matched" glyph when the query hits the note
+   (see search.js toggling .is-match). */
+.note-toggle::before {
+  content: var(--info-emoji);
+}
+
+.note-toggle.is-match::before {
+  content: var(--info-emoji-matched);
+}
+
+.note-toggle:hover,
+.note-toggle:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.note-popover {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 6px);
+  z-index: 50;
+  max-width: 240px;
+  width: max-content;
+  padding: 0.5rem 0.6rem;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-banner);
+  font-size: calc(0.78rem * var(--text-scale));
+  line-height: 1.35;
+  white-space: normal;
+}

@@ -5,3 +5,6 @@ node_modules/
 venv/
 .ruff_cache/
 .playwright-cli/
+# Build output during the data-driven migration (diffed against src/ before
+# the hand-authored files are retired; see BLUEPRINT §12.2 deviation 16).
+tmp/

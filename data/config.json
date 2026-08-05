@@ -3,7 +3,10 @@
   "collation": "no-NO",
   "page": {
     "head": {
-      "emoji": { "left": "🥦🍓", "right": "🧀🥖" },
+      "emoji": {
+        "left": "🥦🍓",
+        "right": "🧀🥖"
+      },
       "subtitle": "Vanlige matvarer",
       "title": "FODMAP",
       "title-color": "#c43838",
@@ -72,6 +75,15 @@
           ]
         }
       ]
+    },
+    "info-button": {
+      "emoji": "ℹ️",
+      "emoji-matched": "☑️",
+      "width": "1.2em",
+      "height": "1.2em",
+      "font-size": "0.75em",
+      "border-radius": "50%",
+      "margin-left": "0.4rem"
     }
   },
   "sections": [
@@ -165,7 +177,8 @@
       "emoji": "👍",
       "background-color": "#a0c49d",
       "text-color": "#1e3a1e",
-      "column-color": "rgba(160, 196, 157, 0.2)"
+      "column-color": "rgba(160, 196, 157, 0.2)",
+      "border-color": "#1e3a1e"
     },
     {
       "id": "begrens",
@@ -173,7 +186,8 @@
       "emoji": "⚖️",
       "background-color": "#f7d774",
       "text-color": "#4a3c08",
-      "column-color": "rgba(247, 215, 116, 0.25)"
+      "column-color": "rgba(247, 215, 116, 0.25)",
+      "border-color": "#4a3c08"
     },
     {
       "id": "unngå",
@@ -181,7 +195,8 @@
       "emoji": "✋",
       "background-color": "#d15d5d",
       "text-color": "#ffffff",
-      "column-color": "rgba(209, 93, 93, 0.15)"
+      "column-color": "rgba(209, 93, 93, 0.15)",
+      "border-color": "#5a1919"
     }
   ],
   "subgroups": {

@@ -1,9 +1,12 @@
 # CODEBASE.md — FODMAP Overview App
 
 > Maps the language-agnostic architecture (`BLUEPRINT.md`) to concrete
-> physical files. Implementation language: vanilla JavaScript (ES modules),
-> semantic CSS, plain HTML. No frameworks, no build step, no runtime
-> dependencies.
+> physical files. The site is static and dependency-free at runtime, but
+> its content is data-driven: `data/` holds the canonical content, and a
+> developer-time build step (`scripts/build/`) merges the release data and
+> generates part of the site. Implementation language: vanilla JavaScript
+> (ES modules), semantic CSS, plain HTML. No frameworks, no build
+> dependencies, no runtime dependencies.
 
 ## 1. Repository Structure
 
@@ -14,36 +17,49 @@ work/
 ├── CHANGELOG.md                 # wrap-up changelog (versioned milestones)
 ├── CODEBASE.md                  # this file
 ├── LICENSE                      # MIT License (OSI text, holder: Arnulf Heimsbakk, 2026)
+├── VERSION                      # app version; substituted into the footer at build time
 ├── .github/
 │   └── workflows/
 │       └── deploy-pages.yml     # GitHub Pages deploy of src/ (on push to main)
 ├── opencode.json
 ├── .opencode/                   # agent configuration and skills
 ├── .gitignore
+├── data/                        # canonical content (specs: docs/data-format.md, docs/config-format.md)
+│   ├── config.json              # global names (sections/groups/subgroups/footnotes) + page text
+│   ├── 2021/                    # baseline release: every item, one file per slug in section folders
+│   └── 2025-05/                 # delta release: only changed/added/hidden items
 ├── docs/
-│   ├── config-format.md            # technical spec of data/config.json (proposed)
-│   ├── config-guide.md             # user guide: editing config.json
-│   ├── data-format.md              # data/config format spec (proposed, not yet implemented)
-│   ├── data-lifecycle.md           # user guide: yearly data update and release lifecycle
-│   └── memory/                     # session memory (skill-managed)
+│   ├── config-format.md         # technical spec of data/config.json
+│   ├── config-guide.md          # user guide: editing config.json
+│   ├── data-format.md           # technical spec of the item data and merge rules
+│   ├── data-lifecycle.md        # user guide: yearly data update and release lifecycle
+│   └── memory/                  # session memory (skill-managed)
 ├── README.md                    # project overview, quick start, script docs — in Norwegian
-├── src/
-│   ├── index.html               # entry point: full static markup of the page
+├── src/                         # the site; deployed as-is by the Pages workflow
+│   ├── index.html               # entry point; becomes build-generated (hand-authored during migration)
 │   ├── css/
-│   │   ├── tokens.css           # design tokens: colors, fonts, sizes, z-order, breakpoints
-│   │   ├── base.css             # reset, body typography, list normalization
-│   │   ├── layout.css           # page shell, container, content grid, sticky offsets
-│   │   ├── components.css       # masthead, search widget, labels, banners, decorations
-│   │   └── utilities.css        # responsive toggles, hidden state, search marker
+│   │   ├── tokens.css           # color tokens build-generated; typography/sizes/effects static
+│   │   ├── base.css             # static: reset, body typography, list normalization
+│   │   ├── layout.css           # static: page shell, container, content grid, sticky offsets
+│   │   ├── components.css       # static: masthead, search widget, labels, banners, decorations
+│   │   └── utilities.css        # static: responsive toggles, hidden state, search marker
 │   └── js/
 │       ├── search.js            # search engine: matcher (pure) + executor (DOM)
-│       └── text-scale.js        # text-size toggle: cycle + persist the level
+│       ├── text-scale.js        # text-size toggle: cycle + persist the level
+│       └── note-popover.js      # item note affordance: hover/pin popover
 ├── tests/
 │   ├── content.test.js          # canonical inventory: section order, counts, spellings
 │   ├── search.test.js           # functional tests of the search engine
 │   ├── text-scale.test.js       # functional tests of the text-size toggle
 │   └── styles.test.js           # stylesheet contract guards (single-line sub-title)
 ├── scripts/
+│   ├── build/
+│   │   ├── build.mjs            # build entry: config + data → index.html, tokens.css, roles.css
+│   │   └── lib/
+│   │       ├── merge.js         # release merge (oldest → newest) into per-section items
+│   │       ├── render-html.js   # document renderer (config + merged items → HTML)
+│   │       ├── render-tokens.js # tokens.css renderer (config colors + static tokens)
+│   │       └── render-css.js    # roles.css renderer (per-group/per-section rules)
 │   ├── verify_codebase_sync.sh  # sync verification (see README)
 │   ├── bump-version.sh          # wrap-up: version bump helper (VERSION + index.html footer)
 │   └── validate-changelog.sh    # wrap-up: changelog validation
@@ -51,15 +67,22 @@ work/
 └── package-lock.json
 ```
 
+The build writes three files into the site directory — `index.html`,
+`css/tokens.css`, and `css/roles.css` — and leaves the other stylesheet
+layers and the three script modules untouched. During the migration the
+build output goes to a temporary directory outside `src/` so it can be
+diffed against the hand-authored files before they are retired
+(BLUEPRINT §12.2 deviation 16).
+
 ## 2. Blueprint Component → File Mapping
 
 ### 2.1 Markup (`src/index.html`)
 
 Single document, `lang="no"`, UTF-8, responsive viewport meta. Loads the
 stylesheet set in layer order (tokens → base → layout → components →
-utilities) and the scripts as ES modules at the end of the body. Content is
-static markup authored to the canonical content rules in BLUEPRINT §6.2
-(section inventory) and §12.1 (canonical spellings).
+roles → utilities) and the scripts as ES modules at the end of the body.
+The document is generated by `scripts/build/lib/render-html.js` from
+`data/config.json` and the merged release data (BLUEPRINT §6, §9.1).
 
 | Blueprint component    | Markup element(s)                                                                                                 |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------- |
@@ -68,13 +91,14 @@ static markup authored to the canonical content rules in BLUEPRINT §6.2
 | Content container      | `div.container`                                                                                                   |
 | Masthead               | `header.masthead` → `h2.sub-title`, `h1.main-title`                                                               |
 | Search widget          | `div.search-widget` → `span.search-icon`, `input#search-input`, `button#clear-search`, `button#text-scale-toggle` |
-| Column legend          | `div#main-column-headers.legend` → 3 × `div.legend-item.legend-spis/begrens/unnga`                                |
+| Column legend          | `div#main-column-headers.legend` → `div.legend-item[data-role]` per config group                                  |
 | Info banner            | `div.info-banner`                                                                                                 |
 | Category section (×11) | `section.category-section[data-category]` → `h3.category-heading`, `div.content-grid`                             |
 | Category heading       | `h3.category-heading[data-category]` (icon span + title)                                                          |
-| Column                 | `div.content-col[data-role="spis\|begrens\|unnga"]`; empty placeholder columns add `data-placeholder`             |
+| Column                 | `div.content-col[data-role]`; empty placeholder columns add `data-placeholder`                                    |
 | Mobile label           | `div.role-label.mobile-only`                                                                                      |
-| Item list              | `ul.item-list` → `li.item`                                                                                        |
+| Item list              | `ul.item-list` → `li.item` → `span.item-text`                                                                     |
+| Note affordance        | optional `button.note-toggle` + `span.note-popover[hidden]` siblings of the item text                             |
 | Sub-group              | `h4.sub-group-title` + following `ul.item-list`                                                                   |
 | Footnote banner        | `div.footnote-banner` (optional `span.footnote-icon`)                                                             |
 | Footer                 | `footer.page-footer` → `p.footer-disclaimer`, `p.footer-source`, `p.footer-credit` (with link)                    |
@@ -87,32 +111,38 @@ The `data-category` attribute repeats on the section element itself: the
 scripts and the content tests address sections by it, while the CSS
 heading-color rules consume the heading's copy through
 `[data-category]` selectors (CODEBASE §5.2). Column tints are
-role-based and address `[data-role]` directly on the column.
+role-based and address `[data-role]` directly on the column; the
+generated `roles.css` supplies those per-group rules (§2.2).
 
 Semantic hooks used by the script (data attributes, set at load time):
 
-| Hook             | Where                       | Purpose                                      |
-| ---------------- | --------------------------- | -------------------------------------------- |
-| `data-orig-text` | every `li.item`             | captured plain text for matching and restore |
-| `data-orig-html` | every `h3.category-heading` | captured markup for restore/highlight        |
-| `data-orig-html` | every `h4.sub-group-title`  | captured markup for restore/highlight        |
+| Hook             | Where                       | Purpose                                        |
+| ---------------- | --------------------------- | ---------------------------------------------- |
+| `data-orig-text` | every `li.item`             | captured article text for matching and restore |
+| `data-orig-html` | every `h3.category-heading` | captured markup for restore/highlight          |
+| `data-orig-html` | every `h4.sub-group-title`  | captured markup for restore/highlight          |
 
-Element IDs: `search-input`, `clear-search`, `text-scale-toggle`,
-`main-column-headers`.
+The reasoning note text is read live from the static `.note-popover`
+sibling at capture time; it is never rewritten by the executor, so it
+needs no origin attribute. Element IDs: `search-input`, `clear-search`,
+`text-scale-toggle`, `main-column-headers`.
 
 ### 2.2 Stylesheets (`src/css/`)
 
-| File             | Layer      | Content                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| ---------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `tokens.css`     | tokens     | CSS custom properties: every color from BLUEPRINT §4.1 (category heading colors + role-based column tints `--tint-spis/-begrens/-unnga`), font families/weights, size scale §4.3 (content font-size tokens wrapped in `calc(var(--text-scale))`, §7.4), z-order §4.4, sticky offsets, effects §4.5                                                                                                                                       |
-| `base.css`       | base       | minimal reset, `body` (white bg, system sans-serif, `#333`), heading families + uppercase, `ul` normalization, `li` bullet marker (❖ U+2756), `li.item` `overflow-wrap: anywhere` (long tokens at 150 % scale)                                                                                                                                                                                                                           |
-| `layout.css`     | layout     | `.container` (max-width 1280 px, margins, z-20, padding), page padding scale, `.content-grid` (1 col → 3 cols at ≥ 768 px; 2 px solid borders; `border-b-0` variant for footnote sections), column border rules (dashed separators, mobile top lines), sticky offsets for `.search-widget` (top 0) and `.category-heading` (top 56 px / 64 px)                                                                                           |
-| `components.css` | components | masthead typography and title outline shadow, sub-title `white-space: nowrap` plus narrow-viewport size steps (≤ 457 / 372 / 329 px), search widget (heights 56/64 px, flex layout, `Aa` text-scale toggle), legend cells, role labels (3 color sets), category heading colors (per `[data-category]`), role-based column tints (per `[data-role]`, deviation 13), info/footnote banners, sub-group titles, halftone decorations, footer |
-| `utilities.css`  | utilities  | `.hidden`, `.mobile-only` (hidden ≥ 768 px), `.wide-only` (hidden < 768 px), `.sm-only` (hidden < 640 px, for the halftone decorations), `.col-empty-mobile` (narrow-only collapse of columns with no visible content, deviation 14), `.marker` (search highlight span), `.item-highlight` (bold emphasis)                                                                                                                               |
+| File             | Layer      | Content                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| ---------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tokens.css`     | tokens     | CSS custom properties: color values GENERATED from `data/config.json` by `scripts/build/lib/render-tokens.js` (page palette, category sets, role-based column tints, `--role-<id>-*`, `--section-<id>-bg`, `--info-*` note-button tokens, §4.1/§4.6); static literals for typography, sizes (with the `calc(var(--text-scale))` content tokens, §7.4), z-order, sticky offsets, effects, media steps (§4.2–§4.5)                                        |
+| `roles.css`      | roles      | GENERATED by `scripts/build/lib/render-css.js`: per-group rules (`.content-col[data-role]` tint, `.role-label`, `.legend-item` colors) and per-section heading colors (`.category-heading[data-category]`), driven by the config arrays so the page supports an arbitrary number of groups and sections. Written by the build into the site directory                                                                                                   |
+| `base.css`       | base       | minimal reset, `body` (white bg, system sans-serif, `#333`), heading families + uppercase, `ul` normalization, `li` bullet marker (❖ U+2756), `li.item` `overflow-wrap: anywhere` (long tokens at 150 % scale)                                                                                                                                                                                                                                          |
+| `layout.css`     | layout     | `.container` (max-width 1280 px, margins, z-20, padding), page padding scale, `.content-grid` (1 col → 3 cols at ≥ 768 px; 2 px solid borders; `border-b-0` variant for footnote sections), column border rules (dashed separators, mobile top lines), sticky offsets for `.search-widget` (top 0) and `.category-heading` (top 56 px / 64 px)                                                                                                          |
+| `components.css` | components | masthead typography and title outline shadow, sub-title `white-space: nowrap` plus narrow-viewport size steps (≤ 457 / 372 / 329 px), search widget (heights 56/64 px, flex layout, `Aa` text-scale toggle), legend cells, role labels (colors from the generated tokens), category heading colors, info/footnote banners, sub-group titles, note affordance (`.note-toggle`, `.note-popover`, glyph swap via `::before`), halftone decorations, footer |
+| `utilities.css`  | utilities  | `.hidden`, `.mobile-only` (hidden ≥ 768 px), `.wide-only` (hidden < 768 px), `.sm-only` (hidden < 640 px, for the halftone decorations), `.col-empty-mobile` (narrow-only collapse of columns with no visible content, deviation 14), `.marker` (search highlight span), `.item-highlight` (bold emphasis)                                                                                                                                              |
 
 Authoring rules: mobile-first; no inline styles in markup; all values from
-tokens; each file under 300 lines (RULES §17); if a layer outgrows it,
-split by component before continuing.
+tokens; generated layers never duplicate hand-authored rules and
+hand-authored rules never restate generated color values; each file under
+300 lines (RULES §17); if a layer outgrows it, split by component before
+continuing.
 
 ### 2.3 Scripts (`src/js/`)
 
@@ -121,12 +151,12 @@ the end of the body.
 
 `src/js/search.js` — the search engine:
 
-| Export                                   | Responsibility                                                                                                                                                                                                                                                                                     | BLUEPRINT § |
-| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| `normalizeQuery(value)`                  | lowercase + trim                                                                                                                                                                                                                                                                                   | §7.2.1      |
-| `buildMatcher()`                         | pure matcher: query + captured content → visibility/highlight plan for items, category/sub-group headings, and a per-column empty flag (narrow collapse, deviation 14)                                                                                                                             | §8          |
-| `applyPlan(document, plan)`              | executor: applies the plan to the DOM (toggles `.col-empty-mobile` on columns)                                                                                                                                                                                                                     | §8          |
-| `initSearch(document, debounceMs = 300)` | boot: clear any browser-restored input value, then load-time capture (`data-orig-*` + placeholder flag); event wiring (input debounce 300 ms, Escape key clears like the clear control, clear control, passive scroll-blur > 50 px with a 200 ms grace window after each filter run), IDLE restore | §7, §9.5    |
+| Export                                   | Responsibility                                                                                                                                                                                                                                                                                                 | BLUEPRINT § |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `normalizeQuery(value)`                  | lowercase + trim                                                                                                                                                                                                                                                                                               | §7.2.1      |
+| `buildMatcher()`                         | pure matcher: query + captured content → visibility/highlight plan for items, category/sub-group headings, and a per-column empty flag (narrow collapse, deviation 14). Items match on article text or note text; a note-only match flags the note button as matched                                           | §8          |
+| `applyPlan(document, plan)`              | executor: applies the plan to the DOM (re-renders only each item's `.item-text` span, toggles `.col-empty-mobile` on columns and `.is-match` on note buttons)                                                                                                                                                  | §8          |
+| `initSearch(document, debounceMs = 300)` | boot: clear any browser-restored input value, then load-time capture (`data-orig-*` + note text + placeholder flag); event wiring (input debounce 300 ms, Escape key clears like the clear control, clear control, passive scroll-blur > 50 px with a 200 ms grace window after each filter run), IDLE restore | §7, §9.5    |
 
 `src/js/text-scale.js` — the text-size toggle:
 
@@ -134,24 +164,33 @@ the end of the body.
 | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------- |
 | `initTextScale(document, storage)` | restore the stored level, apply `data-text-scale` on the root, wire the cycling `Aa` button; `storage` defaults to `localStorage`, read/write failures degrade to session-only | §7.4, §10   |
 
+`src/js/note-popover.js` — the note affordance (no exports; wires itself
+on load): hover shows the note popover, hover leave closes it unless
+pinned, a click pins/unpins, a click outside a pinned note unpins and
+closes it, and the toggle keeps `aria-expanded` in sync (BLUEPRINT §7.5).
+
 The search matcher never touches the document and is fully testable in
 Node. The executor performs no string logic. `initSearch` only wires them
 together; all behavior follows BLUEPRINT §7.2 derived visibility rules.
 The text-scale module sets one attribute and never touches content text;
-the two modules share no state and boot independently.
+the note-popover module reads and writes only its own button/popover
+pair. The three modules share no state and boot independently.
 
 ## 3. Tech Specs
 
 | Concern                | Choice                                                                                                                                                                                                                       |
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Languages              | HTML5, CSS3, JavaScript (ES modules)                                                                                                                                                                                         |
+| Site generation        | `node scripts/build/build.mjs <out-dir>` — Node ≥ 20 standard library only, no packages; writes `index.html`, `css/tokens.css`, `css/roles.css` (BLUEPRINT §8, §14)                                                          |
+| Content source         | `data/config.json` (names + page text) + release folders under `data/` (item files); merge oldest → newest per `docs/data-format.md` §7                                                                                      |
 | Runtime dependencies   | none (footer attribution hyperlinks to NHI.no, NKFM, and the GitHub repository only; fonts are the platform's native system stack)                                                                                           |
 | Client storage         | `localStorage` (key `fodmap-text-scale`) for the text-size level only; read once at load, written on toggle, validated; failures degrade to session-only (BLUEPRINT §10, §12.2 deviation 9)                                  |
-| Dev dependencies       | `jsdom` (DOM emulation for tests), pinned exact version                                                                                                                                                                      |
+| Versioning             | `VERSION` (semver); `{{version}}` in footer segments substituted at build time; `scripts/bump-version.sh` keeps `VERSION` and the footer marker in sync                                                                      |
+| Dev dependencies       | `jsdom` (DOM emulation for tests), `prettier`, pinned exact versions; the build uses none                                                                                                                                    |
 | Test runner            | Node built-in `node --test` (Node ≥ 20; environment has v26)                                                                                                                                                                 |
 | Full-browser testing   | Playwright, available in this environment via the `playwright-cli` skill (automated browser interactions and page checks)                                                                                                    |
 | Module system          | ES modules (`"type": "module"` in package.json; `type="module"` on the script tag)                                                                                                                                           |
-| Scripts                | `npm test` → `node --test tests/`                                                                                                                                                                                            |
+| Scripts                | `npm test` → `node --test tests/`; `npm run format`; `npm run verify:sync`; build run directly (`node scripts/build/build.mjs <out-dir>`)                                                                                    |
 | Icons                  | emoji text glyphs per BLUEPRINT §9.2 (VS16 variation selector for ⚖️ ℹ️ ⚠️ ☕ 🌶️)                                                                                                                                            |
 | Fonts                  | none — all three roles use the native `system-ui` stack via the `--font-system` token (BLUEPRINT §4.2, §12.2 deviation 5)                                                                                                    |
 | Documentation language | README in Norwegian (bokmål, klarspråk) — the app is Norwegian-only (user decision; overrides RULES §1.2 for user-facing docs). Internal docs (`BLUEPRINT.md`, `CODEBASE.md`, comments, commits) stay English per RULES §1.2 |
@@ -163,21 +202,54 @@ the two modules share no state and boot independently.
 
 | Purpose              | Path                                                                                        |
 | -------------------- | ------------------------------------------------------------------------------------------- |
-| Application entry    | `src/index.html` (served statically; any static file server, e.g. `python3 -m http.server`) |
+| Application entry    | `src/index.html` (generated by the build; served statically, e.g. `python3 -m http.server`) |
+| Build entry          | `scripts/build/build.mjs <out-dir>`                                                         |
+| Content source       | `data/config.json` + `data/<release>/` folders                                              |
 | Search engine module | `src/js/search.js`                                                                          |
 | Text-scale module    | `src/js/text-scale.js`                                                                      |
+| Note popover module  | `src/js/note-popover.js`                                                                    |
 | Test suite           | `tests/` via `npm test`                                                                     |
-| Sync verification    | `scripts/verify_codebase_sync.sh` (created in synchronization phase)                        |
+| Sync verification    | `scripts/verify_codebase_sync.sh`                                                           |
 
 ## 5. Implementation Rationale (language/framework mapping)
 
-### 5.1 JavaScript
+### 5.1 Build step and data
 
-- **ES modules without a bundler.** The environment has no build step, and
-  modern browsers load modules natively. One module per concern
-  (BLUEPRINT goal 3): `search.js` stays under the 300-line limit, and the
-  text-size toggle gets its own `text-scale.js` instead of growing the
-  search module (RULES §17). The two modules share no state.
+- **Data-driven content without a runtime dependency.** The Norwegian
+  text lives as Markdown items with YAML frontmatter plus one JSON
+  config (`data/`), per the specs in `docs/data-format.md` and
+  `docs/config-format.md`. A build step turns that data into plain
+  static files before deploy; the browser still receives only markup,
+  CSS, and vanilla scripts (BLUEPRINT goal 4, §12.2 deviation 16).
+- **Merge is a separate pure module.** `lib/merge.js` reads release
+  folders oldest → newest and merges per item (slug within section
+  folder) with `Object.assign`, which matches the spec's field-level
+  inheritance (BLUEPRINT §6.3). The render half is equally pure:
+  `lib/render-html.js` takes merged items + config and returns document
+  strings, so both halves are testable without a DOM or a server.
+- **Generated layers, hand-authored layers.** Only the files that vary
+  with the data are generated: the document, the color token layer, and
+  the per-role/per-section rules (`roles.css`). This keeps an arbitrary
+  number of groups and sections working with zero new stylesheet code,
+  while the layout and component rules stay hand-authored, reviewed CSS.
+  No hand-authored layer restates a color that config owns.
+- **One renderer per output.** `render-html.js`, `render-tokens.js`,
+  and `render-css.js` each own exactly one generated artifact, keeping
+  every file small and single-responsibility (RULES §9, §17).
+- **Spike output outside the site.** Until the migration is complete,
+  the CLI writes to a temporary directory (e.g. `tmp/out`) so the
+  generated markup can be diffed against the hand-authored `src/` files
+  before they are retired (BLUEPRINT §12.2 deviation 16). `tmp/` is
+  gitignored.
+
+### 5.2 JavaScript
+
+- **ES modules without a bundler.** The environment has no build step
+  for the browser, and modern browsers load modules natively. One module
+  per concern (BLUEPRINT goal 3): `search.js` stays under the 300-line
+  limit, the text-size toggle gets its own `text-scale.js`, and the note
+  affordance gets its own `note-popover.js` instead of growing the search
+  module (RULES §17). The three modules share no state.
 - **The storage adapter is a parameter, not a global.** `initTextScale`
   accepts a `{ getItem, setItem }` object; the browser path defaults to
   `localStorage` behind a try/catch. Tests inject an in-memory store and
@@ -188,17 +260,17 @@ the two modules share no state and boot independently.
   The executor and `initSearch` are integration-tested through jsdom with
   the real `src/index.html`, which also exercises the element identity
   contract (BLUEPRINT §9.3).
-- **Restoration uses `data-orig-*` attributes** rather than a side table:
-  the captured content travels with each node, survives any element
-  relocation, and keeps restore logic local to that node. Item text is
-  trimmed at capture time (items are authored multi-line for readability,
-  but render without surrounding whitespace, so trimming preserves exact
-  text).
-- **Plain-text items simplify search.** Items carry no child markup
-  (small-print notes are merged into the item text, BLUEPRINT §12.2
-  deviation 3), so matching and highlighting run directly on the item's
-  plain text. Only heading markup (emoji + title) needs tag-safe
-  highlighting via the exclusion regex.
+- **The article span keeps search surgical.** Generated items carry
+  `span.item-text` plus static siblings (note button + popover). Search
+  re-renders only the article span and toggles classes on the button and
+  column; it never rebuilds a note, so the popover's open state survives
+  filtering and restore stays trivial (BLUEPRINT §7.2.3, §7.5).
+- **Notes are searchable through their static text.** The matcher reads
+  the note text from the `.note-popover` sibling at capture time and
+  matches against it; a note-only match flips the button's `.is-match`
+  class, which swaps the `::before` glyph via CSS (BLUEPRINT §4.6). The
+  note text never needs an origin attribute because it is never written
+  back.
 - **Boot clears any restored input value in JS, not just via markup.**
   `autocomplete="off"` is advisory and can race the deferred module's
   execution, so `initSearch` also sets `input.value = ""` on boot as the
@@ -212,25 +284,24 @@ the two modules share no state and boot independently.
   returns exactly as soon as the query leaves content in it again.
   Placeholder columns are marked in the capture and never flagged.
 
-### 5.2 CSS
+### 5.3 CSS
 
 - **Custom properties as the token layer** give the category color sets
-  (heading background) a single source of truth:
-  `--color-brod`, `--color-gronn`, `--color-frukt`, `--color-melk`,
-  `--color-drikke`, `--color-kjott`, plus per-section headings
-  (`#d1bfae`, `#e6c8c8`, `#b5c7b3`, `#d97744`) set via
-  `[data-category="..."]` selectors — this replaces utility classes with
-  semantic selectors (deviation 1).
+  (heading background) a single source of truth — now written by the
+  build from config: `--color-brod`, `--color-gronn`, `--color-frukt`,
+  `--color-melk`, `--color-drikke`, `--color-kjott`, plus per-section
+  headings set via `[data-category="..."]` selectors in the generated
+  `roles.css`. This replaces utility classes with semantic selectors
+  (deviation 1).
 - **Column tints are role-based** (BLUEPRINT §12.2 deviation 13): three
   tokens (`--tint-spis`, `--tint-begrens`, `--tint-unnga`) hold the role
   backgrounds at low opacity, and `.content-col[data-role="..."]`
-  selectors apply them. The column ↔ role correspondence matches the
-  legend and the mobile labels at a glance; the markup carries the role
-  on the column itself, so no heading-sibling cascade or per-column
-  color classes are needed. Empty placeholder columns carry the role of
-  their position and get the corresponding tint; `data-placeholder`
-  marks them for the wide-only rendering rule and keeps them excluded
-  from filtering.
+  selectors apply them — generated per config group so extra groups need
+  no new stylesheet code. The column ↔ role correspondence matches the
+  legend and the mobile labels at a glance. Empty placeholder columns
+  carry the role of their position and get the corresponding tint;
+  `data-placeholder` marks them for the wide-only rendering rule and
+  keeps them excluded from filtering.
 - **Breakpoints** are authored mobile-first: base (< 640 px), `sm`
   (≥ 640 px), `md` (≥ 768 px) — the grid and legend flip happens at `md`.
   No `lg`-specific rules are needed beyond the body padding step
@@ -259,54 +330,54 @@ the two modules share no state and boot independently.
   borders, the search widget height, the sticky offsets, and the
   masthead tokens are defined without the multiplier and stay fixed,
   which is what keeps the layout compact (deviation 9).
+- **The note button scales and swaps glyphs via tokens.** The
+  `--info-*` tokens (BLUEPRINT §4.6) size the button in `em`, so it
+  grows with the text scale, and the `::before` content swap
+  (`ℹ️` → `☑️`) is driven by the `.is-match` class, so the button's DOM
+  text never changes and search restore is unaffected.
 - **`overflow-wrap: anywhere` on `li.item`** (not `break-word`): long
   unbreakable tokens ("Maltodextrin/maltose/maltekstrakt") exceed the
   column track at the 150 % scale on narrow viewports. `anywhere`
   participates in min-content sizing, so the grid track shrinks with
   the wrap; `break-word` would not and the column would overflow.
-- **The canonical content** (BLUEPRINT §12.1) lives entirely in
-  `src/index.html`. `tests/content.test.js` verifies it against the frozen
-  inventory: section order, per-column counts (§6.2), and the canonical
-  spellings — a markup change to any frozen string fails the suite.
+- **The canonical content** (BLUEPRINT §12.1) lives in the data files
+  under `data/`, and the generated document renders it. `tests/content.test.js`
+  verifies the rendered page against the frozen inventory: section order,
+  per-column counts (§6.5), and the canonical spellings — a data change
+  to any frozen string fails the suite.
 
-### 5.3 Testing
+### 5.4 Testing
 
-- `tests/content.test.js` loads `src/index.html` in jsdom and asserts:
-  11 sections in the canonical order (§6.2), per-column `li` counts
-  matching BLUEPRINT §6.2 (total 484), and the canonical spellings from
-  §12.1 present verbatim in the markup.
+- `tests/content.test.js` loads the site's `index.html` in jsdom and
+  asserts: 11 sections in the canonical order (§6.5), per-column `li`
+  counts matching BLUEPRINT §6.5 (total 484), and the canonical spellings
+  from §12.1 present verbatim in the markup.
 - `tests/search.test.js` covers BLUEPRINT §13.1: normalization, matching
-  (case-insensitivity, note participation, header match, sub-group header
-  match revealing its whole list, no diacritic folding), highlighting
-  (marker vs item emphasis, no matches inside icon markup), visibility
-  transitions (item, sub-group, mobile label, section, empty columns
-  untouched), the narrow empty-column collapse (deviation 14: a column
-  with no visible content gets `.col-empty-mobile`, it returns on an
-  item / sub-group / category heading match, placeholder columns are
-  never flagged, clear removes the class), metacharacter safety,
-  clear/restore, boot clearing of a browser-restored input value,
-  debounce coalescing, and the scroll-blur rule
-  (simulated via `window.scrollY`).
-- `tests/styles.test.js` guards the masthead sub-title contract
-  (BLUEPRINT §12.2 deviation 8): the base rule declares
-  `white-space: nowrap` and the narrow-viewport size steps exist.
-  It also guards the text-scale token contract (§4.3, §7.4): the
-  multiplier exists for all three levels, the content tokens scale
-  while the masthead and geometry tokens do not, and `li.item`
-  declares `overflow-wrap: anywhere`. It also guards the sub-group
-  contract (§5.6, deviation 11): no rule may draw a separator line above
-  `.sub-group-title`, no media query special-cases sub-group headings,
-  and the `--color-subgroup-line` token is gone. It also guards the
-  empty-column collapse contract (deviation 14): `.col-empty-mobile`
-  exists, its `display: none` lives in a `max-width` media query only,
-  and no rule outside it hides the class. jsdom cannot measure
-  layout, so the guards assert the stylesheet declarations directly; the
-  browser-level fit is verified with Playwright at 320–640 px widths.
+  (case-insensitivity, note participation — article and reasoning note,
+  header match, sub-group header match revealing its whole list, no
+  diacritic folding), highlighting (marker vs item emphasis, no matches
+  inside icon markup), visibility transitions (item, sub-group, mobile
+  label, section, empty columns untouched), the narrow empty-column
+  collapse (deviation 14), the note-button matched glyph state, special
+  inputs, clear/restore, boot clearing of a browser-restored input value,
+  debounce coalescing, and the scroll-blur rule (simulated via
+  `window.scrollY`).
+- `tests/styles.test.js` guards the stylesheet contracts: the masthead
+  sub-title single-line rule and narrow size steps (deviation 8), the
+  text-scale token contract (§4.3, §7.4), the line-free sub-group
+  headings (deviation 11), and the mobile-scoped empty-column collapse
+  (deviation 14). jsdom cannot measure layout, so the guards assert the
+  stylesheet declarations directly; the browser-level fit is verified
+  with Playwright at 320–640 px widths.
 - `tests/text-scale.test.js` covers BLUEPRINT §13.1 (text-size toggle):
   the default S100 state, the 100 → 125 → 150 → 100 cycle, storage
   write and restore, invalid and blocked storage fallbacks, the
   independence of scaling and an active search, and the missing-button
   inert path (§9.3).
+- **Data and build pipeline tests (BLUEPRINT §13.4)** cover the merge
+  (inheritance, explicit-empty clears, `visible` removal/restore, note
+  prepend) and the render output against the frozen inventory; they are
+  added together with the build integration.
 - **Full-browser verification (Playwright).** Beyond the Node unit tests,
   the environment provides the `playwright-cli` skill for real-browser
   testing. Use it for BLUEPRINT §13.3 visual and behavioral verification:
