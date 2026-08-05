@@ -18,5 +18,7 @@ masthead, search, info banner, footer) plus `subgroups`/`footnoteTypes`
 as keyed objects; merge is oldest→newest with field-level inheritance,
 explicit-empty clears, body notes prepend; `visible: false` is the removal
 signal; folders sort `YYYY` before `YYYY-MM` before `YYYY-MM-DD`; lowercase
-ids/keys recommended; schema version stays `1` while iterating. Format is
-not yet implemented — no renderer, no tests, no migration.
+ids/keys recommended; schema version stays `1` while iterating. The
+format is implemented by the build (`scripts/build/lib/merge.js` +
+`render-html.js`); the spec is `docs/data-format.md`, the merge rules
+BLUEPRINT §6.3.

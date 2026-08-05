@@ -12,7 +12,8 @@ is removed from the repo and no artifact depends on it. `BLUEPRINT.md` is
 now the authoritative content spec: §6.2 frozen section inventory and
 §12.1 canonical spellings (formerly "approved corrections"), §12.2
 rewritten as standalone design decisions. `tests/content.test.js` no longer
-loads the origin; it asserts section order, per-column counts (total 484),
-and the canonical spellings duplicated as test data. README no longer
+loads the origin; it asserts section order, per-column counts (total 510
+per BLUEPRINT §6.5), and the canonical spellings duplicated as test data.
+README no longer
 frames the page as a reimplementation; the NKFM page remains the upstream
 content source for updates.

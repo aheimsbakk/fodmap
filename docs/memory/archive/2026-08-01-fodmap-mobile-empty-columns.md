@@ -17,4 +17,4 @@ it is inert from 768 px up where the tinted cell keeps the 3-column
 rhythm. Every re-render recomputes the flag, so a column returns as soon
 as any item or sub-group heading in it matches, or the category heading
 matches; the IDLE plan removes the class. Documented as BLUEPRINT.md
-deviation 14 (§7.2.5).
+deviation 14 (§7.2 rule 5).

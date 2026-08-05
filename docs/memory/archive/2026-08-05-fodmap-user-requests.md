@@ -1,7 +1,7 @@
 ---
 topic: "FODMAP user-requested features (dates)"
 importance: medium
-category: decision
+category: fact
 tags: [fodmap, user-requests, history, features]
 created: 2026-08-05T14:30:00Z
 model: opencode/deepseek-v4-flash-free
