@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.12.3] - 2026-08-05
+
+- **why:** Correct the Norwegian spelling of "BEGRENS" (the imperative form used in the app)
+- **model:** kompis/qwen-3.6-think-coding-mtp
+- **tags:** content, spelling, norwegian, config
+
+### Changed
+
+- `data/config.json`: renamed "BEGRENSE" to "BEGRENS" in the info-banner text and the group label
+
 ## [0.12.2] - 2026-08-05
 
 - **why:** Replace PNG icons with SVG so the salad bowl emoji renders at any resolution without raster artifacts
