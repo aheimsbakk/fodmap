@@ -124,6 +124,111 @@ siden:
 
 Sjekk disse nettstedene hvis du vil sammenligne innholdet med oppdateringer.
 
+## Endre innholdet
+
+Matvarelisten ligger som datafiler under `data/`. Byggetrinnene
+genererer nettsiden fra disse filene. Du trenger ikke kjenne til koden
+for å endre innholdet, men du bør kjøre `./scripts/build.sh` etter
+endringene for å se resultatet.
+
+Innholdet ligger i datamapper som heter datoer (for eksempel
+`data/2025-05/`). Den eldste mappen inneholder hele listen. Nyere
+mapper inneholder bare de matvarene som er endra (delta). Du endrar
+alltid i den nyeste mappen, og aldri i eldre mapper.
+
+### Legge til en matvare
+
+1. Finn riktig kategori i den nyeste datamappen (for eksempel
+   `data/2025-05/frukt/`).
+2. Lag en ny fil med navn på matvaren, for eksempel
+   `data/2025-05/frukt/fiken.md`. Navnet må være på norsk, med
+   bindestreker i stedet for mellomrom. UTF-8-bokstaver som æ, ø, å
+   er tillatt.
+3. Skriv frontmatter med gruppe og eventuelt mengd:
+
+   ```yaml
+   ---
+   name: Fiken
+   group: spis
+   amount: 50 gram
+   attribution:
+     - https://eksempel.no/kilde
+   ---
+   ```
+
+   - `name`: matvarens navn, slik det skal vises.
+   - `group`: kolonnen matvaren skal i — `spis`, `begrens` eller
+     `unngå`.
+   - `amount`: mengd som gjelder (valgfritt). Tomt verdi (`amount:`)
+     fjerner mengda.
+   - `attribution`: lenke til kilden (valgfritt).
+
+4. Kjør `./scripts/build.sh`.
+5. Sjekk `src/index.html` i nettleseren.
+6. Opprett en pull request med den nye fila.
+
+### Endre en matvare
+
+1. Finn matvaren i rett fil under den nyeste datamappen.
+2. Endre feltet i frontmatter. Et endra felt er nok — resten arves:
+
+   ```yaml
+   ---
+   group: begrens
+   ---
+   ```
+
+   Dette flytter matvaren til BEGRENSE-kolonnen.
+
+3. Kjør `./scripts/build.sh`.
+4. Sjekk resultatet i `src/index.html`.
+5. Opprett en pull request med endringen.
+
+### Fjerne en matvare
+
+Du fjerner en matvare ved å sette `visible: false`. Matvaren forsvinner
+fra søk og tabeller, men historikken blir værende:
+
+```yaml
+---
+visible: false
+---
+```
+
+Kopier fila til den nyeste datamappen, sett `visible: false`, og
+opprett en pull request. For å ta inn ei matvare igjen, sett
+`visible: true` i ei nyere mappe.
+
+### Foreslå en ny kategori
+
+Du kan også foreslå nye kategorier (kolonner på sida). Da må du endre
+to steder:
+
+1. Legg til en ny mappe under `data/2025-05/` med navn på kategorien.
+2. Legg til kategorien i `data/config.json` under `sections`. Du må
+   oppgi `id`, `title` og `emoji`.
+
+Eksempel på ny kategori i `config.json`:
+
+```json
+{
+  "id": "te",
+  "title": "Te og drikke",
+  "emoji": "🍵",
+  "background-color": "#c8b88a"
+}
+```
+
+Deretter legger du til matvarer i den nye mappen som beskrevet over.
+Opprett pull requesten med begge endringene.
+
+### Retningslinjer
+
+- Bruk eksisterende språk og struktur. Hold filene på samme format som
+  de andre matvarene.
+- Begrunn endringen i pull requesten. For nye matvarer eller bytt av
+  merke (for eksempel fra BEGRENSE til SPIS) bør du gi en kilde.
+
 ## Vedlikehold og utvikling
 
 ### Tester og formatering
