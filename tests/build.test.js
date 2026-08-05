@@ -38,7 +38,7 @@ test("the newest release renders change markers: 29 new, 31 moved, 1 updated (§
   assert.equal(markerCount("updated"), 1);
 });
 
-test("renders the six stylesheet layers and three module scripts", () => {
+test("renders the six stylesheet layers and four module scripts", () => {
   for (const href of [
     "css/tokens.css",
     "css/base.css",
@@ -53,9 +53,70 @@ test("renders the six stylesheet layers and three module scripts", () => {
     "js/search.js",
     "js/text-scale.js",
     "js/note-popover.js",
+    "js/pwa.js",
   ]) {
     assert.ok(html.includes(`src="${src}"`), `missing script ${src}`);
   }
+});
+
+test("declares the installability metadata (§9.6)", () => {
+  assert.ok(
+    html.includes(`rel="manifest" href="manifest.webmanifest"`),
+    "missing manifest link",
+  );
+  assert.ok(
+    html.includes(
+      `<meta name="theme-color" content="${cfg.page.head["title-color"]}"`,
+    ),
+    "theme color must come from the config masthead color",
+  );
+  assert.ok(
+    html.includes(`rel="apple-touch-icon" href="apple-touch-icon.png"`),
+    "missing apple-touch icon",
+  );
+  assert.ok(
+    html.includes(`<meta name="apple-mobile-web-app-capable" content="yes"`),
+    "missing iOS standalone hint",
+  );
+});
+
+test("the manifest lists valid icons with matching raster dimensions (§9.6)", () => {
+  const manifestPath = new URL("../src/manifest.webmanifest", import.meta.url);
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  assert.equal(manifest.display, "standalone");
+  assert.equal(manifest.start_url, ".");
+  assert.equal(manifest.scope, ".");
+  assert.equal(manifest.background_color, "#ffffff");
+  assert.equal(manifest.theme_color, cfg.page.head["title-color"]);
+  for (const expected of ["192x192", "512x512"]) {
+    const entry = manifest.icons.find((i) => i.sizes === expected);
+    assert.ok(entry, `manifest must declare a ${expected} icon`);
+    assert.equal(entry.type, "image/png");
+    assert.equal(entry.purpose, "any");
+    const pngPath = new URL(`../src/${entry.src}`, import.meta.url);
+    const png = readFileSync(pngPath);
+    assert.ok(
+      png.subarray(0, 8).equals(Buffer.from("89504e470d0a1a0a", "hex")),
+      `${entry.src} must be a PNG`,
+    );
+    const [w, h] = expected.split("x").map(Number);
+    assert.equal(png.readUInt32BE(16), w, `${entry.src} width`);
+    assert.equal(png.readUInt32BE(20), h, `${entry.src} height`);
+  }
+});
+
+test("the service worker performs no caching (§9.6)", () => {
+  const swPath = new URL("../src/sw.js", import.meta.url);
+  const sw = readFileSync(swPath, "utf8");
+  assert.ok(
+    html.includes(`<script type="module" src="js/pwa.js"></script>`),
+    "the worker registration script must be loaded",
+  );
+  assert.match(sw, /addEventListener\("fetch"/, "must declare a fetch handler");
+  assert.ok(
+    !/\.respondWith\(|\.put\(|\.add\(|caches\.open/.test(sw),
+    "the worker must never intercept a request or open a cache",
+  );
 });
 
 test("note buttons are empty: the glyph lives in CSS tokens, not markup (§4.6)", () => {

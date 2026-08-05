@@ -45,6 +45,9 @@ Provide a static, dependency-free single-page app that:
   the oldest→newest merge rules (§6.3), the derived change markers for
   items present in the newest release (§6.6), and the developer-time build
   step that generates the page.
+- Installability: manifest, raster icons derived from the favicon glyph,
+  and a cache-free service worker — the page is installable as a PWA
+  without any caching behavior (§9.6).
 - Automated tests for the search engine, the text-size toggle, the content
   pipeline, and content parity.
 
@@ -738,14 +741,17 @@ A single document (`src/index.html`). It must:
   text-size toggle degrade to inert; all content and layout must be
   intact).
 - Load the stylesheet set — tokens, base, layout, components, roles,
-  utilities — and the module scripts (search, text-scale, note-popover)
-  at the end of the body.
+  utilities — and the module scripts (search, text-scale, note-popover,
+  and the installability module that registers the cache-free service
+  worker, §9.6) at the end of the body.
 - Declare the search input with `autocomplete="off"` (boot always clears
   it, see §7.1).
 - Declare the favicon: a vector icon carrying the 🥗 emoji glyph scaled to
   fill the icon canvas (system-rendered, like the icon set of §9.2), plus
   a fixed 32 px raster fallback for browsers without vector-favicon
   support.
+- Declare the installability metadata: the manifest link, the theme color,
+  and the 180 px apple-touch icon (§9.6).
 - Require no network at all: no remote assets (fonts are the platform's
   native system stack).
 - Be generated, not hand-edited: the document is a build artifact; the
@@ -819,6 +825,39 @@ The script locates elements by stable, semantic identity:
   event must not steal focus from the input mid-search. Only user scrolls
   may blur.
 - No network requests in the search path; no timers other than the debounce.
+
+### 9.6 Installability (PWA)
+
+The page is installable on desktop and mobile without becoming an
+application platform: it adds an install manifest and a service worker,
+and nothing else. There is no caching, no offline behavior, no push, and
+no app shell — the runtime stays exactly the static, dependency-free
+document of the rest of this spec.
+
+- **Manifest** (static asset beside the document): name and short name,
+  Norwegian description, `start_url` and `scope` relative to the document
+  (so the app works both at a site root and under a project subpath),
+  `display: standalone`, background color equal to the page background,
+  theme color equal to the masthead accent red. The icon list holds the
+  192 px and 512 px raster icons.
+- **Icons**: raster renderings of the favicon glyph (the same filled-canvas
+  🥗 rendering as §9.1) at 192 px and 512 px for the manifest, plus a
+  180 px apple-touch icon for iOS home screens. All three have an opaque
+  white background (the page background), so no platform applies its own
+  background. They are produced once at development time from the vector
+  favicon; the build step never generates them.
+- **Service worker**: registered with no caching behavior. Install and
+  activate pass through, and the fetch listener never intercepts a
+  request — every request goes to the network exactly as without the
+  worker. The worker exists only to satisfy the installability criteria of
+  browsers that require a fetch handler; it must never grow a cache or an
+  offline strategy. The page keeps working unchanged if the worker fails
+  to register or never installs.
+- **Registration**: a module script at the end of the body registers the
+  worker relative to the document, guarded by support (`serviceWorker` in
+  navigator) and by secure context, so plain-HTTP hosts and browsers
+  without support skip it silently. A registration failure never surfaces
+  to the user: the page remains fully functional without the worker.
 
 ## 10. Persistence
 
@@ -989,6 +1028,11 @@ notes record the decision and its rationale.
     Native titles keep the page dependency-free and script-free; the
     strings are editable in `config.json`, like the marker glyphs
     (§6.7).
+20. The page is installable as a PWA without any caching: a manifest and a
+    cache-free service worker satisfy installability, and every request
+    still goes to the network. No offline behavior, no app shell, no
+    storage beyond the existing text-scale local-storage key (§9.6).
+    Requested 2026-08-05 (user: "do not make a cache system").
 
 ### 12.3 Negative contracts
 
@@ -1006,14 +1050,14 @@ The automated suites run with `npm test` (Node's built-in `node --test`).
 The table lists the contract each test file guards; the concrete cases
 live in `CODEBASE.md` §5.4 and in the test files themselves.
 
-| Test file                  | Contract level                                                                                                                                                                                                |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `tests/search.test.js`     | search engine (§7.1–§7.3, §7.5): normalization, matching (article + note), highlighting, visibility transitions, narrow empty-column collapse, note-button matched state, clear/Escape, debounce, scroll blur |
-| `tests/text-scale.test.js` | text-size toggle (§7.4): cycle, attribute application, persistence and fallbacks, independence from search                                                                                                    |
-| `tests/content.test.js`    | content inventory (§6.5, §12.1): 11 sections in order, per-column counts (total 510), canonical spellings verbatim                                                                                            |
-| `tests/build.test.js`      | build pipeline (§6, §14): generated inventory, change-marker counts (29 new, 31 moved, 1 updated), stylesheet/script references, note-button contract (§4.6), bullet tooltips (§6.7)                          |
-| `tests/merge.test.js`      | release merge and markers (§6.3, §6.6, §6.7): release ordering, inheritance and clears, `visible`, note prepend, marker classification, `changedFrom`, `releaseDate`                                          |
-| `tests/styles.test.js`     | stylesheet contracts (§4.1, §4.3, §5.6, §7.4): sub-title one-line rule and narrow steps, text-scale tokens, no sub-group separators, role-tint ownership, empty-column collapse scoping, marker tokens        |
+| Test file                  | Contract level                                                                                                                                                                                                                                                                                                                      |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tests/search.test.js`     | search engine (§7.1–§7.3, §7.5): normalization, matching (article + note), highlighting, visibility transitions, narrow empty-column collapse, note-button matched state, clear/Escape, debounce, scroll blur                                                                                                                       |
+| `tests/text-scale.test.js` | text-size toggle (§7.4): cycle, attribute application, persistence and fallbacks, independence from search                                                                                                                                                                                                                          |
+| `tests/content.test.js`    | content inventory (§6.5, §12.1): 11 sections in order, per-column counts (total 510), canonical spellings verbatim                                                                                                                                                                                                                  |
+| `tests/build.test.js`      | build pipeline (§6, §14): generated inventory, change-marker counts (29 new, 31 moved, 1 updated), stylesheet/script references, installability metadata (§9.6: manifest link, theme color, apple-touch icon, worker registration, manifest icons and their raster dimensions), note-button contract (§4.6), bullet tooltips (§6.7) |
+| `tests/merge.test.js`      | release merge and markers (§6.3, §6.6, §6.7): release ordering, inheritance and clears, `visible`, note prepend, marker classification, `changedFrom`, `releaseDate`                                                                                                                                                                |
+| `tests/styles.test.js`     | stylesheet contracts (§4.1, §4.3, §5.6, §7.4): sub-title one-line rule and narrow steps, text-scale tokens, no sub-group separators, role-tint ownership, empty-column collapse scoping, marker tokens                                                                                                                              |
 
 Full-browser verification runs with Playwright (available in this
 environment): render `src/index.html` at 375 / 768 / 1024 / 1280 px and

@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.12.1] - 2026-08-05
+
+- **why:** Patch the 2025-05 content: items in the UNNGÅ column should carry no portion amount, so consumers no longer see suggested amounts on "avoid" items
+- **model:** openrouter/deepseek/deepseek-v4-flash-0731
+- **tags:** content, amounts, unngå, 2025-05 release
+
+### Changed
+
+- `data/2025-05/`: cleared the portion amount on the 10 UNNGÅ items that still inherited one from the baseline (`eple-granny-smith-pink-lady`, `granateple`, `mango`, `bønner-svarte-kokt-hermetisk`, `kikerter-hermetisk`, `stangselleri`, `store-hvite-bønner-hermetiske`, `havremelk`, `hasselnøtter`, `mandler`) by adding an explicit empty `amount:` to each delta file
+- Regenerated `src/index.html`; the item counts (510) and change-marker counts (29 new, 31 moved, 1 updated) are unchanged
+
+## [0.12.0] - 2026-08-05
+
+- **why:** Make the page installable as a PWA without any caching: a manifest, icons derived from the favicon, and a cache-free service worker satisfy installability while every request still goes to the network
+- **model:** openrouter/deepseek/deepseek-v4-flash-0731
+- **tags:** pwa, installability, manifest, service-worker, icons
+
+### Added
+
+- PWA manifest `src/manifest.webmanifest`: standalone display, relative `start_url`/`scope`, white background, theme color from the config masthead red
+- Cache-free service worker `src/sw.js`: install/activate pass through and the fetch handler never intercepts a request, so the page behaves identically with or without the worker
+- App icons `src/icon-192.png`, `src/icon-512.png`, and `src/apple-touch-icon.png`, rasterized from `favicon.svg` (🥗 glyph on opaque white)
+- Registration module `src/js/pwa.js`: registers the worker under a support + secure-context guard, plus iOS standalone hint and touch icon
+- Generated head in `scripts/build/lib/render-html.js` now emits the manifest link, theme color, and touch icons
+
+### Changed
+
+- `tests/build.test.js` guards the installability contract: manifest metadata, icon PNG dimensions, and the cache-free worker
+
 ## [0.11.0] - 2026-08-05
 
 - **why:** Content is now data, not markup: the Norwegian content lives in release folders under `data/`, a developer-time build merges them and generates the page, and the 2025-05 release content ships with change markers and reasoning notes
