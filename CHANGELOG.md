@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.12.1] - 2026-08-05
+
+- **why:** Patch the 2025-05 content: items in the UNNGÅ column should carry no portion amount, so consumers no longer see suggested amounts on "avoid" items
+- **model:** openrouter/deepseek/deepseek-v4-flash-0731
+- **tags:** content, amounts, unngå, 2025-05 release
+
+### Changed
+
+- `data/2025-05/`: cleared the portion amount on the 10 UNNGÅ items that still inherited one from the baseline (`eple-granny-smith-pink-lady`, `granateple`, `mango`, `bønner-svarte-kokt-hermetisk`, `kikerter-hermetisk`, `stangselleri`, `store-hvite-bønner-hermetiske`, `havremelk`, `hasselnøtter`, `mandler`) by adding an explicit empty `amount:` to each delta file
+- Regenerated `src/index.html`; the item counts (510) and change-marker counts (29 new, 31 moved, 1 updated) are unchanged
+
 ## [0.12.0] - 2026-08-05
 
 - **why:** Make the page installable as a PWA without any caching: a manifest, icons derived from the favicon, and a cache-free service worker satisfy installability while every request still goes to the network
