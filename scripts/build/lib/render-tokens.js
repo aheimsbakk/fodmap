@@ -18,13 +18,6 @@ function palette(cfg) {
     ["--color-accent-light", head["subtitle-color"]],
     ["--color-heading-ink", colors["heading-color"]],
   ];
-  for (const g of cfg.groups) {
-    const token =
-      g.id === "begrens" ? "begrens" : g.id === "unngå" ? "unnga" : "spis";
-    pairs.push([`--color-${token}-bg`, g["background-color"]]);
-    pairs.push([`--color-${token}-ink`, g["text-color"]]);
-  }
-  pairs.push(["--color-unnga-border", "#5a1919"]); // no config source; static
   pairs.push(["--color-banner-text", banner["text-color"]]);
   pairs.push(["--color-footer-secondary", footer["secondary-color"]]);
   pairs.push(["--color-placeholder", search["placeholder-color"]]);
@@ -52,16 +45,6 @@ const SECTION_TOKEN = {
   saus: "saus",
 };
 
-function tints(cfg) {
-  const t = [];
-  for (const g of cfg.groups) {
-    const token =
-      g.id === "begrens" ? "begrens" : g.id === "unngå" ? "unnga" : "spis";
-    t.push([`--tint-${token}`, g["column-color"]]);
-  }
-  return t;
-}
-
 export function renderTokens(cfg) {
   const colorLines = palette(cfg)
     .map(([name, val]) => `  ${name}: ${val};`)
@@ -71,9 +54,6 @@ export function renderTokens(cfg) {
       (s) =>
         `  --color-${SECTION_TOKEN[s.id] || s.id}: ${s["background-color"]};`,
     )
-    .join("\n");
-  const tintLines = tints(cfg)
-    .map(([name, val]) => `  ${name}: ${val};`)
     .join("\n");
 
   const roleLines = cfg.groups
@@ -124,9 +104,6 @@ ${colorLines}
 
   /* §4.1 category sets: heading background colors only */
 ${categoryLines}
-
-  /* §4.1 role-based column tints */
-${tintLines}
 
   /* §4.1 role tokens (generated from groups) */
 ${roleLines}

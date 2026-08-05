@@ -19,17 +19,33 @@ export function listReleases(dataDir) {
     .sort();
 }
 
-// Parse the small YAML subset used in item files.
-// Returns an object with the frontmatter fields plus the slug.
+// Parse the small YAML subset used in item files: `key: value` lines plus
+// list values (`attribution:` followed by indented `- item` lines,
+// docs/data-format.md §4.1). Returns an object with the frontmatter fields
+// plus the slug.
 function parseItem(text, slug) {
   const out = { slug };
   const m = text.match(/^---\n([\s\S]*?)\n---/);
   if (m) {
-    for (const line of m[1].split("\n")) {
+    const lines = m[1].split("\n");
+    // A key with an empty value may continue as a list on the next lines;
+    // the key is remembered until a non-list line ends the list.
+    let listKey = null;
+    for (const line of lines) {
+      const listItem = line.match(/^  - (.*)$/);
+      if (listItem) {
+        if (listKey) {
+          if (!Array.isArray(out[listKey])) out[listKey] = [];
+          out[listKey].push(listItem[1]);
+        }
+        continue;
+      }
+      listKey = null;
       const mm = line.match(/^([a-zA-Z-]+):\s*(.*)$/);
       if (!mm) continue;
       const [, key, raw] = mm;
       out[key] = raw === "" ? "" : raw;
+      if (raw === "") listKey = key;
     }
     const body = text.slice(m[0].length).trim();
     if (body) out.note = body;
@@ -63,7 +79,18 @@ function comparableShallow({
   note,
   attribution,
 }) {
-  return { name, amount, subgroup, visible, note, attribution };
+  return {
+    name,
+    amount,
+    subgroup,
+    visible,
+    note,
+    // A list-form attribution is a fresh array per parse; compare content,
+    // not the reference, so an identical list is not a change (§7.4).
+    attribution: Array.isArray(attribution)
+      ? attribution.join("\n")
+      : attribution,
+  };
 }
 
 // Classify how the item changed in the newest release. earlier = the files up

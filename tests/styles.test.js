@@ -20,6 +20,11 @@ const TOKENS_CSS = readFileSync(
   "utf8",
 );
 
+const ROLES_CSS = readFileSync(
+  new URL("../src/css/roles.css", import.meta.url),
+  "utf8",
+);
+
 const stripComments = (css) => css.replace(/\/\*[\s\S]*?\*\//g, "");
 
 /**
@@ -231,29 +236,78 @@ test("items can break long tokens so scaled text never overflows", () => {
 // --- role-based column tints (§4.1, deviation 13) ---------------------------
 
 test("role tint tokens live in the token layer", () => {
-  assert.match(TOKEN_ROOT, /--tint-spis:\s*rgba\(160,\s*196,\s*157,\s*0\.2\)/);
+  // The role layer carries the §4.1 tint values (one token per config
+  // group); the old duplicate --tint-* tokens are gone.
   assert.match(
     TOKEN_ROOT,
-    /--tint-begrens:\s*rgba\(247,\s*215,\s*116,\s*0\.25\)/,
+    /--role-spis-tint:\s*rgba\(160,\s*196,\s*157,\s*0\.2\)/,
   );
-  assert.match(TOKEN_ROOT, /--tint-unnga:\s*rgba\(209,\s*93,\s*93,\s*0\.15\)/);
+  assert.match(
+    TOKEN_ROOT,
+    /--role-begrens-tint:\s*rgba\(247,\s*215,\s*116,\s*0\.25\)/,
+  );
+  assert.match(
+    TOKEN_ROOT,
+    /--role-unngå-tint:\s*rgba\(209,\s*93,\s*93,\s*0\.15\)/,
+  );
 });
 
-test("columns are tinted by role selector, not by position or category", () => {
-  const roleSelectors = [
+test("columns are tinted by role selector in the generated role layer", () => {
+  // roles.css is the sole owner of the role/section colors (deviation 13):
+  // every column, role label, and legend cell takes its colors from the
+  // generated --role-<id>-* tokens.
+  const ROLES_RULES = parseRules(ROLES_CSS);
+  for (const selector of [
     '.content-col[data-role="spis"]',
     '.content-col[data-role="begrens"]',
-    '.content-col[data-role="unnga"]',
-  ];
-  for (const selector of roleSelectors) {
-    const rule = BASE_RULES.find((r) => r.selector === selector);
-    assert.ok(rule, `expected a rule for ${selector}`);
+    '.content-col[data-role="unngå"]',
+  ]) {
+    const rule = ROLES_RULES.find((r) => r.selector === selector);
+    assert.ok(rule, `expected a roles.css rule for ${selector}`);
     assert.match(
       rule.declarations,
-      /background-color:\s*var\(--tint-/,
-      `${selector} must reference a --tint-* token`,
+      /background-color:\s*var\(--role-.*-tint\)/,
+      `${selector} must reference a --role-*-tint token`,
     );
   }
+});
+
+test("hand-authored layers restate no role or section colors", () => {
+  // Migration leftovers that duplicate the generated roles.css are dead
+  // code: the transliterated legend-* classes and [data-role] rules in
+  // components.css match nothing or are overridden by the generated layer
+  // (deviation 1/13). The --color-spis-*/--color-unnga-border tokens and
+  // the duplicate --tint-* tokens were removed with them.
+  assert.doesNotMatch(
+    COMPONENTS_CSS,
+    /\.legend-spis|\.legend-begrens|\.legend-unnga/,
+    "legend cell colors belong to the generated role layer",
+  );
+  assert.doesNotMatch(
+    COMPONENTS_CSS,
+    /\.content-col\[data-role=/,
+    "column tint rules belong to the generated role layer",
+  );
+  assert.doesNotMatch(
+    COMPONENTS_CSS,
+    /\.category-heading\[data-category=/,
+    "section heading colors belong to the generated role layer",
+  );
+  assert.doesNotMatch(
+    COMPONENTS_CSS,
+    /--color-spis-|--color-begrens-|--color-unnga-ink|--color-unnga-border/,
+    "role colors are sourced from --role-* tokens only",
+  );
+  assert.doesNotMatch(
+    COMPONENTS_CSS,
+    /--tint-/,
+    "components.css must not reference the removed --tint-* tokens",
+  );
+  assert.doesNotMatch(
+    TOKEN_ROOT,
+    /--tint-/,
+    "the duplicate --tint-* tokens must be gone from the token layer",
+  );
 });
 
 test("placeholder columns get the role tint and render wide+ only", () => {

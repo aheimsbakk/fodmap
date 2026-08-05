@@ -33,9 +33,12 @@ function makeTree(releases, extraFile = null) {
       mkdirSync(sectionDir, { recursive: true });
       for (const file of files) {
         const fm = Object.entries(file.frontmatter)
-          .map(([key, value]) =>
-            value === "" ? `${key}:` : `${key}: ${value}`,
-          )
+          .map(([key, value]) => {
+            if (Array.isArray(value)) {
+              return `${key}:\n${value.map((v) => `  - ${v}`).join("\n")}`;
+            }
+            return value === "" ? `${key}:` : `${key}: ${value}`;
+          })
           .join("\n");
         const body = file.body || "";
         writeFileSync(
@@ -170,6 +173,88 @@ test("notes prepend newest → oldest, separated by a blank line", () => {
   });
   const a = findItem(loadItems(listReleases(root)), "s", "a");
   assert.equal(a.note, "new note\n\nold note");
+});
+
+// --- list-form attribution (docs/data-format.md §4.1) ------------------------
+
+test("list-form attribution parses into an array of URLs", () => {
+  const root = makeTree({
+    2021: {
+      s: [
+        {
+          slug: "a",
+          frontmatter: {
+            name: "A",
+            group: "spis",
+            attribution: ["https://one.no", "https://two.no"],
+          },
+        },
+      ],
+    },
+  });
+  const a = findItem(loadItems(listReleases(root)), "s", "a");
+  assert.deepEqual(a.attribution, ["https://one.no", "https://two.no"]);
+});
+
+test("an unchanged list-form attribution marks nothing", () => {
+  // Each parse creates its own array; the change comparison must compare
+  // content, not the array reference (§7.4: attribution differences only).
+  const root = makeTree({
+    2021: {
+      s: [
+        {
+          slug: "a",
+          frontmatter: {
+            name: "A",
+            group: "spis",
+            attribution: ["https://one.no", "https://two.no"],
+          },
+        },
+      ],
+    },
+    2025: {
+      s: [
+        {
+          slug: "a",
+          frontmatter: {
+            name: "A",
+            group: "spis",
+            attribution: ["https://one.no", "https://two.no"],
+          },
+        },
+      ],
+    },
+  });
+  const a = findItem(loadItems(listReleases(root)), "s", "a");
+  assert.equal(a.change, null, "equal list content is not a change");
+});
+
+test("a changed list-form attribution marks the item updated", () => {
+  const root = makeTree({
+    2021: {
+      s: [
+        {
+          slug: "a",
+          frontmatter: {
+            name: "A",
+            group: "spis",
+            attribution: ["https://one.no", "https://two.no"],
+          },
+        },
+      ],
+    },
+    2025: {
+      s: [
+        {
+          slug: "a",
+          frontmatter: { group: "spis", attribution: ["https://three.no"] },
+        },
+      ],
+    },
+  });
+  const a = findItem(loadItems(listReleases(root)), "s", "a");
+  assert.equal(a.change, "updated", "a changed source list is a change");
+  assert.deepEqual(a.attribution, ["https://three.no"]);
 });
 
 // --- change markers (§6.6) ---------------------------------------------------
