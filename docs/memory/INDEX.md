@@ -15,3 +15,4 @@
 | FODMAP versioned data format decided               | decision   | high       | fodmap, data-format, history, frontmatter, merge       |         | archive/2026-08-04-fodmap-data-format.md            |
 | FODMAP build pipeline fixed and tests aligned      | decision   | high       | fodmap, build, tests, migration, note-button           |         | archive/2026-08-05-fodmap-build-pipeline-fixed.md   |
 | FODMAP note button ringless and popover match bold | decision   | high       | fodmap, note-button, popover, search, css              |         | archive/2026-08-05-fodmap-note-ring-popover-bold.md |
+| FODMAP build writes into src/, migration complete  | decision   | high       | fodmap, build, migration, generated, src               |         | archive/2026-08-05-fodmap-build-in-place.md         |

@@ -116,8 +116,12 @@ dagens dato:
 
 ### Tekniske valg
 
-- Ren HTML, CSS og JavaScript med to moduler (`search.js` og
-  `text-scale.js`). Ingen rammeverk og ingen byggetrinn.
+- Ren HTML, CSS og JavaScript med tre moduler (`search.js`,
+  `text-scale.js` og `note-popover.js`). Ingen rammeverk og ingen
+  kjøretidsavhengigheter i nettleseren.
+- Innholdet ligger som data i `data/`, og et byggetrinn genererer siden:
+  `node scripts/build/build.mjs src`. Den ferdige siden i `src/` er
+  vanlige statiske filer og trenger ikke byggetrinn når den vises.
 - Ingen eksterne fonter eller tredjepartsressurser.
 - Innholdet er fastsatt i `BLUEPRINT.md` §12.1 og verifisert av testsuiten.
 - Utviklingsavhengighetene (eksakte versjoner i `package.json`) er `jsdom`

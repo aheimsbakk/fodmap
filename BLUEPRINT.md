@@ -872,9 +872,10 @@ are intentional and must stay unchanged.
     (§6, §14). Hand-authored markup is replaced by generated markup; the
     base, layout, and component CSS layers and the three script modules
     stay hand-authored. The runtime page remains plain static files — the
-    build step is developer-time only (§1, §8). During the migration the
-    generated output is written outside the site directory so it can be
-    diffed against the hand-authored files before they are retired.
+    build step is developer-time only (§1, §8). The generated artifacts
+    are written directly into the site directory and committed, so the
+    deployed site needs no build step; the hand-authored document is
+    retired.
 17. The note info button renders without a border and without a hover
     ring (user request, 2026-08-05): the resting 1 px accent border and
     the 2 px hover outline were read as red rings around the icon, so

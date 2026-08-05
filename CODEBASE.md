@@ -36,9 +36,10 @@ work/
 │   └── memory/                  # session memory (skill-managed)
 ├── README.md                    # project overview, quick start, script docs — in Norwegian
 ├── src/                         # the site; deployed as-is by the Pages workflow
-│   ├── index.html               # entry point; becomes build-generated (hand-authored during migration)
+│   ├── index.html               # entry point; build-generated from config + data
 │   ├── css/
-│   │   ├── tokens.css           # color tokens build-generated; typography/sizes/effects static
+│   │   ├── tokens.css           # GENERATED color tokens; typography/sizes/effects static
+│   │   ├── roles.css            # GENERATED per-group/per-section rule set
 │   │   ├── base.css             # static: reset, body typography, list normalization
 │   │   ├── layout.css           # static: page shell, container, content grid, sticky offsets
 │   │   ├── components.css       # static: masthead, search widget, labels, banners, decorations
@@ -70,9 +71,8 @@ work/
 
 The build writes three files into the site directory — `index.html`,
 `css/tokens.css`, and `css/roles.css` — and leaves the other stylesheet
-layers and the three script modules untouched. During the migration the
-build output goes to a temporary directory outside `src/` so it can be
-diffed against the hand-authored files before they are retired
+layers and the three script modules untouched. The generated files are
+committed, so the deployed site runs as-is without a build step
 (BLUEPRINT §12.2 deviation 16).
 
 ## 2. Blueprint Component → File Mapping
@@ -241,11 +241,12 @@ pair. The three modules share no state and boot independently.
 - **One renderer per output.** `render-html.js`, `render-tokens.js`,
   and `render-css.js` each own exactly one generated artifact, keeping
   every file small and single-responsibility (RULES §9, §17).
-- **Spike output outside the site.** Until the migration is complete,
-  the CLI writes to a temporary directory (e.g. `tmp/out`) so the
-  generated markup can be diffed against the hand-authored `src/` files
-  before they are retired (BLUEPRINT §12.2 deviation 16). `tmp/` is
-  gitignored.
+- **Generated files are committed in the site.** The CLI writes directly
+  into `src/`, and the three generated artifacts are committed with the
+  code, so the deployed site (which the Pages workflow uploads as-is,
+  without a build step) is always complete. Regenerate with
+  `node scripts/build/build.mjs src` and format the output with
+  `npm run format` before committing (BLUEPRINT §12.2 deviation 16).
 
 ### 5.2 JavaScript
 
@@ -361,7 +362,7 @@ pair. The three modules share no state and boot independently.
 - The jsdom suites (`content.test.js`, `search.test.js`, `text-scale.test.js`)
   run against the **generated page** — each imports `build()` and uses its
   `html` — because the generated output is the canonical artifact; the
-  hand-authored `src/index.html` is retired at the end of the migration
+  hand-authored document was retired when the migration completed
   (BLUEPRINT §12.2 deviation 16).
 - `tests/build.test.js` covers the data and build pipeline (BLUEPRINT §13.4):
   it runs `build()` and asserts the generated document reproduces the §6.5
