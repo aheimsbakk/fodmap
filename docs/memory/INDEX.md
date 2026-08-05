@@ -18,3 +18,4 @@
 | FODMAP user-requested features (dates)              | fact       | medium     | fodmap, user-requests, history, features               |         | archive/2026-08-05-fodmap-user-requests.md          |
 | FODMAP memory categories: no note, use fact/pattern | pattern    | low        | memory, categories, audit, taxonomy                    |         | archive/2026-08-05-fodmap-memory-categories.md      |
 | Item bullets centered in fixed-width slot           | decision   | medium     | fodmap, bullets, markers, alignment, css               |         | archive/2026-08-05-fodmap-bullet-centering.md       |
+| FODMAP favicon: filled-canvas emoji SVG + PNG       | decision   | medium     | fodmap, favicon, emoji, svg, design                    |         | archive/2026-08-05-fodmap-favicon.md                |

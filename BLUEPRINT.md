@@ -742,6 +742,10 @@ A single document (`src/index.html`). It must:
   at the end of the body.
 - Declare the search input with `autocomplete="off"` (boot always clears
   it, see §7.1).
+- Declare the favicon: a vector icon carrying the 🥗 emoji glyph scaled to
+  fill the icon canvas (system-rendered, like the icon set of §9.2), plus
+  a fixed 32 px raster fallback for browsers without vector-favicon
+  support.
 - Require no network at all: no remote assets (fonts are the platform's
   native system stack).
 - Be generated, not hand-edited: the document is a build artifact; the

@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.11.0] - 2026-08-05
+
+- **why:** Content is now data, not markup: the Norwegian content lives in release folders under `data/`, a developer-time build merges them and generates the page, and the 2025-05 release content ships with change markers and reasoning notes
+- **model:** opencode/deepseek-v4-flash-free
+- **tags:** data-pipeline, build, releases, markers, notes, tests
+
+### Added
+
+- Content pipeline: `data/` holds the canonical content as release folders (`data/2021/` baseline + `data/2025-05/` delta, one file per item with YAML frontmatter) plus `data/config.json` (sections, groups, colors, page text, marker and tooltip templates)
+- Build step `scripts/build/` (`build.mjs` + `lib/merge.js`, `render-html.js`, `render-tokens.js`, `render-css.js`): merges releases oldest → newest and generates `src/index.html`, `src/css/tokens.css`, and `src/css/roles.css`; user-facing wrapper `scripts/build.sh` (`npm run build`)
+- 2025-05 release content: 29 new items, 31 moved to another group, 3 removed, 1 updated in place — 510 items total
+- Change markers on item bullets (`🆕` new / `🔄` moved / `🆙` updated), config-driven via `page.markers`, with native-title tooltips showing the item's last-change release date and the from → to groups for moved items
+- Reasoning notes per item: inline info button with hover/pin popover; notes are searchable and a note-only match swaps the glyph and bolds the matched terms
+- Specs and guides: `docs/data-format.md`, `docs/config-format.md`, `docs/config-guide.md`, `docs/data-lifecycle.md`
+- Tests: `tests/merge.test.js` (merge rules, marker classification) and `tests/build.test.js` (frozen inventory: 11 sections, 510 items, marker counts)
+- GitHub Pages workflow now runs the build from `data/` before deploying, so the published site always matches the latest content
+
+### Changed
+
+- `BLUEPRINT.md` and `CODEBASE.md` rewritten for the data-driven architecture; the content data model (§6) is now the authoritative spec
+- `src/index.html` is a build artifact generated from config + data, no longer hand-edited
+- Search matches item reasoning notes in addition to article text and headings
+- Column tints are role-based and generated into `roles.css` from the config group colors
+- `scripts/bump-version.sh` no longer edits the footer — the build substitutes the version from `VERSION` at generation time
+
+### Fixed
+
+- `scripts/build/lib/merge.js`: list-form `attribution` values (indented `- ` lines) parse correctly instead of being dropped
+
 ## [0.10.5] - 2026-08-01
 
 - **why:** Bug fix: after a reload, the browser restored the typed search text into the field while the filter state was never persisted, leaving text over a fully visible page
