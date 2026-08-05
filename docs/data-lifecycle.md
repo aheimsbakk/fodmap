@@ -1,0 +1,196 @@
+# FODMAP Data Lifecycle
+
+> User documentation for maintaining the FODMAP food data: how a release
+> is created, edited, and published. The technical format is specified in
+> `data-format.md`.
+
+## 1. What a release is
+
+The page content lives under `data/`. Each release is a folder named by
+date. The oldest folder is a **baseline**: it contains every food item.
+Every later folder is a **delta**: it contains only the items you changed.
+
+The page rebuilds by merging the folders oldest → newest. You always edit
+the newest folder; you never touch older ones.
+
+## 2. The yearly update, end to end
+
+When new research arrives, do the following.
+
+### 2.1 Create the release folder
+
+Choose the date format to match how often you update:
+
+| You update           | Folder name  | Example      |
+| -------------------- | ------------ | ------------ |
+| Once a year          | `YYYY`       | `2025`       |
+| Several times a year | `YYYY-MM`    | `2025-01`    |
+| On demand            | `YYYY-MM-DD` | `2025-01-15` |
+
+For a yearly update you copy the whole newest folder and edit the copy:
+
+```bash
+cp -r data/2024 data/2025
+```
+
+Then edit only the files that changed inside `data/2025/`. Because a delta
+folder still contains the merged state when copied, the untouched files
+stay correct.
+
+### 2.2 Edit items
+
+Open the item's file and change what the new research says. An item file
+only needs to state what changed; everything else is inherited. If you
+copied the folder, keep the full frontmatter — it is the current state.
+
+### 2.3 Add a note
+
+Notes explain why a value changed and link the research. Put the note in
+the Markdown body:
+
+```markdown
+---
+name: Erytritol (Sukrin) (E 968)
+group: begrens
+subgroup: søtstoff-polyoler
+visible: true
+attribution:
+  - https://example.com/updated-fodmap.pdf
+---
+```
+
+New notes go on top. Older notes stay below; never edit them.
+
+### 2.4 Publish
+
+Build the page from the merged data and deploy it:
+
+```bash
+./scripts/build.sh
+```
+
+The script builds into `src/`, formats the generated files, and prints
+a summary (version, item and marker counts, written files). It wraps
+`node scripts/build/build.mjs <out-dir>`; pass a different out-dir as
+argument if you want to build elsewhere. The build writes `index.html`,
+`css/tokens.css`, and `css/roles.css` into `src/`; commit the
+regenerated files with the data change. The release folder stays in the
+repository as history.
+
+Everything you changed in the newest release folder is marked
+automatically on the page: new items get a 🆕 marker, items moved to a
+new group get 🔄, and changed items get 🆙. You do not mark anything by
+hand — the marker follows from the file being in the newest folder
+(see `data-format.md` §7.4). The emojis are set in `config.json`
+(`config-guide.md` §4.11).
+
+## 3. Everyday tasks
+
+### 3.1 Change which group an item is in
+
+Set the `group` field to the group key from `config.json`:
+
+```markdown
+---
+group: begrens
+---
+```
+
+This moves the item between the SPIS / BEGRENSE / UNNGÅ columns.
+
+### 3.2 Change the safe amount
+
+Set the `amount` field:
+
+```markdown
+---
+amount: 0,75 dl
+---
+```
+
+An empty value clears the amount entirely:
+
+```markdown
+---
+amount:
+---
+```
+
+### 3.3 Rename an item
+
+Rename the `name` field only. Never rename the file — the filename is the
+item's permanent id.
+
+### 3.4 Hide an item
+
+Set `visible: false`. The item disappears from search and the tables, but
+its history stays:
+
+```markdown
+---
+visible: false
+---
+```
+
+To bring an item back, set `visible: true` in the newest folder.
+
+### 3.5 Add a new item
+
+Create a new file in the appropriate section folder. The filename is the
+slug — make it short and stable. The item is placed automatically:
+sections and columns come from config, items sort alphabetically inside
+them.
+
+```markdown
+---
+name: Ny matvare
+group: spis
+---
+```
+
+### 3.6 Update the source of an item
+
+Change the `attribution` field. It can be a single URL or a list:
+
+```markdown
+---
+attribution:
+  - https://example.com/new-source.pdf
+  - https://example.com/second-source.pdf
+---
+```
+
+An empty value clears the attribution entirely (`attribution:` with
+nothing after it, or an empty list).
+
+### 3.7 Adjust names in config
+
+All section, group, and subgroup names live in `data/config.json`. Change
+the value there to rename a heading across the whole page. The keys stay
+stable; item files reference keys, never names.
+
+Sections and groups are open sets — you can also add or remove them. To
+add a section or group, add an entry to the matching array in
+`config.json` (see `config-guide.md` §4.3 and §4.5b). To remove one,
+first move or delete every item that references its id, then delete the
+entry.
+
+## 4. Rules of thumb
+
+- **Edit newest, never oldest.** Release folders are history.
+- **The filename is the id.** Rename via `name`, never by moving files.
+  UTF-8 letters are allowed in filenames — never transliterate a Unicode
+  character to ASCII (`ø` → `o`, `å` → `a`).
+- **Absent means inherit.** Omit a field to keep the older value.
+- **Empty means clear.** `field:` with nothing clears an inherited value.
+- **Notes append on top.** Never rewrite or delete old notes.
+- **`visible: false` removes.** It is the only removal signal.
+- **Keys are stable.** Item files reference config keys; rename config
+  _values_, not keys.
+
+## 5. What changed this year
+
+Future version of the page can list changes by diffing adjacent release
+folders: a `group` change, an `amount` change, an added or hidden item, a
+new note. Because every change is a provable edit to a file, the report
+can be generated — nothing needs to be maintained by hand.

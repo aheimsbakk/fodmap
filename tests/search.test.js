@@ -9,11 +9,12 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { JSDOM } from "jsdom";
 import { normalizeQuery, buildMatcher, initSearch } from "../src/js/search.js";
+import { build } from "../scripts/build/build.mjs";
 
-const APP_HTML = readFileSync(
-  new URL("../src/index.html", import.meta.url),
-  "utf8",
-);
+// Tests run against the generated page (the canonical artifact); the
+// hand-authored src/index.html is retired at the end of the migration
+// (BLUEPRINT §12.2 deviation 16).
+const APP_HTML = build().html;
 
 function setup() {
   const dom = new JSDOM(APP_HTML, { url: "http://localhost/" });
@@ -45,7 +46,15 @@ function items(dom) {
 }
 
 function itemByText(dom, text) {
-  return items(dom).find((li) => li.textContent === text);
+  return items(dom).find((li) => li.textContent.trim() === text);
+}
+
+/** Finds an item by its article text; the li textContent would include any
+ *  reasoning-note popover text, so note-bearing items must use this. */
+function itemByArticle(dom, text) {
+  return items(dom).find(
+    (li) => li.querySelector(".item-text")?.textContent.trim() === text,
+  );
 }
 
 function sectionByCategory(dom, category) {
@@ -87,16 +96,83 @@ test("matching is case-insensitive substring containment", async () => {
 
 test("portion notes participate in matching", async () => {
   const dom = setup();
-  type(dom, "40 gram");
+  type(dom, "15 stk");
   await settle();
 
+  // The amount only appears in the portion note, not the article name.
   assert.ok(
-    !itemByText(
-      dom,
-      "Blåbær, amerikanske og hvite inni (40 gram)",
-    ).classList.contains("hidden"),
+    !itemByText(dom, "Banan i biter (15 stk)").classList.contains("hidden"),
   );
-  assert.ok(itemByText(dom, "Kinakål (75 gram)").classList.contains("hidden"));
+  assert.ok(itemByText(dom, "Banan, umoden").classList.contains("hidden"));
+});
+
+// --- note affordance (§7.2.3, §7.5, deviation 17) ------------------------------
+
+test("a note-only match bolds the matched terms inside the popover", async () => {
+  const dom = setup();
+  type(dom, "surdeigsbrød");
+  await settle();
+
+  const item = itemByArticle(dom, "Brød, surdeig, spelt");
+  assert.ok(item, "note-bearing item is present");
+  assert.ok(!item.classList.contains("hidden"), "note-only match reveals item");
+  assert.ok(
+    item.querySelector(".note-toggle").classList.contains("is-match"),
+    "matched glyph flips to the checked state",
+  );
+  const popover = item.querySelector(".note-popover");
+  const marks = popover.querySelectorAll("b.item-highlight");
+  assert.equal(marks.length, 1);
+  // Case-insensitive matching keeps the note's original casing.
+  assert.equal(marks[0].textContent, "Surdeigsbrød");
+
+  // The other note's popover stays plain.
+  const other = itemByArticle(dom, "Cornflakes, glutenfri").querySelector(
+    ".note-popover",
+  );
+  assert.equal(other.querySelectorAll("b.item-highlight").length, 0);
+});
+
+test("clearing the search restores the plain popover text and glyph", async () => {
+  const dom = setup();
+  type(dom, "surdeigsbrød");
+  await settle();
+
+  const item = itemByArticle(dom, "Brød, surdeig, spelt");
+  const popover = item.querySelector(".note-popover");
+  const button = item.querySelector(".note-toggle");
+  const origText = popover.textContent.trim();
+
+  clearButton(dom).click();
+  await settle();
+
+  assert.equal(popover.innerHTML, origText);
+  assert.equal(popover.querySelectorAll("b.item-highlight").length, 0);
+  assert.ok(!button.classList.contains("is-match"));
+});
+
+test("a search run never disturbs the popover's open/pinned state", async () => {
+  const dom = setup();
+  const item = itemByArticle(dom, "Brød, surdeig, spelt");
+  const button = item.querySelector(".note-toggle");
+  const popover = item.querySelector(".note-popover");
+  // Simulate the pinned state that note-popover.js owns (§7.5).
+  button.dataset.pinned = "1";
+  popover.hidden = false;
+  button.setAttribute("aria-expanded", "true");
+
+  type(dom, "surdeigsbrød");
+  await settle();
+
+  assert.ok(!popover.hidden, "popover stays open while the query matches");
+  assert.equal(button.getAttribute("aria-expanded"), "true");
+  assert.equal(popover.querySelectorAll("b.item-highlight").length, 1);
+
+  clearButton(dom).click();
+  await settle();
+
+  assert.ok(!popover.hidden, "popover stays open after the query clears");
+  assert.equal(button.getAttribute("aria-expanded"), "true");
 });
 
 test("a heading match reveals the whole section", async () => {
@@ -113,7 +189,7 @@ test("a heading match reveals the whole section", async () => {
   assert.equal(section.querySelectorAll("li.item").length, 44);
   assert.ok(!itemByText(dom, "Vaniljesaus").classList.contains("hidden"));
   // Sections without any match disappear.
-  assert.ok(sectionByCategory(dom, "brod").classList.contains("hidden"));
+  assert.ok(sectionByCategory(dom, "brød").classList.contains("hidden"));
   assert.ok(sectionByCategory(dom, "drikke").classList.contains("hidden"));
 });
 
@@ -124,7 +200,7 @@ test('no diacritic folding: "lok" does not match "Løk", "løk" does', async () 
 
   const lokItem = itemByText(dom, "Løk");
   assert.ok(lokItem.classList.contains("hidden"));
-  assert.ok(sectionByCategory(dom, "gronnsaker").classList.contains("hidden"));
+  assert.ok(sectionByCategory(dom, "grønnsaker").classList.contains("hidden"));
 
   type(dom, "løk");
   await settle();
@@ -176,7 +252,10 @@ test("restore on clear returns exact original markup", async () => {
   clearButton(dom).click();
   await settle();
 
-  assert.equal(item.innerHTML, item.dataset.origText);
+  assert.equal(
+    item.querySelector(".item-text").innerHTML,
+    item.dataset.origText,
+  );
   assert.equal(heading.innerHTML, heading.dataset.origHtml);
   assert.equal(items(dom).length, visibleItems(dom).length);
   assert.equal(hiddenItems(dom).length, 0);
@@ -192,16 +271,16 @@ test("a sub-group heading match reveals its list and highlights the heading", as
   type(dom, "sjømat");
   await settle();
 
-  const section = sectionByCategory(dom, "palegg");
+  const section = sectionByCategory(dom, "pålegg");
   assert.ok(!section.classList.contains("hidden"));
 
   const group = [...section.querySelectorAll(".sub-group-title")].find(
-    (h4) => h4.textContent === "Fisk/sjømat:",
+    (h4) => h4.textContent === "Fisk/sjømat",
   );
   // The heading gets the same marker style as a category heading match.
   const marker = group.querySelector(".marker");
   assert.equal(marker.textContent, "sjømat");
-  assert.equal(group.innerHTML, 'Fisk/<span class="marker">sjømat</span>:');
+  assert.equal(group.innerHTML, 'Fisk/<span class="marker">sjømat</span>');
 
   // Every product under the matched heading stays visible, plus the
   // §8 UNNGÅ item "Sjømatpålegg med løk/hvitløk" which contains the term.
@@ -217,7 +296,7 @@ test("a sub-group heading match reveals its list and highlights the heading", as
   // Products and headings outside the matched list collapse.
   assert.ok(itemByText(dom, "Bacon").classList.contains("hidden"));
   for (const h4 of section.querySelectorAll(".sub-group-title")) {
-    if (h4.textContent !== "Fisk/sjømat:") {
+    if (h4.textContent !== "Fisk/sjømat") {
       assert.ok(h4.classList.contains("hidden"), h4.textContent);
     }
   }
@@ -245,7 +324,7 @@ test("sub-group headings and mobile labels collapse without matches", async () =
   type(dom, "tempeh");
   await settle();
 
-  const section = sectionByCategory(dom, "gronnsaker");
+  const section = sectionByCategory(dom, "grønnsaker");
   assert.ok(!section.classList.contains("hidden"));
   const cols = section.querySelectorAll(".content-col");
   // SPIS column: its sub-group has a visible item (Tempeh) -> heading stays.
@@ -271,7 +350,7 @@ test("sub-group headings and mobile labels collapse without matches", async () =
 
 test("empty columns collapse on narrow and return as soon as they have content", async () => {
   const dom = setup();
-  const section = sectionByCategory(dom, "gronnsaker");
+  const section = sectionByCategory(dom, "grønnsaker");
   const cols = section.querySelectorAll(".content-col");
   const colClass = "col-empty-mobile";
 
@@ -319,13 +398,13 @@ test("sections with no matches anywhere are hidden entirely", async () => {
 
   assert.ok(!sectionByCategory(dom, "drikke").classList.contains("hidden"));
   for (const category of [
-    "brod",
-    "gronnsaker",
+    "brød",
+    "grønnsaker",
     "frukt",
     "melk",
-    "notter",
-    "kjott",
-    "palegg",
+    "nøtter",
+    "kjøtt",
+    "pålegg",
     "sukker",
     "krydder",
     "saus",
@@ -345,7 +424,9 @@ test("empty placeholder columns are never touched", async () => {
   const emptyCols = dom.window.document.querySelectorAll(
     ".content-col[data-placeholder]",
   );
-  assert.equal(emptyCols.length, 4);
+  // Kjøtt (2), Pålegg (1), Krydder (1), and Nøtter (1, empty after the
+  // 2025-05 moves) §5.7.
+  assert.equal(emptyCols.length, 5);
   for (const col of emptyCols) {
     // Placeholders carry the positional role (for the tint) but never
     // search state: no hidden toggle, no items, no mobile label, and no
@@ -365,11 +446,15 @@ test("regex metacharacters in the query are inert", async () => {
   type(dom, "(1 ss)");
   await settle();
 
-  assert.ok(!itemByText(dom, "Tranebær (1 ss)").classList.contains("hidden"));
   assert.ok(
     !itemByText(dom, "Sirup, Kokos/treacle (1 ss)").classList.contains(
       "hidden",
     ),
+  );
+  // "(1 ss)" is not a substring of "(mer enn 1 ss)", so the parens stay
+  // literal and this item stays hidden.
+  assert.ok(
+    itemByText(dom, "Pesto (mer enn 1 ss)").classList.contains("hidden"),
   );
 
   type(dom, "b[r]");
@@ -429,9 +514,9 @@ test("Escape clears the search and keeps focus on the input", async () => {
   assert.equal(dom.window.document.activeElement, input(dom));
 });
 
-test("Escape with an empty query leaves the page untouched", async () => {
+test("Escape with an empty query moves focus to the input and changes nothing else", async () => {
   const dom = setup();
-  input(dom).dispatchEvent(
+  dom.window.document.body.dispatchEvent(
     new dom.window.KeyboardEvent("keydown", {
       key: "Escape",
       bubbles: true,
@@ -440,9 +525,10 @@ test("Escape with an empty query leaves the page untouched", async () => {
   await settle();
   assert.equal(input(dom).value, "");
   assert.equal(visibleItems(dom).length, items(dom).length);
+  assert.equal(dom.window.document.activeElement, input(dom));
 });
 
-test("Escape outside the input never clears an active search", async () => {
+test("Escape outside the input clears the search and moves focus to it", async () => {
   const dom = setup();
   type(dom, "whisky");
   await settle();
@@ -454,8 +540,10 @@ test("Escape outside the input never clears an active search", async () => {
     }),
   );
   await settle();
-  assert.equal(input(dom).value, "whisky");
-  assert.ok(!clearButton(dom).classList.contains("hidden"));
+  assert.equal(input(dom).value, "");
+  assert.ok(clearButton(dom).classList.contains("hidden"));
+  assert.equal(visibleItems(dom).length, items(dom).length);
+  assert.equal(dom.window.document.activeElement, input(dom));
 });
 
 // --- reload boot state (§7.1, §9.3) ----------------------------------------------
@@ -483,7 +571,7 @@ test("rapid input coalesces into a single debounced run", async () => {
   await settle();
 
   // Only the final query took effect.
-  assert.ok(sectionByCategory(dom, "kjott").classList.contains("hidden"));
+  assert.ok(sectionByCategory(dom, "kjøtt").classList.contains("hidden"));
   assert.ok(!itemByText(dom, "Cashewnøtter").classList.contains("hidden"));
 });
 

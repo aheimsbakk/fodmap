@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Geometry is tuned for the system emoji font: font-size 69.49 makes the
+       glyph ink exactly 64 units wide (as large as possible without
+       overflow), and the baseline y=54.875 centers the glyph vertically
+       (ink is ~60.5 units tall, ~1.75 unit margins top and bottom). -->
+  <text x="32" y="54.875" font-size="69.49" text-anchor="middle">🥗</text>
+</svg>

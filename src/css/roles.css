@@ -1,0 +1,92 @@
+/* roles.css — generated from config.json (groups + sections).
+   Supports an arbitrary number of groups and sections. */
+
+/* group: SPIS (spis) */
+.content-col[data-role="spis"] {
+  background-color: var(--role-spis-tint);
+}
+.content-col[data-role="spis"] .role-label {
+  background-color: var(--role-spis-bg);
+  color: var(--role-spis-ink);
+  border-color: var(--role-spis-border);
+}
+.legend-item[data-role="spis"] {
+  background-color: var(--role-spis-bg);
+  color: var(--role-spis-ink);
+  border-color: var(--role-spis-border);
+}
+
+/* group: BEGRENSE (begrens) */
+.content-col[data-role="begrens"] {
+  background-color: var(--role-begrens-tint);
+}
+.content-col[data-role="begrens"] .role-label {
+  background-color: var(--role-begrens-bg);
+  color: var(--role-begrens-ink);
+  border-color: var(--role-begrens-border);
+}
+.legend-item[data-role="begrens"] {
+  background-color: var(--role-begrens-bg);
+  color: var(--role-begrens-ink);
+  border-color: var(--role-begrens-border);
+}
+
+/* group: UNNGÅ (unngå) */
+.content-col[data-role="unngå"] {
+  background-color: var(--role-unngå-tint);
+}
+.content-col[data-role="unngå"] .role-label {
+  background-color: var(--role-unngå-bg);
+  color: var(--role-unngå-ink);
+  border-color: var(--role-unngå-border);
+}
+.legend-item[data-role="unngå"] {
+  background-color: var(--role-unngå-bg);
+  color: var(--role-unngå-ink);
+  border-color: var(--role-unngå-border);
+}
+
+/* category heading colors — generated from config sections */
+.category-heading[data-category="brød"] {
+  background-color: var(--section-brød-bg);
+}
+
+.category-heading[data-category="grønnsaker"] {
+  background-color: var(--section-grønnsaker-bg);
+}
+
+.category-heading[data-category="frukt"] {
+  background-color: var(--section-frukt-bg);
+}
+
+.category-heading[data-category="melk"] {
+  background-color: var(--section-melk-bg);
+}
+
+.category-heading[data-category="nøtter"] {
+  background-color: var(--section-nøtter-bg);
+}
+
+.category-heading[data-category="drikke"] {
+  background-color: var(--section-drikke-bg);
+}
+
+.category-heading[data-category="kjøtt"] {
+  background-color: var(--section-kjøtt-bg);
+}
+
+.category-heading[data-category="pålegg"] {
+  background-color: var(--section-pålegg-bg);
+}
+
+.category-heading[data-category="sukker"] {
+  background-color: var(--section-sukker-bg);
+}
+
+.category-heading[data-category="krydder"] {
+  background-color: var(--section-krydder-bg);
+}
+
+.category-heading[data-category="saus"] {
+  background-color: var(--section-saus-bg);
+}

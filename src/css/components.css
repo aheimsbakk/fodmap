@@ -164,24 +164,6 @@
   border: 2px solid;
 }
 
-.legend-spis {
-  background-color: var(--color-spis-bg);
-  color: var(--color-spis-ink);
-  border-color: var(--color-spis-ink);
-}
-
-.legend-begrens {
-  background-color: var(--color-begrens-bg);
-  color: var(--color-begrens-ink);
-  border-color: var(--color-begrens-ink);
-}
-
-.legend-unnga {
-  background-color: var(--color-unnga-bg);
-  color: var(--color-unnga-ink);
-  border-color: var(--color-unnga-border);
-}
-
 @media (min-width: 768px) {
   .legend {
     display: grid;
@@ -222,65 +204,6 @@
   box-shadow: var(--shadow-banner);
 }
 
-/* Heading background per category (§4.1). Column tints are role-based
-   (deviation 13) and live in the block after these rules. */
-.category-heading[data-category="gronnsaker"] {
-  background-color: var(--color-gronn);
-}
-
-.category-heading[data-category="frukt"] {
-  background-color: var(--color-frukt);
-}
-
-.category-heading[data-category="melk"] {
-  background-color: var(--color-melk);
-}
-
-.category-heading[data-category="notter"] {
-  background-color: var(--color-notter);
-}
-
-.category-heading[data-category="drikke"] {
-  background-color: var(--color-drikke);
-}
-
-.category-heading[data-category="kjott"] {
-  background-color: var(--color-kjott);
-}
-
-.category-heading[data-category="palegg"] {
-  background-color: var(--color-palegg);
-}
-
-.category-heading[data-category="sukker"] {
-  background-color: var(--color-sukker);
-}
-
-.category-heading[data-category="krydder"] {
-  background-color: var(--color-krydder);
-}
-
-.category-heading[data-category="saus"] {
-  background-color: var(--color-saus);
-}
-
-/* Column tints: role-based (deviation 13). Each column carries the color
-   of its role — SPIS, BEGRENSE, UNNGÅ — so the column ↔ role
-   correspondence matches the legend and the mobile labels at a glance.
-   Empty placeholder columns carry the role of their position, so the
-   same rules tint them too. */
-.content-col[data-role="spis"] {
-  background-color: var(--tint-spis);
-}
-
-.content-col[data-role="begrens"] {
-  background-color: var(--tint-begrens);
-}
-
-.content-col[data-role="unnga"] {
-  background-color: var(--tint-unnga);
-}
-
 /* Mobile-only role labels (hidden ≥ 768 px via utilities.mobile-only) ----- */
 
 .role-label {
@@ -293,24 +216,6 @@
   text-align: center;
   border: 2px solid;
   border-radius: 0.25rem;
-}
-
-.content-col[data-role="spis"] .role-label {
-  background-color: var(--color-spis-bg);
-  color: var(--color-spis-ink);
-  border-color: var(--color-spis-ink);
-}
-
-.content-col[data-role="begrens"] .role-label {
-  background-color: var(--color-begrens-bg);
-  color: var(--color-begrens-ink);
-  border-color: var(--color-begrens-ink);
-}
-
-.content-col[data-role="unnga"] .role-label {
-  background-color: var(--color-unnga-bg);
-  color: var(--color-unnga-ink);
-  border-color: var(--color-unnga-border);
 }
 
 /* Sub-groups -------------------------------------------------------------- */
@@ -346,7 +251,7 @@
 
 .footnote-icon {
   margin-right: 0.25rem;
-  color: var(--color-unnga-bg);
+  color: var(--role-unngå-bg);
 }
 
 /* Halftone decorations (sm+ only) ----------------------------------------- */
@@ -417,4 +322,56 @@
   /* Equal to the disclaimer-to-source gap (0.5rem). */
   margin: 0.5rem 0 0;
   color: var(--color-footer-secondary);
+}
+
+/* Note (i) affordance: item reasoning note ----------------------------- */
+
+.item {
+  position: relative;
+}
+
+.note-toggle {
+  margin-left: var(--info-button-margin-left);
+  padding: 0;
+  line-height: 1;
+  font-size: var(--info-button-font-size);
+  color: var(--color-accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  vertical-align: baseline;
+}
+
+/* Info glyph; switches to the "matched" glyph when the query hits the note
+   (see search.js toggling .is-match). */
+.note-toggle::before {
+  content: var(--info-emoji);
+}
+
+.note-toggle.is-match::before {
+  content: var(--info-emoji-matched);
+}
+
+/* No box, border, or hover ring around the icon (deviation 17): the
+   button is a bare emoji glyph sized like the item markers; only
+   keyboard focus keeps a visible outline. */
+.note-toggle:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.note-popover {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 6px);
+  z-index: 50;
+  max-width: 240px;
+  width: max-content;
+  padding: 0.5rem 0.6rem;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-banner);
+  font-size: calc(0.78rem * var(--text-scale));
+  line-height: 1.35;
+  white-space: normal;
 }

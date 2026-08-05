@@ -1,0 +1,233 @@
+{
+  "schema": 1,
+  "collation": "no-NO",
+  "page": {
+    "head": {
+      "emoji": {
+        "left": "🥦🍓",
+        "right": "🧀🥖"
+      },
+      "subtitle": "Vanlige matvarer",
+      "title": "FODMAP",
+      "title-color": "#c43838",
+      "subtitle-color": "#d85c5c",
+      "outline-color": "#000000"
+    },
+    "search": {
+      "emoji": "🔍",
+      "placeholder": "SØK ETTER MATVARE (F.EKS. LØK, EPLE)...",
+      "placeholder-color": "#9ca3af",
+      "clear": "×",
+      "scale": "Aa",
+      "marker": {
+        "background-color": "#ffffff",
+        "text-color": "#000000"
+      }
+    },
+    "info-banner": {
+      "emoji": "ℹ️",
+      "text": "BEGRENSE: Opp til 1 matvare per måltid. Matvaren har lav FODMAP opp til mengden oppgitt i BEGRENSE-kolonnen.",
+      "text-color": "#374151"
+    },
+    "colors": {
+      "background-color": "#ffffff",
+      "text-color": "#333333",
+      "heading-color": "#000000",
+      "column-separator-color": "rgba(0, 0, 0, 0.3)",
+      "column-top-line-color": "rgba(0, 0, 0, 0.1)",
+      "halftone-left-color": "#c43838",
+      "halftone-right-color": "#a0c49d",
+      "halftone-both-color": "#e6a147"
+    },
+    "footer": {
+      "secondary-color": "#4b5563",
+      "hover-color": "#dc2626",
+      "lines": [
+        {
+          "separator": "  ",
+          "segments": [
+            "Rådfør deg alltid med lege eller klinisk ernæringsfysiolog før du starter på en eliminasjonsdiett"
+          ]
+        },
+        {
+          "separator": "  ",
+          "segments": [
+            "FODMAP v{{version}} // Kilder:",
+            {
+              "text": "Norsk Helseinformatikk (NHI.no)",
+              "url": "https://nhi.no/kosthold/forebyggende-kost-og-sykdom/dette-er-fodmap-reduserte-matvarer"
+            },
+            ",",
+            {
+              "text": "NKFM – Lav FODMAP-mat ved IBS",
+              "url": "https://www.helse-bergen.no/nasjonal-kompetansetjeneste-for-funksjonelle-mage-tarmsykdommer-nkfm/lav-fodmap-mat-ved-ibs"
+            }
+          ]
+        },
+        {
+          "separator": " // ",
+          "segments": [
+            "Utviklet av Arnulf Heimsbakk",
+            {
+              "text": "Kildekode på github.com/aheimsbakk/fodmap",
+              "url": "https://github.com/aheimsbakk/fodmap/"
+            },
+            "Lisens MIT"
+          ]
+        }
+      ]
+    },
+    "info-button": {
+      "emoji": "ℹ️",
+      "emoji-matched": "☑️",
+      "font-size": "0.9rem",
+      "margin-left": "0.4rem"
+    },
+    "markers": {
+      "new": "🆕",
+      "moved": "🔄",
+      "updated": "🆙",
+      "default": "•"
+    },
+    "tooltips": {
+      "default": "Kildedato {{date}}",
+      "new": "Kildedato {{date}}",
+      "moved": "Flyttet fra {{from}} til {{to}}, kildedato {{date}}",
+      "updated": "Kildedato {{date}}"
+    }
+  },
+  "sections": [
+    {
+      "id": "brød",
+      "title": "Brød, ris og pasta",
+      "emoji": "🌾",
+      "background-color": "#d59e5e",
+      "footnote": {
+        "type": "viktig",
+        "text": "VIKTIG: Glutenfrie produkter kan likevel inneholde høy FODMAP-ingredienser. Gjelder spesielt grove produkter."
+      }
+    },
+    {
+      "id": "grønnsaker",
+      "title": "Grønnsaker og belgfrukter",
+      "emoji": "🥕",
+      "background-color": "#8fb88a"
+    },
+    {
+      "id": "frukt",
+      "title": "Frukt, tørket frukt og bær",
+      "emoji": "🍎",
+      "background-color": "#d96f6f"
+    },
+    {
+      "id": "melk",
+      "title": "Melk, meieriprodukter & alternativer",
+      "emoji": "🐄",
+      "background-color": "#93b5c6"
+    },
+    {
+      "id": "nøtter",
+      "title": "Nøtter og frø",
+      "emoji": "🥜",
+      "background-color": "#a9744f"
+    },
+    {
+      "id": "drikke",
+      "title": "Drikke",
+      "emoji": "☕",
+      "background-color": "#8ab6d6"
+    },
+    {
+      "id": "kjøtt",
+      "title": "Kjøtt, egg, fisk",
+      "emoji": "🍗",
+      "background-color": "#e08c8c",
+      "footnote": {
+        "type": "plain",
+        "text": "MARINADER, PANERING OG FERDIGMAT: Sjekk ALLTID for løk og hvitløk!"
+      }
+    },
+    {
+      "id": "pålegg",
+      "title": "Pålegg",
+      "emoji": "🍞",
+      "background-color": "#d1bfae"
+    },
+    {
+      "id": "sukker",
+      "title": "Sukker, søtning og annet",
+      "emoji": "🧊",
+      "background-color": "#e6c8c8",
+      "footnote": {
+        "type": "tips",
+        "text": "TIPS: Matvarer merket \"naturlig lett\" og \"naturlig søtet\" inneholder ofte fruktose/fruktkonsentrat. Se også opp for sorbitol (E420)."
+      }
+    },
+    {
+      "id": "krydder",
+      "title": "Krydder og urter",
+      "emoji": "🌶️",
+      "background-color": "#b5c7b3",
+      "footnote": {
+        "type": "tips",
+        "text": "TIPS: Blandingskrydder inneholder veldig ofte løk eller hvitløk!"
+      }
+    },
+    {
+      "id": "saus",
+      "title": "Smakstilsetning, saus, dressing",
+      "emoji": "🫗",
+      "background-color": "#d97744"
+    }
+  ],
+  "groups": [
+    {
+      "id": "spis",
+      "label": "SPIS",
+      "emoji": "👍",
+      "background-color": "#a0c49d",
+      "text-color": "#1e3a1e",
+      "column-color": "rgba(160, 196, 157, 0.2)",
+      "border-color": "#1e3a1e"
+    },
+    {
+      "id": "begrens",
+      "label": "BEGRENSE",
+      "emoji": "⚖️",
+      "background-color": "#f7d774",
+      "text-color": "#4a3c08",
+      "column-color": "rgba(247, 215, 116, 0.25)",
+      "border-color": "#4a3c08"
+    },
+    {
+      "id": "unngå",
+      "label": "UNNGÅ",
+      "emoji": "✋",
+      "background-color": "#d15d5d",
+      "text-color": "#ffffff",
+      "column-color": "rgba(209, 93, 93, 0.15)",
+      "border-color": "#5a1919"
+    }
+  ],
+  "subgroups": {
+    "belgfrukter": "Belgfrukter",
+    "tørket-frukt": "Tørket frukt",
+    "melk-og-meieriprodukter": "Melk og meieriprodukter",
+    "ost": "Ost",
+    "alternativ-til-melk": "Alternativ til melk",
+    "egg": "Egg",
+    "fisk-sjømat": "Fisk/sjømat",
+    "kjøtt-palegg": "Kjøtt",
+    "syltetøy": "Syltetøy",
+    "annet": "Annet",
+    "søtstoff": "Søtstoff",
+    "søtstoff-polyoler": "Søtstoff (polyoler)",
+    "friske-tørkede-urter": "Friske/tørkede urter",
+    "krydder": "Krydder"
+  },
+  "footnote-types": {
+    "viktig": "⚠️",
+    "tips": "ℹ️",
+    "plain": null
+  }
+}

@@ -1,8 +1,11 @@
 name: Deploy to GitHub Pages
 
-# Deploys the static app in src/ to GitHub Pages. The site is built
-# from src/index.html with relative asset links, so it works under the
-# project subpath (https://aheimsbakk.github.io/fodmap/).
+# Builds the site from the content data and deploys the result to GitHub
+# Pages. The build step regenerates index.html, css/tokens.css, and
+# css/roles.css in src/ from data/ on every run, so the published site
+# always reflects the latest content — even when the committed generated
+# files are stale. The site uses relative asset links, so it works under
+# the project subpath (https://aheimsbakk.github.io/fodmap/).
 #
 # Triggers only on push to main — this covers both direct pushes and
 # merges (a merge is a push to main). Pull requests, other branches,
@@ -31,6 +34,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7.0.1
+      - name: Setup Node
+        uses: actions/setup-node@v7.0.0
+        with:
+          # The build needs Node >= 20.11 (import.meta.dirname); 22 is the
+          # current LTS. The build uses the standard library only, so no
+          # npm install is needed.
+          node-version: 22
+      - name: Build site
+        # Regenerate the three artifacts in src/ from data/ (the same
+        # pipeline as ./scripts/build.sh, without the prettier pass, which
+        # only affects committed-file formatting). The build writes over
+        # the committed artifacts; the result is deployed, not committed.
+        run: node scripts/build/build.mjs src
       - name: Setup Pages
         uses: actions/configure-pages@v6.0.0
       - name: Upload site

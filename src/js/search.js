@@ -85,19 +85,40 @@ export function buildMatcher() {
           });
 
           const items = column.items.map((item) => {
-            const itemMatch = active && item.text.toLowerCase().includes(q);
+            // An item matches on its article text or its reasoning note; a
+            // note-only match shows the info button as "matched" (☑️).
+            const nameMatch = active && item.text.toLowerCase().includes(q);
+            const noteMatch =
+              active && !!(item.note && item.note.toLowerCase().includes(q));
             const groupMatch = item.group
               ? groupMatches.get(item.group)
               : false;
             return {
               element: item.element,
-              hidden: active && !itemMatch && !headingMatch && !groupMatch,
-              html: itemMatch
+              article: item.article,
+              button: item.button,
+              popover: item.popover,
+              hidden:
+                active &&
+                !nameMatch &&
+                !noteMatch &&
+                !headingMatch &&
+                !groupMatch,
+              html: nameMatch
                 ? item.text.replace(
                     itemRegex,
                     `<b class="${HIGHLIGHT_CLASS}">$1</b>`,
                   )
                 : item.text,
+              // A note-only match bolds the terms inside the popover; any
+              // other state restores the original plain text (§7.5).
+              noteHtml: noteMatch
+                ? item.noteHtml.replace(
+                    itemRegex,
+                    `<b class="${HIGHLIGHT_CLASS}">$1</b>`,
+                  )
+                : item.noteHtml,
+              noteMatch,
             };
           });
 
@@ -155,7 +176,17 @@ export function applyPlan(document, plan) {
       });
       column.items.forEach((item) => {
         item.element.classList.toggle("hidden", item.hidden);
-        item.element.innerHTML = item.html;
+        // Only the article text span is re-rendered; the note button and
+        // popover are untouched siblings, so the popover's open/pinned
+        // state survives filtering (§7.5). The popover's content is
+        // re-rendered from the plan so a note-only match can bold terms.
+        if (item.article) item.article.innerHTML = item.html;
+        if (item.popover && item.noteHtml !== null) {
+          item.popover.innerHTML = item.noteHtml;
+        }
+        if (item.button) {
+          item.button.classList.toggle("is-match", !!item.noteMatch);
+        }
       });
     });
   });
@@ -187,12 +218,33 @@ function captureContent(document) {
         Array.from(colEl.children).forEach((child) => {
           if (child.classList.contains("item-list")) {
             Array.from(child.children).forEach((li) => {
-              // Items are authored multi-line for readability, but render
-              // with no surrounding whitespace, so capture trimmed text.
-              const text = li.textContent.trim();
+              // The item's searchable text is its article text; a reasoning
+              // note lives in a static sibling (button + popover) that search
+              // never rebuilds, so it can't collapse. The note is still
+              // searchable and drives the info-button glyph.
+              const article = li.querySelector(".item-text");
+              const noteEl = li.querySelector(".note-popover");
+              const button = li.querySelector(".note-toggle");
+              const text = article
+                ? article.textContent.trim()
+                : li.textContent.trim();
+              const note = noteEl ? noteEl.textContent.trim() : null;
               li.dataset.origText = text;
-              items.push({ element: li, text, group: activeGroup });
+              items.push({
+                element: li,
+                article,
+                button,
+                popover: noteEl,
+                // The popover's content is plain text; the original string is
+                // captured for exact restore once a match has bolded it
+                // (§7.2.3, deviation 17).
+                noteHtml: noteEl ? noteEl.innerHTML : null,
+                text,
+                note,
+                group: activeGroup,
+              });
               if (activeGroup) activeGroup.items.push(text);
+              if (activeGroup && note) activeGroup.items.push(note);
             });
           } else if (child.classList.contains("sub-group-title")) {
             // Sub-group headings match like category headings (§7.2.6),
@@ -280,14 +332,18 @@ export function initSearch(document, debounceMs = 300) {
     });
   }
 
-  // Escape clears the search exactly like the clear control (§7.1), but
-  // only while the input is focused; the input keeps focus so the user
-  // can immediately type a new query.
-  input.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && input.value !== "") {
-      input.value = "";
-      win.clearTimeout(debounceId);
-      run("");
+  // Escape anywhere on the page clears the search exactly like the clear
+  // control and moves focus to the input, so the next keystroke starts a
+  // fresh query no matter where the previous focus was (§7.1). With an
+  // empty query it only moves focus; the page state is left untouched.
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      if (input.value !== "") {
+        input.value = "";
+        win.clearTimeout(debounceId);
+        run("");
+      }
+      input.focus();
     }
   });
 

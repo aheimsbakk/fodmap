@@ -1,11 +1,9 @@
 /* tokens.css — design tokens: colors, typography, sizes, z-order, sticky
-   offsets, effects (BLUEPRINT §4). Single source of truth; every other
-   stylesheet consumes these custom properties only. */
+   offsets, effects (BLUEPRINT §4). Generated: color values from config.json;
+   typography, sizes, z-order, and effects are static literals. */
 
 :root {
-  /* §7.4 text-scale multiplier: 1 / 1.25 / 1.5 via data-text-scale on the
-     root element (deviation 9). Only content font-size tokens consume it;
-     the masthead, spacing, borders, and geometry stay fixed. */
+  /* §7.4 text-scale multiplier */
   --text-scale: 1;
 
   /* §4.1 palette */
@@ -14,26 +12,18 @@
   --color-accent: #c43838;
   --color-accent-light: #d85c5c;
   --color-heading-ink: #000000;
-  --color-spis-bg: #a0c49d;
-  --color-spis-ink: #1e3a1e;
-  --color-begrens-bg: #f7d774;
-  --color-begrens-ink: #4a3c08;
-  --color-unnga-bg: #d15d5d;
-  --color-unnga-ink: #ffffff;
-  --color-unnga-border: #5a1919;
   --color-banner-text: #374151;
   --color-footer-secondary: #4b5563;
   --color-placeholder: #9ca3af;
   --color-hover-link: #dc2626;
   --color-separator: rgba(0, 0, 0, 0.3);
   --color-column-top: rgba(0, 0, 0, 0.1);
-  --color-outline: rgba(0, 0, 0, 0.8);
+  --color-outline: #000000;
   --color-dot-a: #c43838;
   --color-dot-b: #a0c49d;
   --color-dot-c: #e6a147;
 
-  /* §4.1 category sets: heading background colors only. Column tints are
-     role-based (deviation 13), defined below. */
+  /* §4.1 category sets: heading background colors only */
   --color-brod: #d59e5e;
   --color-gronn: #8fb88a;
   --color-frukt: #d96f6f;
@@ -46,17 +36,46 @@
   --color-krydder: #b5c7b3;
   --color-saus: #d97744;
 
-  /* §4.1 role-based column tints (deviation 13): the role backgrounds at
-     low opacity, light enough that item text stays readable. Empty
-     placeholder columns carry the role of their position and get its
-     tint. */
-  --tint-spis: rgba(160, 196, 157, 0.2);
-  --tint-begrens: rgba(247, 215, 116, 0.25);
-  --tint-unnga: rgba(209, 93, 93, 0.15);
+  /* §4.1 role tokens (generated from groups) */
+  --role-spis-bg: #a0c49d;
+  --role-spis-ink: #1e3a1e;
+  --role-spis-tint: rgba(160, 196, 157, 0.2);
+  --role-spis-border: #1e3a1e;
+  --role-begrens-bg: #f7d774;
+  --role-begrens-ink: #4a3c08;
+  --role-begrens-tint: rgba(247, 215, 116, 0.25);
+  --role-begrens-border: #4a3c08;
+  --role-unngå-bg: #d15d5d;
+  --role-unngå-ink: #ffffff;
+  --role-unngå-tint: rgba(209, 93, 93, 0.15);
+  --role-unngå-border: #5a1919;
 
-  /* §4.2 typography — native system stacks, no webfont downloads.
-     Named families are platform fallbacks for browsers without
-     system-ui support; generic sans-serif is the last resort. */
+  /* §4.1 section heading tokens (generated from sections) */
+  --section-brød-bg: #d59e5e;
+  --section-grønnsaker-bg: #8fb88a;
+  --section-frukt-bg: #d96f6f;
+  --section-melk-bg: #93b5c6;
+  --section-nøtter-bg: #a9744f;
+  --section-drikke-bg: #8ab6d6;
+  --section-kjøtt-bg: #e08c8c;
+  --section-pålegg-bg: #d1bfae;
+  --section-sukker-bg: #e6c8c8;
+  --section-krydder-bg: #b5c7b3;
+  --section-saus-bg: #d97744;
+
+  /* info-button tokens (generated from config page.info-button) */
+  --info-emoji: "ℹ️";
+  --info-emoji-matched: "☑️";
+  --info-button-font-size: calc(0.9rem * var(--text-scale));
+  --info-button-margin-left: 0.4rem;
+
+  /* change-marker glyphs (generated from config page.markers) */
+  --marker-default: "•";
+  --marker-new: "🆕";
+  --marker-moved: "🔄";
+  --marker-updated: "🆙";
+
+  /* §4.2 typography — static */
   --font-system:
     system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
     sans-serif;
@@ -64,9 +83,7 @@
   --font-heading: var(--font-system);
   --font-display: var(--font-system);
 
-  /* §4.3 sizes — narrow (base) column. Font-size tokens are wrapped in the
-     text-scale multiplier; the masthead titles, page padding, search
-     widget height, and line-height stay fixed (deviation 9). */
+  /* §4.3 sizes — static */
   --size-page-padding: 0.5rem;
   --size-main-title: 2.25rem;
   --size-sub-title: 1.25rem;
@@ -80,15 +97,18 @@
   --size-banner: calc(9px * var(--text-scale));
   --size-footnote: calc(0.75rem * var(--text-scale));
   --size-label: calc(0.875rem * var(--text-scale));
+  /* Item left gutter and bullet slot: the one spacing that scales, so the
+     marker glyph never overlaps the item text at 150 % (deviation 9). */
+  --size-bullet-slot: calc(1.25rem * var(--text-scale));
 
-  /* §4.4 depth + sticky */
+  /* §4.4 depth + sticky — static */
   --z-decoration: 10;
   --z-container: 20;
   --z-heading: 30;
   --z-search: 40;
   --sticky-heading-offset: 56px;
 
-  /* §4.5 effects */
+  /* §4.5 effects — static */
   --shadow-banner: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --marker-shadow: 2px 2px 0 0 #000000;
 }
@@ -124,8 +144,6 @@
   }
 }
 
-/* §7.4 text-scale levels. The attribute outranks :root by specificity, so
-   the multiplier value alone flips every scaled token (deviation 9). */
 html[data-text-scale="125"] {
   --text-scale: 1.25;
 }
