@@ -48,6 +48,7 @@ work/
 │       ├── text-scale.js        # text-size toggle: cycle + persist the level
 │       └── note-popover.js      # item note affordance: hover/pin popover
 ├── tests/
+│   ├── build.test.js            # data and build pipeline: generated page, counts, note-button contract
 │   ├── content.test.js          # canonical inventory: section order, counts, spellings
 │   ├── search.test.js           # functional tests of the search engine
 │   ├── text-scale.test.js       # functional tests of the text-size toggle
@@ -123,8 +124,12 @@ Semantic hooks used by the script (data attributes, set at load time):
 | `data-orig-html` | every `h4.sub-group-title`  | captured markup for restore/highlight          |
 
 The reasoning note text is read live from the static `.note-popover`
-sibling at capture time; it is never rewritten by the executor, so it
-needs no origin attribute. Element IDs: `search-input`, `clear-search`,
+sibling at capture time; its original string is stored on the capture item
+(`noteHtml`) so a note-only match can bold the matched terms inside the
+popover and IDLE can restore the exact plain text (BLUEPRINT §7.2.3,
+deviation 17). No origin attribute is needed: the popover's open/pinned
+state lives on the button and the element itself is never replaced.
+Element IDs: `search-input`, `clear-search`,
 `text-scale-toggle`, `main-column-headers`.
 
 ### 2.2 Stylesheets (`src/css/`)
@@ -151,12 +156,12 @@ the end of the body.
 
 `src/js/search.js` — the search engine:
 
-| Export                                   | Responsibility                                                                                                                                                                                                                                                                                                 | BLUEPRINT § |
-| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| `normalizeQuery(value)`                  | lowercase + trim                                                                                                                                                                                                                                                                                               | §7.2.1      |
-| `buildMatcher()`                         | pure matcher: query + captured content → visibility/highlight plan for items, category/sub-group headings, and a per-column empty flag (narrow collapse, deviation 14). Items match on article text or note text; a note-only match flags the note button as matched                                           | §8          |
-| `applyPlan(document, plan)`              | executor: applies the plan to the DOM (re-renders only each item's `.item-text` span, toggles `.col-empty-mobile` on columns and `.is-match` on note buttons)                                                                                                                                                  | §8          |
-| `initSearch(document, debounceMs = 300)` | boot: clear any browser-restored input value, then load-time capture (`data-orig-*` + note text + placeholder flag); event wiring (input debounce 300 ms, Escape key clears like the clear control, clear control, passive scroll-blur > 50 px with a 200 ms grace window after each filter run), IDLE restore | §7, §9.5    |
+| Export                                   | Responsibility                                                                                                                                                                                                                                                                                                               | BLUEPRINT § |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `normalizeQuery(value)`                  | lowercase + trim                                                                                                                                                                                                                                                                                                             | §7.2.1      |
+| `buildMatcher()`                         | pure matcher: query + captured content → visibility/highlight plan for items, category/sub-group headings, and a per-column empty flag (narrow collapse, deviation 14). Items match on article text or note text; a note-only match flags the note button as matched and bolds the matched terms in the popover (`noteHtml`) | §8          |
+| `applyPlan(document, plan)`              | executor: applies the plan to the DOM (re-renders each item's `.item-text` span and the `.note-popover` content, toggles `.col-empty-mobile` on columns and `.is-match` on note buttons; the popover element itself and its open/pinned state are never touched)                                                             | §8          |
+| `initSearch(document, debounceMs = 300)` | boot: clear any browser-restored input value, then load-time capture (`data-orig-*` + note text + placeholder flag); event wiring (input debounce 300 ms, Escape key clears like the clear control, clear control, passive scroll-blur > 50 px with a 200 ms grace window after each filter run), IDLE restore               | §7, §9.5    |
 
 `src/js/text-scale.js` — the text-size toggle:
 
@@ -268,9 +273,11 @@ pair. The three modules share no state and boot independently.
 - **Notes are searchable through their static text.** The matcher reads
   the note text from the `.note-popover` sibling at capture time and
   matches against it; a note-only match flips the button's `.is-match`
-  class, which swaps the `::before` glyph via CSS (BLUEPRINT §4.6). The
-  note text never needs an origin attribute because it is never written
-  back.
+  class (which swaps the `::before` glyph via CSS, BLUEPRINT §4.6) and
+  rewrites the popover's innerHTML with the matched terms bolded
+  (`<b class="item-highlight">`). The original popover string is captured
+  once (`noteHtml`) and restored on every non-matching render, so IDLE
+  returns the exact plain text (deviation 17).
 - **Boot clears any restored input value in JS, not just via markup.**
   `autocomplete="off"` is advisory and can race the deferred module's
   execution, so `initSearch` also sets `input.value = ""` on boot as the
@@ -333,8 +340,11 @@ pair. The three modules share no state and boot independently.
 - **The note button scales and swaps glyphs via tokens.** The
   `--info-*` tokens (BLUEPRINT §4.6) size the button in `em`, so it
   grows with the text scale, and the `::before` content swap
-  (`ℹ️` → `☑️`) is driven by the `.is-match` class, so the button's DOM
-  text never changes and search restore is unaffected.
+  (config-driven `--info-emoji` / `--info-emoji-matched`, currently
+  `ℹ️` → `☑️`) is driven by the `.is-match` class, so the button's DOM
+  text never changes and search restore is unaffected. The button is
+  borderless with no hover ring — only keyboard focus shows an outline
+  (deviation 17) — so the icon reads as a plain glyph, not a ringed badge.
 - **`overflow-wrap: anywhere` on `li.item`** (not `break-word`): long
   unbreakable tokens ("Maltodextrin/maltose/maltekstrakt") exceed the
   column track at the 150 % scale on narrow viewports. `anywhere`
@@ -348,17 +358,32 @@ pair. The three modules share no state and boot independently.
 
 ### 5.4 Testing
 
-- `tests/content.test.js` loads the site's `index.html` in jsdom and
-  asserts: 11 sections in the canonical order (§6.5), per-column `li`
-  counts matching BLUEPRINT §6.5 (total 484), and the canonical spellings
-  from §12.1 present verbatim in the markup.
+- The jsdom suites (`content.test.js`, `search.test.js`, `text-scale.test.js`)
+  run against the **generated page** — each imports `build()` and uses its
+  `html` — because the generated output is the canonical artifact; the
+  hand-authored `src/index.html` is retired at the end of the migration
+  (BLUEPRINT §12.2 deviation 16).
+- `tests/build.test.js` covers the data and build pipeline (BLUEPRINT §13.4):
+  it runs `build()` and asserts the generated document reproduces the §6.5
+  inventory (11 sections, 484 items), references all six stylesheet layers
+  and three module scripts, and renders the note affordance per §4.6 — the
+  button is empty (glyph from the `--info-emoji` / `--info-emoji-matched`
+  tokens, never a live text node) with `aria-label="Mer informasjon"` — and
+  that the generated token layer carries both info glyphs.
+- `tests/content.test.js` loads the generated page in jsdom and asserts: 11
+  sections in the canonical order (§6.5), per-column `li` counts matching
+  BLUEPRINT §6.5 (total 484), and the canonical spellings from §12.1 present
+  verbatim in the markup.
 - `tests/search.test.js` covers BLUEPRINT §13.1: normalization, matching
   (case-insensitivity, note participation — article and reasoning note,
   header match, sub-group header match revealing its whole list, no
   diacritic folding), highlighting (marker vs item emphasis, no matches
   inside icon markup), visibility transitions (item, sub-group, mobile
   label, section, empty columns untouched), the narrow empty-column
-  collapse (deviation 14), the note-button matched glyph state, special
+  collapse (deviation 14), the note-button matched glyph state with the
+  matched terms bolded inside the popover and the plain popover text
+  restored on clear, the popover's open/pinned state surviving search
+  runs, special
   inputs, clear/restore, boot clearing of a browser-restored input value,
   debounce coalescing, and the scroll-blur rule (simulated via
   `window.scrollY`).

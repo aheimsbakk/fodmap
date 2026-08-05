@@ -246,6 +246,8 @@ with the text scale:
 
 The glyph swap is a CSS `::before` content rule toggled by a class; the
 button's live text node never changes, so search restore is unaffected.
+The button renders without a border and without a hover ring; keyboard
+focus keeps a visible outline via `:focus-visible` only (deviation 17).
 
 ## 5. Layout and Responsive Behavior
 
@@ -492,8 +494,9 @@ be restored after the boot script has run.
 3. Item: visible if it matches, the section heading matches, or the
    sub-group heading directly above it matches. Highlighted (emphasis)
    if its article text matches; otherwise plain. A match on the reasoning
-   note alone reveals the item and flips its note-button glyph to the
-   matched state (§4.6, §7.5); the popover text is never re-rendered.
+   note alone reveals the item, flips its note-button glyph to the matched
+   state, and bolds the matched terms inside the popover (§4.6, §7.5,
+   deviation 17); the popover's open/pinned state is never disturbed.
 4. Category heading: all items in the section stay visible when the heading
    matches; the heading text is highlighted with the marker style. Matches
    inside embedded icon markup are never highlighted.
@@ -517,8 +520,9 @@ be restored after the boot script has run.
 
 ### 7.3 Restoration guarantee
 
-The original content of every item (plain text) and category heading
-(markup) is captured once at load time. Every transition back to IDLE — and every re-render in FILTERED —
+The original content of every item (plain text), category heading
+(markup), and note popover (plain text) is captured once at load time.
+Every transition back to IDLE — and every re-render in FILTERED —
 restores from these captures, so repeated searches never accumulate
 formatting or highlight artifacts.
 
@@ -563,10 +567,11 @@ Transitions:
   unpins and closes.
 - Keyboard activation of the button (Enter/Space) behaves as a click
   (native button semantics).
-- Search interacts with the popover only through the glyph: a query that
-  matches the note text toggles the matched glyph on the button (§7.2.3);
-  it never opens, closes, or rewrites a popover. Every interactive
-  affordance is inert without scripts.
+- Search interacts with the popover through the glyph and the popover
+  content: a query that matches the note text toggles the matched glyph
+  on the button and bolds the matched terms inside the popover (§7.2.3,
+  deviation 17). It never opens or closes a popover and never touches its
+  open/pinned state. Every interactive affordance is inert without scripts.
 
 ## 8. Data Flow
 
@@ -601,8 +606,9 @@ the plan to the document. This separation makes the engine testable
 without a browser and keeps application of changes idempotent. The
 text-scale toggle is a pure state flip: it sets one attribute and lets
 the stylesheet tokens recompute; no DOM traversal or content rewrites.
-The note popover never enters the filter pipeline: search reads the note
-text but writes only the button's matched class.
+The note popover enters the filter pipeline only as captured text: search
+matches the note text and writes the button's matched class plus the
+popover's bolded content, never its open/pinned state (§7.5).
 
 The build pipeline is likewise pure in its render half: merged data +
 config in, document strings out, written by a thin CLI.
@@ -869,6 +875,14 @@ are intentional and must stay unchanged.
     build step is developer-time only (§1, §8). During the migration the
     generated output is written outside the site directory so it can be
     diffed against the hand-authored files before they are retired.
+17. The note info button renders without a border and without a hover
+    ring (user request, 2026-08-05): the resting 1 px accent border and
+    the 2 px hover outline were read as red rings around the icon, so
+    both are removed; keyboard focus keeps a visible outline via
+    `:focus-visible` only (§4.6). A search that matches the reasoning
+    note now bolds the matched terms inside the popover, restoring the
+    plain text on IDLE; the matched glyph (§4.6) and the popover's
+    open/pinned state are untouched (§7.5).
 
 ### 12.3 Negative contracts
 
@@ -900,9 +914,10 @@ Cover the search engine:
   sub-group heading in it matches, or the category heading matches;
   placeholder columns are never marked; clearing the query removes the
   marker.
-- Note-button state: a note-only match toggles the matched glyph; every
-  other state (article match, no match, IDLE) restores the plain glyph;
-  the popover's open/pinned state survives search runs untouched.
+- Note-button state: a note-only match toggles the matched glyph and
+  bolds the matched terms inside the popover; every other state (article
+  match, no match, IDLE) restores the plain glyph and the plain popover
+  text; the popover's open/pinned state survives search runs untouched.
 - Special inputs: regex metacharacters, spaces, uppercase.
 - Clear control: hides/shows, restores originals, returns focus.
 - Escape key: clears an active search exactly like the clear control while

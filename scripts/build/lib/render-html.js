@@ -54,22 +54,23 @@ function itemText(item) {
   return item.amount ? `${item.name} (${item.amount})` : item.name;
 }
 
-function renderItem(it, info) {
+function renderItem(it) {
   const text = itemText(it);
-  const emoji = info.emoji || "\u2139\ufe0f";
-  const matched = info["emoji-matched"] || "\u2611\ufe0f";
+  // The button stays empty: the info glyph and its "matched" variant come
+  // from the CSS tokens (--info-emoji / --info-emoji-matched), so the live
+  // text node never changes and search restore is unaffected (§4.6).
   let html = `              <li class="item">`;
   html += `<span class="item-text">${esc(text)}</span>`;
   if (it.note) {
-    html += ` <button type="button" class="note-toggle" data-emoji="${esc(emoji)}" data-emoji-matched="${esc(matched)}" aria-label="Mer informasjon">${esc(emoji)}</button>`;
+    html += ` <button type="button" class="note-toggle" aria-label="Mer informasjon"></button>`;
     html += ` <span class="note-popover" role="tooltip" hidden>${esc(it.note)}</span>`;
   }
   html += `</li>`;
   return html;
 }
 
-function renderList(items, info) {
-  const lis = items.map((it) => renderItem(it, info)).join("\n");
+function renderList(items) {
+  const lis = items.map((it) => renderItem(it)).join("\n");
   return `            <ul class="item-list">\n${lis}\n            </ul>`;
 }
 

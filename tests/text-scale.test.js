@@ -5,17 +5,17 @@
  * so computed sizes are asserted in a real browser, not here.
  */
 
-import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { JSDOM } from "jsdom";
 import { initSearch } from "../src/js/search.js";
 import { initTextScale } from "../src/js/text-scale.js";
+import { build } from "../scripts/build/build.mjs";
 
-const APP_HTML = readFileSync(
-  new URL("../src/index.html", import.meta.url),
-  "utf8",
-);
+// Tests run against the generated page (the canonical artifact); the
+// hand-authored src/index.html is retired at the end of the migration
+// (BLUEPRINT §12.2 deviation 16).
+const APP_HTML = build().html;
 
 /** In-memory storage stand-in; survives across "reloads" by design. */
 function createStorage(seed = null) {

@@ -1,17 +1,18 @@
 /**
- * content.test.js — verifies src/index.html against the frozen content
+ * content.test.js — verifies the generated page against the frozen content
  * inventory (BLUEPRINT §6.2, §12.1). The inventory is duplicated here as
- * data, so a markup change to any frozen string or count fails the suite.
+ * data, so a data change to any frozen string or count fails the suite.
  */
 
-import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { JSDOM } from "jsdom";
+import { build } from "../scripts/build/build.mjs";
 
-const APP = new JSDOM(
-  readFileSync(new URL("../src/index.html", import.meta.url), "utf8"),
-).window.document;
+// The generated page is the canonical artifact; the hand-authored
+// src/index.html is retired at the end of the migration (BLUEPRINT §12.2
+// deviation 16).
+const APP = new JSDOM(build().html).window.document;
 
 /** Canonical section headings in display order (BLUEPRINT §6.2). */
 const EXPECTED_SECTIONS = [

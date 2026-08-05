@@ -25,9 +25,10 @@ export function build() {
   return { html, tokens, roles, cfg, version };
 }
 
-// CLI entry: node scripts/build.mjs <out-dir>
+// CLI entry: node scripts/build.mjs <out-dir>. The argv[1] guard keeps the
+// CLI inert when the module is imported by tests (build.test.js).
 const [, , outArg] = process.argv;
-if (outArg) {
+if (outArg && process.argv[1]?.endsWith("build.mjs")) {
   const outDir = resolve(outArg);
   const { html, tokens, roles } = build();
   mkdirSync(join(outDir, "css"), { recursive: true });

@@ -97,6 +97,7 @@ export function buildMatcher() {
               element: item.element,
               article: item.article,
               button: item.button,
+              popover: item.popover,
               hidden:
                 active &&
                 !nameMatch &&
@@ -109,6 +110,14 @@ export function buildMatcher() {
                     `<b class="${HIGHLIGHT_CLASS}">$1</b>`,
                   )
                 : item.text,
+              // A note-only match bolds the terms inside the popover; any
+              // other state restores the original plain text (§7.5).
+              noteHtml: noteMatch
+                ? item.noteHtml.replace(
+                    itemRegex,
+                    `<b class="${HIGHLIGHT_CLASS}">$1</b>`,
+                  )
+                : item.noteHtml,
               noteMatch,
             };
           });
@@ -168,8 +177,13 @@ export function applyPlan(document, plan) {
       column.items.forEach((item) => {
         item.element.classList.toggle("hidden", item.hidden);
         // Only the article text span is re-rendered; the note button and
-        // popover are untouched siblings, so they survive filtering.
+        // popover are untouched siblings, so the popover's open/pinned
+        // state survives filtering (§7.5). The popover's content is
+        // re-rendered from the plan so a note-only match can bold terms.
         if (item.article) item.article.innerHTML = item.html;
+        if (item.popover && item.noteHtml !== null) {
+          item.popover.innerHTML = item.noteHtml;
+        }
         if (item.button) {
           item.button.classList.toggle("is-match", !!item.noteMatch);
         }
@@ -220,6 +234,11 @@ function captureContent(document) {
                 element: li,
                 article,
                 button,
+                popover: noteEl,
+                // The popover's content is plain text; the original string is
+                // captured for exact restore once a match has bolded it
+                // (§7.2.3, deviation 17).
+                noteHtml: noteEl ? noteEl.innerHTML : null,
                 text,
                 note,
                 group: activeGroup,
