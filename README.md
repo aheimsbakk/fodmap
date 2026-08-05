@@ -170,6 +170,15 @@ npm run build
 
 Kjør `./scripts/build.sh --help` for full bruksanvisning.
 
+### Publisering
+
+GitHub Actions publiserer siden til GitHub Pages hver gang du pusher til
+`main`. Byggetrinnet genererer `index.html`, `css/tokens.css` og
+`css/roles.css` fra innholdet i `data/` før publisering. Den publiserte
+siden er derfor alltid bygget fra siste innhold, selv om de genererte
+filene i `src/` er utdaterte. Arbeidsflyten ligger i
+`.github/workflows/deploy-pages.yml`.
+
 ### Tekniske valg
 
 - Ren HTML, CSS og JavaScript med tre moduler (`search.js`,

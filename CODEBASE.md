@@ -20,7 +20,7 @@ work/
 ├── VERSION                      # app version; substituted into the footer at build time
 ├── .github/
 │   └── workflows/
-│       └── deploy-pages.yml     # GitHub Pages deploy of src/ (on push to main)
+│       └── deploy-pages.yml     # GitHub Pages: build from data/ + deploy src/ (on push to main)
 ├── opencode.json
 ├── .opencode/                   # agent configuration and skills
 ├── .gitignore
@@ -35,7 +35,7 @@ work/
 │   ├── data-lifecycle.md        # user guide: yearly data update and release lifecycle
 │   └── memory/                  # session memory (skill-managed)
 ├── README.md                    # project overview, quick start, script docs — in Norwegian
-├── src/                         # the site; deployed as-is by the Pages workflow
+├── src/                         # the site; the Pages workflow rebuilds it from data/ and deploys it
 │   ├── index.html               # entry point; build-generated from config + data
 │   ├── css/
 │   │   ├── tokens.css           # GENERATED color tokens; typography/sizes/effects static
@@ -257,11 +257,14 @@ pair. The three modules share no state and boot independently.
   component rules stay hand-authored and never restate a config-owned
   color, so extra groups/sections need zero new stylesheet code.
 - **Generated files are committed in the site.** `build.mjs` writes
-  directly into `src/` and the three artifacts are committed, so the
-  deployed site (uploaded as-is by the Pages workflow) needs no build
-  step. Regenerate with `./scripts/build.sh` (runs the build, formats
-  the three artifacts with prettier, and prints a summary) and commit
-  the regenerated files.
+  directly into `src/` and the three artifacts are committed, so a plain
+  checkout of the repo is already a runnable site. The Pages workflow
+  additionally regenerates the artifacts from `data/` before deploying
+  (`.github/workflows/deploy-pages.yml`), so the published site always
+  matches the latest content even if a commit was made without running
+  the build. Regenerate locally with `./scripts/build.sh` (runs the
+  build, formats the three artifacts with prettier, and prints a
+  summary) and commit the regenerated files.
 
 ### 5.2 JavaScript
 
