@@ -14,13 +14,13 @@ the **items**.
 
 The file lives at `data/config.json`, next to the release folders.
 
-Config.json has seven parts:
+Config.json has eight parts:
 
 | Part             | Holds                                         | Used by                     |
 | ---------------- | --------------------------------------------- | --------------------------- |
 | `schema`         | the format version                            | readers of the file         |
 | `collation`      | the sorting language                          | alphabetical order          |
-| `page`           | head, search, banner, colors, footer          | the page shell              |
+| `page`           | head, search, banner, colors, footer, markers | the page shell              |
 | `sections`       | the 11 categories                             | section headings and icons  |
 | `groups`         | the role columns (e.g. SPIS, BEGRENSE, UNNGÅ) | role labels, emojis, colors |
 | `subgroups`      | group headings inside columns                 | headings like "Ost"         |
@@ -195,6 +195,30 @@ The footer text lives in `page.footer.lines`. Each line has a
 `{ "text", "url" }` link. The first line is the bold disclaimer. Edit
 the segments to change the text; keep the URL values correct. `{{version}}`
 in a segment is replaced with the app version automatically.
+
+### 4.11 Change the release-marker emojis
+
+Items changed by the newest release folder show a marker instead of the
+usual bullet (see `data-format.md` §7.4). The glyphs live in
+`page.markers`:
+
+```json
+"markers": {
+  "default": "🔸",
+  "new": "🆕",
+  "moved": "🔄",
+  "updated": "🆙"
+}
+```
+
+- `default` is the plain bullet shown on every unchanged item.
+- `new` marks items added in the newest release.
+- `moved` marks items moved to a new group (column).
+- `updated` marks items changed in place.
+
+Change a value to use another glyph. Values are optional: a missing key
+falls back to the default. The markers only apply to items present in
+the **newest** release folder; older deltas never get a marker.
 
 ## 5. Before you save
 

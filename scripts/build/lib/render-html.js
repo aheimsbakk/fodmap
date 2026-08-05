@@ -56,10 +56,14 @@ function itemText(item) {
 
 function renderItem(it) {
   const text = itemText(it);
+  // data-change selects the marker bullet (§6.6): the emoji lives in the CSS
+  // tokens (--marker-*), so the live text node stays plain and search is
+  // unaffected, exactly like the note-button glyph (§4.6).
+  const change = it.change ? ` data-change="${it.change}"` : "";
   // The button stays empty: the info glyph and its "matched" variant come
   // from the CSS tokens (--info-emoji / --info-emoji-matched), so the live
   // text node never changes and search restore is unaffected (§4.6).
-  let html = `              <li class="item">`;
+  let html = `              <li class="item"${change}>`;
   html += `<span class="item-text">${esc(text)}</span>`;
   if (it.note) {
     html += ` <button type="button" class="note-toggle" aria-label="Mer informasjon"></button>`;

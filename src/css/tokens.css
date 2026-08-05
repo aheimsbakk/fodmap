@@ -84,6 +84,12 @@
   --info-button-border-radius: 50%;
   --info-button-margin-left: 0.4rem;
 
+  /* change-marker glyphs (generated from config page.markers) */
+  --marker-default: "🔸";
+  --marker-new: "🆕";
+  --marker-moved: "🔄";
+  --marker-updated: "🆙";
+
   /* §4.2 typography — static */
   --font-system:
     system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,

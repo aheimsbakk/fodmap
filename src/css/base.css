@@ -53,12 +53,34 @@ li.item {
   overflow-wrap: anywhere;
 }
 
-/* ❖ (U+2756) bullet anchored at the list item's left edge. */
+/* Default item bullet anchored at the list item's left edge. The shape is
+   configurable: --marker-default is written by the build from
+   page.markers.default (a text glyph or emoji). */
 li.item::before {
-  content: "\2756";
+  content: var(--marker-default);
   position: absolute;
   left: 0;
   top: 0;
   font-size: 0.7rem;
   color: var(--color-heading-ink);
+}
+
+/* Change markers (§6.6): an item merged from the newest release swaps the
+   default bullet for a config-driven emoji. The glyph comes from the
+   --marker-* tokens (written by the build from page.markers), so a
+   maintainer can restyle it in config.json without touching CSS. The
+   marker is slightly larger than the default bullet so the emoji reads at
+   a glance; the item text node itself stays plain and searchable. */
+li.item[data-change]::before {
+  font-size: 0.9rem;
+  color: inherit;
+}
+li.item[data-change="new"]::before {
+  content: var(--marker-new);
+}
+li.item[data-change="moved"]::before {
+  content: var(--marker-moved);
+}
+li.item[data-change="updated"]::before {
+  content: var(--marker-updated);
 }

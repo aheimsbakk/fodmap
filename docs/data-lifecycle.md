@@ -67,6 +67,13 @@ Build the page from the merged data and deploy it (the build step is a
 later concern; see `data-format.md` §10). The release folder stays in the
 repository as history.
 
+Everything you changed in the newest release folder is marked
+automatically on the page: new items get a 🆕 marker, items moved to a
+new group get 🔄, and changed items get 🆙. You do not mark anything by
+hand — the marker follows from the file being in the newest folder
+(see `data-format.md` §7.4). The emojis are set in `config.json`
+(`config-guide.md` §4.11).
+
 ## 3. Everyday tasks
 
 ### 3.1 Change which group an item is in

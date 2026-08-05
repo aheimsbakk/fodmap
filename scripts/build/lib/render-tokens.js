@@ -100,6 +100,17 @@ export function renderTokens(cfg) {
     `  --info-button-margin-left: ${ib["margin-left"] || "0.4rem"};`,
   ].join("\n");
 
+  // Change-marker glyphs (§4.7, §6.6): the values come from page.markers and
+  // fall back to the canonical emojis when a key is missing. --marker-default
+  // is the plain item bullet (no release change), sourced from the same block.
+  const markers = cfg.page.markers || {};
+  const markerLines = [
+    `  --marker-default: "${markers.default || "❖"}";`,
+    `  --marker-new: "${markers.new || "🆕"}";`,
+    `  --marker-moved: "${markers.moved || "🔄"}";`,
+    `  --marker-updated: "${markers.updated || "🆙"}";`,
+  ].join("\n");
+
   return `/* tokens.css — design tokens: colors, typography, sizes, z-order, sticky
    offsets, effects (BLUEPRINT §4). Generated: color values from config.json;
    typography, sizes, z-order, and effects are static literals. */
@@ -125,6 +136,9 @@ ${sectionLines}
 
   /* info-button tokens (generated from config page.info-button) */
 ${infoLines}
+
+  /* change-marker glyphs (generated from config page.markers) */
+${markerLines}
 
   /* §4.2 typography — static */
   --font-system:

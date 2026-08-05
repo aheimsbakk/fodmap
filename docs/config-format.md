@@ -57,6 +57,7 @@ entries (label + emoji + colors).
 | `info-banner` | object | yes      | `{ emoji, text, text-color }` BEGRENSE note    |
 | `colors`      | object | yes      | page-level color tokens (below)                |
 | `footer`      | object | yes      | footer colors + lines (below)                  |
+| `markers`     | object | no       | change-marker emojis (below)                   |
 
 `head`:
 
@@ -115,6 +116,24 @@ Each `segments` entry is one of:
 
 Segments are joined with the line's `separator`. A `{{version}}`
 placeholder in any segment is substituted from the `VERSION` file.
+
+**3.1.2 Change markers**
+
+`page.markers` holds the item bullet glyphs. `default` is the plain
+bullet every item shows when nothing changed in the newest release.
+`new`, `moved`, and `updated` are the emoji that replace it on items
+merged from the newest release folder (`data-format.md` §7.4): `new`
+marks items added, `moved` marks items moved to a new group, and
+`updated` marks items changed in place. All values are optional; the
+build falls back to the canonical glyphs (❖, 🆕, 🔄, 🆙) when a key is
+missing.
+
+| Field     | Type   | Required | Meaning                                   |
+| --------- | ------ | -------- | ----------------------------------------- |
+| `default` | string | no       | plain bullet (no release change)          |
+| `new`     | string | no       | emoji for items new in the newest release |
+| `moved`   | string | no       | emoji for items moved to a new group      |
+| `updated` | string | no       | emoji for items updated in place          |
 
 ### 3.2 Sections
 
@@ -254,6 +273,12 @@ current sections, groups, subgroups, and the complete `page` block).
           ]
         }
       ]
+    },
+    "markers": {
+      "default": "🔸",
+      "new": "🆕",
+      "moved": "🔄",
+      "updated": "🆙"
     }
   },
   "sections": [

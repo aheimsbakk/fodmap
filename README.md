@@ -6,7 +6,8 @@ app og ingen innlogging.
 
 ## Hva siden gjør
 
-- Viser 484 matvarer i 11 kategorier, merket SPIS, BEGRENSE eller UNNGÅ.
+- Viser 510 matvarer i 11 kategorier, merket SPIS, BEGRENSE eller UNNGÅ.
+- Merker matvarer som er nye, flyttet eller oppdatert i siste oppdatering.
 - Lar deg søke: matvarer og kategorier uten treff skjules, og treffene utheves.
 - Lar deg øke tekststørrelsen.
 - Tilpasser seg skjermen: én kolonne på mobil, tre kolonner på større skjermer.
@@ -61,6 +62,18 @@ og 150 prosent. Valget ditt huskes neste gang du åpner siden.
 
 På store skjermer vises tegnforklaringen øverst på siden. På mobil vises
 merkelappen over innholdet i hver kolonne.
+
+### Forstå oppdateringsmerkene
+
+Etter en oppdatering bærer de endrede matvarene en egen merkeplass foran
+navnet:
+
+- 🆕 – matvaren er ny i oppdateringen.
+- 🔄 – matvaren har flyttet til en annen kolonne (for eksempel fra
+  BEGRENSE til SPIS).
+- 🆙 – innholdet i matvaren er oppdatert, for eksempel mengden.
+
+Matvarer som ikke er endret, har den vanlige merkeplassen.
 
 ## Innhold og kilde
 

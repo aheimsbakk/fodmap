@@ -1,10 +1,12 @@
 // build.mjs — generate index.html, css/tokens.css, css/roles.css from
-// config.json + data. During the spike it writes to a directory OUTSIDE src so
-// the output can be diffed against the hand-authored files before the blueprint
-// is updated.
+// config.json + data. It writes the three generated artifacts directly into
+// the site directory (BLUEPRINT §12.2 deviation 16): merge the release
+// folders oldest → newest, then render the document and the two generated
+// stylesheet layers. The hand-authored document was retired at the end of
+// the migration.
 import { mkdirSync, writeFileSync, readFileSync } from "fs";
 import { resolve, join } from "path";
-import { loadItems } from "./lib/merge.js";
+import { listReleases, loadItems } from "./lib/merge.js";
 import { renderDocument } from "./lib/render-html.js";
 import { renderTokens } from "./lib/render-tokens.js";
 import { renderRoleSectionCss } from "./lib/render-css.js";
@@ -17,7 +19,13 @@ export function build() {
   );
   const version = readFileSync(join(ROOT, "VERSION"), "utf8").trim();
   const sections = new Set(cfg.sections.map((s) => s.id));
-  const items = loadItems([join(ROOT, "data", "2021")], sections);
+  const releaseDirs = listReleases(join(ROOT, "data"));
+  if (releaseDirs.length === 0) {
+    throw new Error(
+      "No release folders found under data/ (expected YYYY, YYYY-MM, or YYYY-MM-DD folders)",
+    );
+  }
+  const items = loadItems(releaseDirs, sections);
 
   const html = renderDocument(cfg, items, version);
   const tokens = renderTokens(cfg);
@@ -25,8 +33,8 @@ export function build() {
   return { html, tokens, roles, cfg, version };
 }
 
-// CLI entry: node scripts/build.mjs <out-dir>. The argv[1] guard keeps the
-// CLI inert when the module is imported by tests (build.test.js).
+// CLI entry: node scripts/build/build.mjs <out-dir>. The argv[1] guard keeps
+// the CLI inert when the module is imported by tests (build.test.js).
 const [, , outArg] = process.argv;
 if (outArg && process.argv[1]?.endsWith("build.mjs")) {
   const outDir = resolve(outArg);

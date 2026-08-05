@@ -287,7 +287,26 @@ newest**.
 ### 7.3 Body accumulation
 
 The body is **prepended**: the newest note goes on top, older notes
-remain below. Notes are append-only; editing history is forbidden.
+remain below, separated by a blank line. Notes are append-only; editing
+history is forbidden.
+
+### 7.4 Change markers
+
+The build derives a change marker for every item whose file is present
+in the **newest** release folder. The marker is not stored in the data;
+it answers "what did the newest release change?":
+
+| Marker    | Condition                                                                                        |
+| --------- | ------------------------------------------------------------------------------------------------ |
+| `new`     | the item's file does not exist in any earlier release                                            |
+| `moved`   | the item's merged `group` differs from the one it had before the newest release                  |
+| `updated` | `group` unchanged, but `name`, `amount`, `subgroup`, `visible`, `note`, or `attribution` differs |
+| (none)    | the item is absent from the newest release, or the newest file changes nothing                   |
+
+An item with a marker renders with a marker emoji instead of the default
+bullet (BLUEPRINT §6.6). The glyphs — including the default bullet — are
+configurable in `page.markers` (`config-format.md` §3.1). Changes made in
+an earlier delta — but left alone by the newest release — are never marked.
 
 ## 8. Release folders and sorting
 

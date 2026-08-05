@@ -42,7 +42,8 @@ Provide a static, dependency-free single-page app that:
 - Text-size toggle: a control in the search widget that cycles the content
   text size through 100 % / 125 % / 150 % (see §12.2 deviation 9).
 - Content pipeline: release data under `data/` (config + item files),
-  the oldest→newest merge rules (§6.3), and the developer-time build
+  the oldest→newest merge rules (§6.3), the derived change markers for
+  items present in the newest release (§6.6), and the developer-time build
   step that generates the page.
 - Automated tests for the search engine, the text-size toggle, the content
   pipeline, and content parity.
@@ -249,6 +250,21 @@ button's live text node never changes, so search restore is unaffected.
 The button renders without a border and without a hover ring; keyboard
 focus keeps a visible outline via `:focus-visible` only (deviation 17).
 
+### 4.7 Change-marker tokens
+
+The item bullets are config-driven: `page.markers` in the config file is
+written into the token layer by the build step, exactly like the
+note-button glyphs (§4.6). `default` is the plain bullet every item shows
+when nothing changed in the newest release; `new` / `moved` / `updated`
+are the release-change markers of §6.6.
+
+| Token              | Default | Use                                        |
+| ------------------ | ------- | ------------------------------------------ |
+| `--marker-default` | `❖`     | plain item bullet (no release change)      |
+| `--marker-new`     | `🆕`    | bullet for items new in the newest release |
+| `--marker-moved`   | `🔄`    | bullet for items moved to a new group      |
+| `--marker-updated` | `🆙`    | bullet for items updated in place          |
+
 ## 5. Layout and Responsive Behavior
 
 ### 5.1 Page shell
@@ -308,9 +324,13 @@ Full width, white background, 2 px solid black border, 0.25 rem padding,
     but the last column. Mobile labels hidden. Legend above the grid carries
     the role names.
   - Each column's background carries its role tint (§4.1) at every width.
-- Item list: no list markers; each item prefixed by a ❖ bullet (U+2756)
+- Item list: no list markers; each item prefixed by a default bullet
+  (`page.markers.default`, the ❖ U+2756 text glyph unless overridden)
   positioned at the left edge; items 0.85 rem, line-height 1.2, 0.25 rem
-  bottom margin.
+  bottom margin. Items merged from the newest release replace the bullet
+  with their change marker emoji (§6.6, §4.7): a `data-change` attribute
+  on the `li` swaps the `::before` content via CSS, so the item text node
+  stays plain and search behavior is unchanged (deviation 3).
 - Item structure: primary text plus optional parenthesized portion note.
   All notes are inline plain text; there is no small-print styling
   (see §12.2 deviation 3).
@@ -328,8 +348,9 @@ Full width, white background, 2 px solid black border, 0.25 rem padding,
 
 ### 5.7 Empty placeholder columns
 
-Three sections reserve empty columns to keep the 3-column rhythm:
+Four sections reserve empty columns to keep the 3-column rhythm:
 
+- Nøtter og frø: column 2 (BEGRENSE) is empty, rendered wide+ only.
 - Kjøtt, egg, fisk: columns 2 and 3 are empty, rendered wide+ only.
 - Pålegg: column 2 is empty, rendered wide+ only.
 - Krydder og urter: column 2 is empty, rendered wide+ only.
@@ -401,6 +422,11 @@ Item (one file; the filename is the stable slug id)
 ├─ attribution             (optional source URL(s))
 └─ note                    (optional reasoning note, append-only body)
 
+Derived item state (build-time, from the merge, §6.3):
+└─ change                  (optional marker: "new" / "moved" / "updated",
+                             or absent — how the item changed in the newest
+                             release, if its file is present there; §6.6)
+
 Section (derived, one per config section with items)
 ├─ heading                 (icon + title, per-section color)
 ├─ columns                 (one per config group, in array order)
@@ -419,7 +445,9 @@ oldest → newest:
 4. `visible: false` removes the item from the page; `visible: true`
    restores it.
 5. The note body accumulates: the newest note is prepended above older
-   ones; notes are append-only.
+   ones, separated by a blank line; notes are append-only.
+6. The `change` marker is derived for items whose file is present in the
+   newest release folder (§6.6); it never comes from the data files.
 
 ### 6.4 Column layout derivation
 
@@ -435,22 +463,58 @@ Counts are item totals per column (main list + sub-groups), and sub-group
 count per column. These are frozen parity assertions, verified against the
 merged data and the generated page (§13.2).
 
-| #   | Section                              | Icon        | Columns (SPIS / BEGRENSE / UNNGÅ)           | Footnotes |
-| --- | ------------------------------------ | ----------- | ------------------------------------------- | --------- |
-| 1   | Brød, ris og pasta                   | wheat       | 20 / 7 / 19                                 | VIKTIG    |
-| 2   | Grønnsaker og belgfrukter            | carrot      | 46+4 sub (1) / 13+6 sub (1) / 14+8 sub (1)  | —         |
-| 3   | Frukt, tørket frukt og bær           | apple       | 25+2 sub (1) / 10+1 sub (1) / 13+10 sub (1) | —         |
-| 4   | Melk, meieriprodukter & alternativer | cow         | 3+17 sub (2) / 2+5 sub (2) / 10+2+1 sub (3) | —         |
-| 5   | Nøtter og frø                        | seedling    | 12 / 2 / 2                                  | —         |
-| 6   | Drikke                               | mug         | 16 / 5 / 12                                 | —         |
-| 7   | Kjøtt, egg, fisk                     | drumstick   | 9 / empty / empty                           | MARINADER |
-| 8   | Pålegg                               | bread slice | 35 over 6 sub / empty / 11                  | —         |
-| 9   | Sukker, søtning og annet             | cubes       | 11+5+10 sub (2) / 3 / 10+8+6 sub (2)        | TIPS      |
-| 10  | Krydder og urter                     | pepper      | 17+20 sub (2) / empty / 8                   | TIPS      |
-| 11  | Smakstilsetning, saus, dressing      | droplet     | 29 / 6 / 9                                  | —         |
+| #   | Section                              | Icon        | Columns (SPIS / BEGRENSE / UNNGÅ)          | Footnotes |
+| --- | ------------------------------------ | ----------- | ------------------------------------------ | --------- |
+| 1   | Brød, ris og pasta                   | wheat       | 25 / 5 / 25                                | VIKTIG    |
+| 2   | Grønnsaker og belgfrukter            | carrot      | 49+5 sub (1) / 8+4 sub (1) / 17+11 sub (1) | —         |
+| 3   | Frukt, tørket frukt og bær           | apple       | 24+2 sub (1) / 9 / 18+12 sub (1)           | —         |
+| 4   | Melk, meieriprodukter & alternativer | cow         | 0+25 sub (3) / 0+3 sub (2) / 0+14 sub (3)  | —         |
+| 5   | Nøtter og frø                        | seedling    | 13 / empty / 5                             | —         |
+| 6   | Drikke                               | mug         | 16 / 5 / 12                                | —         |
+| 7   | Kjøtt, egg, fisk                     | drumstick   | 9 / empty / empty                          | MARINADER |
+| 8   | Pålegg                               | bread slice | 0+35 sub (6) / empty / 11                  | —         |
+| 9   | Sukker, søtning og annet             | cubes       | 12+16 sub (2) / 2 / 10+17 sub (2)          | TIPS      |
+| 10  | Krydder og urter                     | pepper      | 0+37 sub (2) / empty / 10                  | TIPS      |
+| 11  | Smakstilsetning, saus, dressing      | droplet     | 29 / 6 / 9                                 | —         |
 
-Total item count: 484 (excluding sub-group headings, mobile labels, and
+The "bare+sub (N)" notation reads "x items without a subgroup, y items
+inside the N sub-group headings shown". Counts include the 2025-05
+release, merged oldest → newest (§6.3): 29 items added, 31 moved to a
+new group, 3 removed (`visible: false`), and 1 updated in place.
+
+Total item count: 510 (excluding sub-group headings, mobile labels, and
 empty placeholder columns).
+
+### 6.6 Change markers (derived)
+
+An item whose file is present in the **newest** release folder carries a
+change marker: a config-driven emoji that replaces the item's default
+bullet (rendering in §5.6, tokens in §4.7, config in the `data/config.json`
+`page.markers` block; the block also sets the default bullet itself).
+Items absent from the newest folder — including a
+change made in an earlier delta that the newest release left alone — are
+never marked: the marker answers "what did the latest release change?",
+not "what changed over all of history".
+
+Classification compares the item's state after the second-to-last release
+with its state after the newest release:
+
+| Marker    | Meaning                                                                                                     |
+| --------- | ----------------------------------------------------------------------------------------------------------- |
+| `new`     | the item's file does not exist in any earlier release                                                       |
+| `moved`   | the item's merged `group` differs from the one it had before the newest release                             |
+| `updated` | no group change, but another field differs (`name`, `amount`, `subgroup`, `visible`, `note`, `attribution`) |
+| absent    | the item's file is not in the newest release, or the newest file changes nothing                            |
+
+Only one marker applies per item; the priority is `new` > `moved` >
+`updated`. The marker is build-time derived state (BLUEPRINT §6.3 rule 6)
+and lives on the item object, never in the data files.
+A data tree with a single release folder (a baseline with no delta) has
+no earlier state to compare against, so it renders **no** markers: there
+is nothing for the "newest release" to have changed relative to.
+
+The 2025-05 release yields 29 `new`, 31 `moved`, and 1 `updated` marker
+on the rendered page; the content tests assert these counts (§13.4).
 
 ## 7. State Management
 
@@ -578,7 +642,8 @@ Transitions:
 ```
 # Build time (developer)
 config + release folders ──> merge oldest→newest (inherit, clear, remove,
-      prepend) ──> render index.html + tokens.css + roles.css ──> static site
+      prepend, derive change markers) ──> render index.html + tokens.css +
+      roles.css ──> static site
 
 # Runtime (browser)
 input change ──> debounce 300 ms ──> normalize (lowercase + trim)
@@ -754,8 +819,8 @@ are intentional and must stay unchanged.
 | §2 BEGRENSE | Squash (0,75 dl)                                                   |
 | §3 SPIS     | Banan i biter (15 stk)                                             |
 | §3 BEGRENSE | Avokado (1/8 av en hel)                                            |
-| §3 BEGRENSE | Blåbær, amerikanske og hvite inni (40 gram)                        |
-| §3 BEGRENSE | Tranebær (1 ss)                                                    |
+| §3 SPIS     | Blåbær, amerikanske og hvite inni                                  |
+| §3 SPIS     | Tranebær                                                           |
 | §4 heading  | Melk, meieriprodukter & alternativer                               |
 | §4 BEGRENSE | Kokosmelk (0,6 dl)                                                 |
 | §4 UNNGÅ    | Rømme                                                              |
@@ -768,6 +833,11 @@ are intentional and must stay unchanged.
 | §10 SPIS    | Bukkehornkløver/methi                                              |
 | §10 SPIS    | Cayennepepper                                                      |
 | §11 UNNGÅ   | Kjøttbuljong (Maggi)                                               |
+
+The 2025-05 release moved both `Blåbær, amerikanske og hvite inni`
+(formerly BEGRENSE, `40 gram`) and `Tranebær` (formerly BEGRENSE, `1 ss`)
+to SPIS and cleared their portion notes, so the two §3 rows above no
+longer carry an amount.
 
 ### 12.2 Design decisions and behavior notes
 
@@ -884,6 +954,18 @@ are intentional and must stay unchanged.
     note now bolds the matched terms inside the popover, restoring the
     plain text on IDLE; the matched glyph (§4.6) and the popover's
     open/pinned state are untouched (§7.5).
+18. Items merged from the newest release carry a change marker bullet
+    (user request, 2026-08-05): the default bullet is replaced by a
+    config-driven emoji — 🆕 for items new in the newest release, 🔄 for
+    items moved to a new group, 🆙 for items updated in place. The glyphs
+    are configurable in `data/config.json` (`page.markers`) and written
+    into the token layer (§4.7). The marker applies only to items whose
+    file is present in the newest release folder; a change in an earlier
+    delta is history, not a marker (§6.6). Detection is derived at build
+    time; rendering is a `::before` swap driven by a `data-change`
+    attribute, so the item text node stays plain and search behaves
+    exactly as before (deviation 3). For the 2025-05 release this marks
+    29 new, 31 moved, and 1 updated item (§6.5).
 
 ### 12.3 Negative contracts
 
@@ -941,7 +1023,7 @@ Text-size toggle (§7.4):
 
 - Section count (11), heading order, and heading text equal to the
   canonical inventory in §6.5 and §12.1.
-- Per-column item counts equal to §6.5 (total 484).
+- Per-column item counts equal to §6.5 (total 510).
 - The canonical spellings in §12.1 are present verbatim in the data files
   and in the generated markup.
 
@@ -964,6 +1046,11 @@ Cover the merge and render pipeline:
 - Merge: baseline + deltas produce the expected per-item state; absent
   fields inherit, explicit empty clears, `visible: false` removes,
   `visible: true` restores, notes prepend oldest → newest (§6.3).
+- Change markers (§6.6): an item present in the newest release classifies
+  as `new` / `moved` / `updated`; a change in an earlier delta is not
+  marked when the item is absent from the newest release; the rendered
+  page carries 29 `new`, 31 `moved`, and 1 `updated` marker, and the
+  token layer reproduces the config `page.markers` glyphs (§4.7).
 - Render: the generated document contains exactly the sections, columns,
   items, and footnote banners of §6.5, the config-driven legend, and the
   three module scripts; the generated token and role CSS reproduce the
@@ -976,12 +1063,15 @@ Cover the merge and render pipeline:
 
 The stylesheet layer structure (physical files mapped in `CODEBASE.md`):
 
-1. Tokens: color palette, typography, sizes, z-order, shadows, breakpoints.
-   Color values are generated from the config file at build time; the
-   static tokens (typography, sizes, z-order, effects) stay hand-authored.
+1. Tokens: color palette, typography, sizes, z-order, shadows, breakpoints,
+   plus the change-marker glyphs (§4.7). Color values and marker glyphs are
+   generated from the config file at build time; the static tokens
+   (typography, sizes, z-order, effects) stay hand-authored.
 2. Roles: per-group and per-section color rules, generated from the config
    arrays so the page supports an arbitrary number of groups and sections.
-3. Base: reset, body typography, list normalization.
+3. Base: reset, body typography, list normalization, and the item bullet —
+   the configurable default (from `page.markers`, §4.7) plus the
+   `data-change` marker swap (§4.7, §6.6).
 4. Layout: page shell, container, grid system, sticky behavior.
 5. Components: masthead, search widget, labels, banners, headings, columns,
    lists, sub-groups, note affordance, decorations, footer.

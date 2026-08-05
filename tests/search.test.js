@@ -96,16 +96,14 @@ test("matching is case-insensitive substring containment", async () => {
 
 test("portion notes participate in matching", async () => {
   const dom = setup();
-  type(dom, "40 gram");
+  type(dom, "15 stk");
   await settle();
 
+  // The amount only appears in the portion note, not the article name.
   assert.ok(
-    !itemByText(
-      dom,
-      "Blåbær, amerikanske og hvite inni (40 gram)",
-    ).classList.contains("hidden"),
+    !itemByText(dom, "Banan i biter (15 stk)").classList.contains("hidden"),
   );
-  assert.ok(itemByText(dom, "Kinakål (75 gram)").classList.contains("hidden"));
+  assert.ok(itemByText(dom, "Banan, umoden").classList.contains("hidden"));
 });
 
 // --- note affordance (§7.2.3, §7.5, deviation 17) ------------------------------
@@ -426,7 +424,9 @@ test("empty placeholder columns are never touched", async () => {
   const emptyCols = dom.window.document.querySelectorAll(
     ".content-col[data-placeholder]",
   );
-  assert.equal(emptyCols.length, 4);
+  // Kjøtt (2), Pålegg (1), Krydder (1), and Nøtter (1, empty after the
+  // 2025-05 moves) §5.7.
+  assert.equal(emptyCols.length, 5);
   for (const col of emptyCols) {
     // Placeholders carry the positional role (for the tint) but never
     // search state: no hidden toggle, no items, no mobile label, and no
@@ -446,11 +446,15 @@ test("regex metacharacters in the query are inert", async () => {
   type(dom, "(1 ss)");
   await settle();
 
-  assert.ok(!itemByText(dom, "Tranebær (1 ss)").classList.contains("hidden"));
   assert.ok(
     !itemByText(dom, "Sirup, Kokos/treacle (1 ss)").classList.contains(
       "hidden",
     ),
+  );
+  // "(1 ss)" is not a substring of "(mer enn 1 ss)", so the parens stay
+  // literal and this item stays hidden.
+  assert.ok(
+    itemByText(dom, "Pesto (mer enn 1 ss)").classList.contains("hidden"),
   );
 
   type(dom, "b[r]");

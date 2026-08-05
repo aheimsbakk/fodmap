@@ -29,18 +29,19 @@ const EXPECTED_SECTIONS = [
   "Smakstilsetning, saus, dressing",
 ];
 
-/** Per-column item totals (main lists + sub-groups), BLUEPRINT §6.2. */
+/** Per-column item totals (main lists + sub-groups), BLUEPRINT §6.5 — the
+ *  merged state, baseline + 2025-05 delta. */
 const EXPECTED_COUNTS = [
-  [20, 7, 19], // 1 Brød, ris og pasta
-  [50, 19, 22], // 2 Grønnsaker og belgfrukter
-  [27, 11, 23], // 3 Frukt, tørket frukt og bær
-  [20, 7, 13], // 4 Melk, meieriprodukter & alternativer
-  [12, 2, 2], // 5 Nøtter og frø
+  [25, 5, 25], // 1 Brød, ris og pasta
+  [54, 12, 28], // 2 Grønnsaker og belgfrukter
+  [26, 9, 30], // 3 Frukt, tørket frukt og bær
+  [25, 3, 14], // 4 Melk, meieriprodukter & alternativer
+  [13, 0, 5], // 5 Nøtter og frø
   [16, 5, 12], // 6 Drikke
   [9, 0, 0], // 7 Kjøtt, egg, fisk
   [35, 0, 11], // 8 Pålegg
-  [26, 3, 24], // 9 Sukker, søtning og annet
-  [37, 0, 8], // 10 Krydder og urter
+  [28, 2, 27], // 9 Sukker, søtning og annet
+  [37, 0, 10], // 10 Krydder og urter
   [29, 6, 9], // 11 Smakstilsetning, saus, dressing
 ];
 
@@ -58,8 +59,8 @@ const CANONICAL_SPELLINGS = [
   "Squash (0,75 dl)",
   "Banan i biter (15 stk)",
   "Avokado (1/8 av en hel)",
-  "Blåbær, amerikanske og hvite inni (40 gram)",
-  "Tranebær (1 ss)",
+  "Blåbær, amerikanske og hvite inni",
+  "Tranebær",
   "Melk, meieriprodukter & alternativer",
   "Kokosmelk (0,6 dl)",
   "Rømme",
@@ -109,7 +110,7 @@ test("page has 11 sections in the canonical heading order", () => {
   assert.deepEqual(sectionHeadings(), EXPECTED_SECTIONS);
 });
 
-test("per-column item counts match BLUEPRINT §6.2 (total 484)", () => {
+test("per-column item counts match BLUEPRINT §6.5 (total 510)", () => {
   const sections = APP.querySelectorAll("section.category-section");
   assert.equal(sections.length, EXPECTED_COUNTS.length);
 
@@ -128,7 +129,7 @@ test("per-column item counts match BLUEPRINT §6.2 (total 484)", () => {
     });
   });
   assert.equal(total, TOTAL_ITEMS);
-  assert.equal(total, 484);
+  assert.equal(total, 510);
 });
 
 test("canonical spellings from BLUEPRINT §12.1 appear verbatim", () => {

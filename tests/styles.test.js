@@ -370,3 +370,37 @@ test("category tint bases are removed from the token layer", () => {
   assert.doesNotMatch(TOKEN_ROOT, /--tint-krydder:/);
   assert.doesNotMatch(TOKEN_ROOT, /--tint-saus:/);
 });
+
+// --- change-markers (§4.7, §6.6) -------------------------------------------
+
+test("change-marker tokens exist and the base layer swaps the bullet", () => {
+  // The glyphs are config-driven tokens in the generated token layer.
+  assert.match(TOKENS_CSS, /--marker-default:\s*"🔸";/);
+  assert.match(TOKENS_CSS, /--marker-new:\s*"🆕";/);
+  assert.match(TOKENS_CSS, /--marker-moved:\s*"🔄";/);
+  assert.match(TOKENS_CSS, /--marker-updated:\s*"🆙";/);
+  const baseRules = parseRules(BASE_CSS);
+  // The plain bullet is sourced from --marker-default, not a hardcoded glyph.
+  const plain = baseRules.find((r) => r.selector === "li.item::before");
+  assert.ok(plain, "expected a rule for li.item::before");
+  assert.match(
+    plain.declarations,
+    /content:\s*var\(--marker-default\)/,
+    "the default bullet must source its glyph from --marker-default",
+  );
+  // Each data-change value resolves to its own emoji token in base.css.
+  for (const [value, token] of [
+    ["new", "marker-new"],
+    ["moved", "marker-moved"],
+    ["updated", "marker-updated"],
+  ]) {
+    const selector = `li.item[data-change="${value}"]::before`;
+    const rule = baseRules.find((r) => r.selector === selector);
+    assert.ok(rule, `expected a rule for ${selector}`);
+    assert.match(
+      rule.declarations,
+      new RegExp(`content:\\s*var\\(--${token}\\)`),
+      `${selector} must source its glyph from --${token}`,
+    );
+  }
+});

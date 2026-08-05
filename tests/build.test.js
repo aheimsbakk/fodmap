@@ -1,6 +1,7 @@
 // build.test.js — data and build pipeline tests (BLUEPRINT §13.4): the
 // generated document and token layer reproduce the frozen content inventory
-// and the note-button contract (§4.6, §9.3).
+// and the note-button contract (§4.6, §9.3), plus the change markers of the
+// newest release (§4.7, §6.6).
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -11,14 +12,22 @@ const { html, tokens, cfg } = build();
 const sectionCount = (html.match(/<section class="category-section"/g) || [])
   .length;
 const itemCount = (html.match(/<li class="item"/g) || []).length;
+const markerCount = (kind) =>
+  (html.match(new RegExp(`data-change="${kind}"`, "g")) || []).length;
 const noteButtons =
   html.match(
     /<button type="button" class="note-toggle"[^>]*>[\s\S]*?<\/button>/g,
   ) || [];
 
-test("renders the §6.5 inventory: 11 sections, 484 items", () => {
+test("renders the §6.5 inventory: 11 sections, 510 items", () => {
   assert.equal(sectionCount, 11);
-  assert.equal(itemCount, 484);
+  assert.equal(itemCount, 510);
+});
+
+test("the newest release renders change markers: 29 new, 31 moved, 1 updated (§6.6)", () => {
+  assert.equal(markerCount("new"), 29);
+  assert.equal(markerCount("moved"), 31);
+  assert.equal(markerCount("updated"), 1);
 });
 
 test("renders the six stylesheet layers and three module scripts", () => {
@@ -61,4 +70,12 @@ test("generated token layer reproduces the config info glyphs (§4.6)", () => {
     tokens,
     new RegExp(`--info-emoji-matched: "${info["emoji-matched"]}"`),
   );
+});
+
+test("generated token layer reproduces the config marker glyphs (§4.7)", () => {
+  const markers = cfg.page.markers;
+  assert.match(tokens, new RegExp(`--marker-default: "${markers.default}"`));
+  assert.match(tokens, new RegExp(`--marker-new: "${markers.new}"`));
+  assert.match(tokens, new RegExp(`--marker-moved: "${markers.moved}"`));
+  assert.match(tokens, new RegExp(`--marker-updated: "${markers.updated}"`));
 });

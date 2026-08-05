@@ -84,6 +84,12 @@
       "font-size": "0.75em",
       "border-radius": "50%",
       "margin-left": "0.4rem"
+    },
+    "markers": {
+      "new": "🆕",
+      "moved": "🔄",
+      "updated": "🆙",
+      "default": "🔸"
     }
   },
   "sections": [
