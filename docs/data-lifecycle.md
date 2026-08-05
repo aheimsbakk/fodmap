@@ -66,12 +66,16 @@ New notes go on top. Older notes stay below; never edit them.
 Build the page from the merged data and deploy it:
 
 ```bash
-node scripts/build/build.mjs src
+./scripts/build.sh
 ```
 
-The build writes `index.html`, `css/tokens.css`, and `css/roles.css` into
-`src/`; run `npm run format` and commit the regenerated files with the
-data change. The release folder stays in the repository as history.
+The script builds into `src/`, formats the generated files, and prints
+a summary (version, item and marker counts, written files). It wraps
+`node scripts/build/build.mjs <out-dir>`; pass a different out-dir as
+argument if you want to build elsewhere. The build writes `index.html`,
+`css/tokens.css`, and `css/roles.css` into `src/`; commit the
+regenerated files with the data change. The release folder stays in the
+repository as history.
 
 Everything you changed in the newest release folder is marked
 automatically on the page: new items get a 🆕 marker, items moved to a

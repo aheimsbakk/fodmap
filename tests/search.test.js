@@ -514,9 +514,9 @@ test("Escape clears the search and keeps focus on the input", async () => {
   assert.equal(dom.window.document.activeElement, input(dom));
 });
 
-test("Escape with an empty query leaves the page untouched", async () => {
+test("Escape with an empty query moves focus to the input and changes nothing else", async () => {
   const dom = setup();
-  input(dom).dispatchEvent(
+  dom.window.document.body.dispatchEvent(
     new dom.window.KeyboardEvent("keydown", {
       key: "Escape",
       bubbles: true,
@@ -525,9 +525,10 @@ test("Escape with an empty query leaves the page untouched", async () => {
   await settle();
   assert.equal(input(dom).value, "");
   assert.equal(visibleItems(dom).length, items(dom).length);
+  assert.equal(dom.window.document.activeElement, input(dom));
 });
 
-test("Escape outside the input never clears an active search", async () => {
+test("Escape outside the input clears the search and moves focus to it", async () => {
   const dom = setup();
   type(dom, "whisky");
   await settle();
@@ -539,8 +540,10 @@ test("Escape outside the input never clears an active search", async () => {
     }),
   );
   await settle();
-  assert.equal(input(dom).value, "whisky");
-  assert.ok(!clearButton(dom).classList.contains("hidden"));
+  assert.equal(input(dom).value, "");
+  assert.ok(clearButton(dom).classList.contains("hidden"));
+  assert.equal(visibleItems(dom).length, items(dom).length);
+  assert.equal(dom.window.document.activeElement, input(dom));
 });
 
 // --- reload boot state (§7.1, §9.3) ----------------------------------------------

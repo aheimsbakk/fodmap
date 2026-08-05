@@ -57,6 +57,7 @@
               "text": "Norsk Helseinformatikk (NHI.no)",
               "url": "https://nhi.no/kosthold/forebyggende-kost-og-sykdom/dette-er-fodmap-reduserte-matvarer"
             },
+            ",",
             {
               "text": "NKFM – Lav FODMAP-mat ved IBS",
               "url": "https://www.helse-bergen.no/nasjonal-kompetansetjeneste-for-funksjonelle-mage-tarmsykdommer-nkfm/lav-fodmap-mat-ved-ibs"
@@ -79,23 +80,20 @@
     "info-button": {
       "emoji": "ℹ️",
       "emoji-matched": "☑️",
-      "width": "1.2em",
-      "height": "1.2em",
-      "font-size": "0.75em",
-      "border-radius": "50%",
+      "font-size": "0.9rem",
       "margin-left": "0.4rem"
     },
     "markers": {
       "new": "🆕",
       "moved": "🔄",
       "updated": "🆙",
-      "default": "🔸"
+      "default": "•"
     },
     "tooltips": {
-      "default": "Dato {{date}}",
-      "new": "Dato {{date}}",
-      "moved": "Flyttet fra {{from}} til {{to}}, dato {{date}}",
-      "updated": "Dato {{date}}"
+      "default": "Kildedato {{date}}",
+      "new": "Kildedato {{date}}",
+      "moved": "Flyttet fra {{from}} til {{to}}, kildedato {{date}}",
+      "updated": "Kildedato {{date}}"
     }
   },
   "sections": [

@@ -42,7 +42,7 @@ ul {
 
 li.item {
   position: relative;
-  padding-left: 1.25rem;
+  padding-left: var(--size-bullet-slot);
   margin-bottom: 0.25rem;
   font-size: var(--size-item);
   line-height: var(--size-item-line);
@@ -55,13 +55,22 @@ li.item {
 
 /* Default item bullet anchored at the list item's left edge. The shape is
    configurable: --marker-default is written by the build from
-   page.markers.default (a text glyph or emoji). */
+   page.markers.default (a text glyph or emoji). The glyph centers in a
+   slot equal to li.item's padding-left (--size-bullet-slot), so every
+   marker — the narrow default dot and the wider squared change emoji —
+   occupies the same gutter and item text always starts at the same x
+   position. The slot scales with the text scale together with the glyph
+   (deviation 9), so the marker never overlaps the item text at 150 %.
+   All row glyphs (default bullet, change markers, note info-button)
+   share this size (§4.3, §4.6). */
 li.item::before {
   content: var(--marker-default);
   position: absolute;
   left: 0;
   top: 0;
-  font-size: 0.7rem;
+  width: var(--size-bullet-slot);
+  text-align: center;
+  font-size: calc(0.9rem * var(--text-scale));
   color: var(--color-heading-ink);
 }
 
@@ -69,12 +78,7 @@ li.item::before {
    default bullet for a config-driven emoji. The glyph comes from the
    --marker-* tokens (written by the build from page.markers), so a
    maintainer can restyle it in config.json without touching CSS. The
-   marker is slightly larger than the default bullet so the emoji reads at
-   a glance; the item text node itself stays plain and searchable. */
-li.item[data-change]::before {
-  font-size: 0.9rem;
-  color: inherit;
-}
+   item text node itself stays plain and searchable. */
 li.item[data-change="new"]::before {
   content: var(--marker-new);
 }
@@ -89,12 +93,14 @@ li.item[data-change="updated"]::before {
    title attribute, so an empty span sits over the bullet and exposes the
    config-driven tooltip text as a native browser title on hover. The cursor
    advertises the affordance; the span is aria-hidden in the markup because
-   the marker glyph itself conveys the change. */
+   the marker glyph itself conveys the change. The hotspot covers the whole
+   bullet slot (--size-bullet-slot), not just the glyph, so the tooltip is
+   reachable wherever the centered marker may sit. */
 li.item .item-bullet {
   position: absolute;
   left: 0;
   top: 0;
-  width: 1.1rem;
+  width: var(--size-bullet-slot);
   height: 1.2em;
   cursor: help;
 }

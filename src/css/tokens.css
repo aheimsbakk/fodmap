@@ -66,14 +66,11 @@
   /* info-button tokens (generated from config page.info-button) */
   --info-emoji: "ℹ️";
   --info-emoji-matched: "☑️";
-  --info-button-width: 1.2em;
-  --info-button-height: 1.2em;
-  --info-button-font-size: 0.75em;
-  --info-button-border-radius: 50%;
+  --info-button-font-size: calc(0.9rem * var(--text-scale));
   --info-button-margin-left: 0.4rem;
 
   /* change-marker glyphs (generated from config page.markers) */
-  --marker-default: "🔸";
+  --marker-default: "•";
   --marker-new: "🆕";
   --marker-moved: "🔄";
   --marker-updated: "🆙";
@@ -100,6 +97,9 @@
   --size-banner: calc(9px * var(--text-scale));
   --size-footnote: calc(0.75rem * var(--text-scale));
   --size-label: calc(0.875rem * var(--text-scale));
+  /* Item left gutter and bullet slot: the one spacing that scales, so the
+     marker glyph never overlaps the item text at 150 % (deviation 9). */
+  --size-bullet-slot: calc(1.25rem * var(--text-scale));
 
   /* §4.4 depth + sticky — static */
   --z-decoration: 10;

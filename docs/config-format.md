@@ -63,19 +63,17 @@ entries (label + emoji + colors).
 
 **3.1.1 Note info-button**
 
-`page.info-button` styles the item reasoning-note button (BLUEPRINT §4.6): the
-glyphs it shows and its size. All values are optional; the build falls back
-to the canonical defaults when a key is missing.
+`page.info-button` styles the item reasoning-note button (BLUEPRINT §4.6):
+the two glyphs it shows and their size. The button is a bare emoji — no
+box, border, or corner radius (deviation 17). All values are optional;
+the build falls back to the canonical defaults when a key is missing.
 
-| Field           | Type   | Required | Meaning                                              |
-| --------------- | ------ | -------- | ---------------------------------------------------- |
-| `emoji`         | string | no       | resting glyph (default `ℹ️`)                         |
-| `emoji-matched` | string | no       | glyph when the note matches the query (default `☑️`) |
-| `width`         | string | no       | button width (default `1.2em`)                       |
-| `height`        | string | no       | button height (default `1.2em`)                      |
-| `font-size`     | string | no       | glyph size (default `0.75em`)                        |
-| `border-radius` | string | no       | button corner radius (default `50%`)                 |
-| `margin-left`   | string | no       | gap after the item text (default `0.4rem`)           |
+| Field           | Type   | Required | Meaning                                                                                                      |
+| --------------- | ------ | -------- | ------------------------------------------------------------------------------------------------------------ |
+| `emoji`         | string | no       | resting glyph (default `ℹ️`)                                                                                 |
+| `emoji-matched` | string | no       | glyph when the note matches the query (default `☑️`)                                                         |
+| `font-size`     | string | no       | glyph base size (default `0.9rem` — same as the item markers; the build wraps it in the `--text-scale` calc) |
+| `margin-left`   | string | no       | gap after the item text (default `0.4rem`)                                                                   |
 
 `head`:
 
@@ -317,7 +315,7 @@ current sections, groups, subgroups, and the complete `page` block).
       ]
     },
     "markers": {
-      "default": "🔸",
+      "default": "•",
       "new": "🆕",
       "moved": "🔄",
       "updated": "🆙"

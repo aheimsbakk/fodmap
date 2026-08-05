@@ -25,6 +25,19 @@ const ROLES_CSS = readFileSync(
   "utf8",
 );
 
+// The marker glyphs are config-owned (§4.7): the generated token layer
+// reproduces page.markers verbatim, so the guard compares against the
+// config instead of hardcoding a glyph (same contract as build.test.js).
+const MARKERS = JSON.parse(
+  readFileSync(new URL("../data/config.json", import.meta.url), "utf8"),
+).page.markers;
+
+// The note glyph's base size is config-owned too (§4.6): the guard derives
+// the expected calc from it instead of hardcoding the size.
+const INFO_FONT_SIZE = JSON.parse(
+  readFileSync(new URL("../data/config.json", import.meta.url), "utf8"),
+).page["info-button"]["font-size"];
+
 const stripComments = (css) => css.replace(/\/\*[\s\S]*?\*\//g, "");
 
 /**
@@ -429,10 +442,18 @@ test("category tint bases are removed from the token layer", () => {
 
 test("change-marker tokens exist and the base layer swaps the bullet", () => {
   // The glyphs are config-driven tokens in the generated token layer.
-  assert.match(TOKENS_CSS, /--marker-default:\s*"🔸";/);
-  assert.match(TOKENS_CSS, /--marker-new:\s*"🆕";/);
-  assert.match(TOKENS_CSS, /--marker-moved:\s*"🔄";/);
-  assert.match(TOKENS_CSS, /--marker-updated:\s*"🆙";/);
+  for (const [key, token] of [
+    ["default", "marker-default"],
+    ["new", "marker-new"],
+    ["moved", "marker-moved"],
+    ["updated", "marker-updated"],
+  ]) {
+    assert.match(
+      TOKENS_CSS,
+      new RegExp(`--${token}:\\s*"${MARKERS[key]}"`),
+      `--${token} must reproduce the config glyph ${MARKERS[key]}`,
+    );
+  }
   const baseRules = parseRules(BASE_CSS);
   // The plain bullet is sourced from --marker-default, not a hardcoded glyph.
   const plain = baseRules.find((r) => r.selector === "li.item::before");
@@ -457,4 +478,99 @@ test("change-marker tokens exist and the base layer swaps the bullet", () => {
       `${selector} must source its glyph from --${token}`,
     );
   }
+});
+
+test("item bullets center in a slot equal to the text gutter", () => {
+  // Emoji glyphs have different intrinsic widths (the squared change
+  // markers are wider than the default dot), so the glyph box alone would
+  // push item text to different x positions. The bullet slot must equal
+  // li.item's padding-left and center the glyph within it; both scale
+  // with the text scale so the marker never overlaps the text at 150 %
+  // (deviation 9).
+  const baseRules = parseRules(BASE_CSS);
+  const plain = baseRules.find((r) => r.selector === "li.item::before");
+  assert.match(
+    plain.declarations,
+    /width:\s*var\(--size-bullet-slot\)/,
+    "the bullet slot must come from --size-bullet-slot",
+  );
+  assert.match(
+    plain.declarations,
+    /text-align:\s*center/,
+    "the glyph must center within the slot",
+  );
+  // The gutter and the slot are the same token: the item's text starts
+  // exactly where the slot ends.
+  const item = baseRules.find((r) => r.selector === "li.item");
+  assert.match(
+    item.declarations,
+    /padding-left:\s*var\(--size-bullet-slot\)/,
+    "the item gutter must equal the bullet slot",
+  );
+  assert.match(
+    TOKENS_CSS,
+    /--size-bullet-slot:\s*calc\(1\.25rem \* var\(--text-scale\)\)/,
+    "the bullet slot must scale with the text scale",
+  );
+  // The tooltip hotspot must cover the whole slot, not just the glyph:
+  // the centered marker can sit anywhere inside it.
+  const hotspot = baseRules.find((r) => r.selector === "li.item .item-bullet");
+  assert.match(
+    hotspot.declarations,
+    /width:\s*var\(--size-bullet-slot\)/,
+    "the tooltip hotspot must cover the bullet slot",
+  );
+});
+
+// --- note info-button (§4.6, deviation 17) -----------------------------------
+
+test("the note button is a bare emoji glyph, sized like the item markers", () => {
+  const componentRules = parseRules(COMPONENTS_CSS);
+  const toggle = componentRules.find((r) => r.selector === ".note-toggle");
+  assert.ok(toggle, "expected a rule for .note-toggle");
+  // The box and circle are deprecated (deviation 17): the button must not
+  // paint a width/height box or a corner radius.
+  assert.doesNotMatch(
+    toggle.declarations,
+    /(?:^|;)\s*width\s*:/,
+    "the note button must not declare a width box",
+  );
+  assert.doesNotMatch(
+    toggle.declarations,
+    /(?:^|;)\s*height\s*:/,
+    "the note button must not declare a height box",
+  );
+  assert.doesNotMatch(
+    toggle.declarations,
+    /border-radius/,
+    "the note button must not declare a corner radius",
+  );
+  assert.match(
+    toggle.declarations,
+    /font-size:\s*var\(--info-button-font-size\)/,
+    "the glyph size must come from the info-button token",
+  );
+  // The box tokens are gone from the generated token layer; the glyph size
+  // token is the marker base size wrapped in the text-scale calc, so the
+  // default bullet, the change markers, and the note glyph render at the
+  // same size at every scale level (§4.6, deviation 9).
+  assert.doesNotMatch(TOKENS_CSS, /--info-button-width/);
+  assert.doesNotMatch(TOKENS_CSS, /--info-button-height/);
+  assert.doesNotMatch(TOKENS_CSS, /--info-button-border-radius/);
+  const baseRules = parseRules(BASE_CSS);
+  const bullet = baseRules.find((r) => r.selector === "li.item::before");
+  const baseSize = INFO_FONT_SIZE.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const calcExpr = new RegExp(
+    `calc\\(${baseSize} \\* var\\(--text-scale\\)\\)`,
+  );
+  assert.match(
+    bullet.declarations,
+    calcExpr,
+    "the marker glyph must scale with the text scale",
+  );
+  assert.match(
+    TOKENS_CSS,
+    new RegExp(`--info-button-font-size:\\s*${calcExpr.source}`),
+    "the note glyph must use the same scaled size as the item markers",
+  );
 });

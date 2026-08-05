@@ -10,6 +10,8 @@ app og ingen innlogging.
 - Merker matvarer som er nye, flyttet eller oppdatert i siste oppdatering.
 - Lar deg søke: matvarer og kategorier uten treff skjules, og treffene utheves.
 - Lar deg øke tekststørrelsen.
+- Viser forklaringstekster bak ℹ️-knapper på enkelte matvarer.
+- Viser når en matvare ble endret når du holder musepekeren over merket.
 - Tilpasser seg skjermen: én kolonne på mobil, tre kolonner på større skjermer.
 
 ## Åpne siden
@@ -46,6 +48,9 @@ eksempel fra en lokal tjener eller fra den publiserte siden.
 På mobil skjules tomme kolonner under søk. De kommer tilbake så snart noe i
 dem treffer igjen.
 
+Søket finner også forklaringstekstene bak ℹ️-knappene. Hvis en matvare
+kommer opp fordi forklaringsteksten treffer, skifter knappen merke til ☑️.
+
 Uten skript viser siden hele innholdet, men søket og tekststørrelse-knappen
 er av.
 
@@ -63,6 +68,8 @@ og 150 prosent. Valget ditt huskes neste gang du åpner siden.
 På store skjermer vises tegnforklaringen øverst på siden. På mobil vises
 merkelappen over innholdet i hver kolonne.
 
+Øverst på siden står også en nærmere forklaring av BEGRENSE-kolonnen.
+
 ### Forstå oppdateringsmerkene
 
 Etter en oppdatering bærer de endrede matvarene en egen merkeplass foran
@@ -74,6 +81,22 @@ navnet:
 - 🆙 – innholdet i matvaren er oppdatert, for eksempel mengden.
 
 Matvarer som ikke er endret, har den vanlige merkeplassen.
+
+Hold musepekeren over merket foran en matvare for å se når den ble endret.
+For flyttede matvarer vises også kolonnen den kom fra, for eksempel
+«Flyttet fra BEGRENSE til SPIS, dato 2025-05».
+
+### Se forklaringstekster
+
+Noen matvarer har en liten ℹ️-knapp etter navnet. Hold musepekeren over
+knappen for å se forklaringsteksten. Klikk på knappen for å feste teksten
+åpen, og klikk et annet sted på siden for å lukke den.
+
+### Forstå fotnotene
+
+Noen kategorier avsluttes med en fotnote som gjelder hele kategorien.
+Fotnotene er merket VIKTIG (⚠️) eller TIPS (ℹ️), for eksempel om
+glutenfrie produkter eller blandingskrydder.
 
 ## Innhold og kilde
 
@@ -106,18 +129,18 @@ oppført i `CODEBASE.md`, finnes. Kjør skriptet etter strukturendringer:
 Tilstandskode 0 betyr at alle stier finnes. Ellers skriver skriptet hvilke
 stier som mangler.
 
-`scripts/bump-version.sh` øker versjonen i `VERSION` og oppdaterer
-versjonstallet i footeren på siden. Standard steg er patch, men du kan velge
-steg med et argument:
+`scripts/bump-version.sh` øker versjonen i `VERSION`. Standard steg er
+patch, men du kan velge steg med et argument:
 
 ```bash
-./scripts/bump-version.sh        # patch: 0.10.3 → 0.10.4
-./scripts/bump-version.sh minor  # minor: 0.10.3 → 0.11.0
-./scripts/bump-version.sh major  # major: 0.10.3 → 1.0.0
+./scripts/bump-version.sh        # patch: 0.10.5 → 0.10.6
+./scripts/bump-version.sh minor  # minor: 0.10.5 → 0.11.0
+./scripts/bump-version.sh major  # major: 0.10.5 → 1.0.0
 ```
 
-Skriptet stopper hvis versjonsmerket i footeren mangler, så versjonen aldri
-endres uten at footeren oppdateres samtidig.
+Versjonstallet i footeren på siden trenger ikke oppdateres: siden er
+generert, og byggeskriptet (`./scripts/build.sh`) leser versjonen fra
+`VERSION` og skriver den inn i footeren.
 
 `scripts/validate-changelog.sh` kontrollerer at den øverste overskriften i
 `CHANGELOG.md` (format `## [x.y.z] - YYYY-MM-DD`) stemmer med `VERSION` og
@@ -127,14 +150,34 @@ dagens dato:
 ./scripts/validate-changelog.sh
 ```
 
+`scripts/build.sh` bygger siden: den genererer `index.html`,
+`css/tokens.css` og `css/roles.css` fra innholdet i `data/`. Kjør
+skriptet etter du har endret innholdet:
+
+```bash
+./scripts/build.sh
+```
+
+Skriptet skriver til `src/` som standard. Du kan velge en annen mappe
+med et argument (`./scripts/build.sh min-mappe`). Etter byggingen
+skriver skriptet en oppsummering: versjon, antall kategorier og
+matvarer, antall endringsmerker, og hvilke filer som ble skrevet. Du kan
+også kjøre det via npm:
+
+```bash
+npm run build
+```
+
+Kjør `./scripts/build.sh --help` for full bruksanvisning.
+
 ### Tekniske valg
 
 - Ren HTML, CSS og JavaScript med tre moduler (`search.js`,
   `text-scale.js` og `note-popover.js`). Ingen rammeverk og ingen
   kjøretidsavhengigheter i nettleseren.
 - Innholdet ligger som data i `data/`, og et byggetrinn genererer siden:
-  `node scripts/build/build.mjs src`. Den ferdige siden i `src/` er
-  vanlige statiske filer og trenger ikke byggetrinn når den vises.
+  `./scripts/build.sh`. Den ferdige siden i `src/` er vanlige statiske
+  filer og trenger ikke byggetrinn når den vises.
 - Ingen eksterne fonter eller tredjepartsressurser.
 - Innholdet er fastsatt i `BLUEPRINT.md` §12.1 og verifisert av testsuiten.
 - Utviklingsavhengighetene (eksakte versjoner i `package.json`) er `jsdom`

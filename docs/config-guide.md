@@ -71,7 +71,9 @@ Change the head, search, banner, colors, or footer by editing the
 - `info-banner` — the info emoji, the BEGRENSE explanation text, and
   the `text-color`.
 - `info-button` — the item note button: its two glyphs (resting and
-  search-matched) and its size.
+  search-matched) and their base size (the same as the item markers;
+  the glyphs scale with the text-size toggle). The button is a bare
+  emoji with no box.
 - `colors` — the page-level color tokens: background, text, heading,
   column separators, and halftone decorations.
 - `footer` — the footer colors and the text `lines` (below).
@@ -208,7 +210,7 @@ usual bullet (see `data-format.md` §7.4). The glyphs live in
 
 ```json
 "markers": {
-  "default": "🔸",
+  "default": "•",
   "new": "🆕",
   "moved": "🔄",
   "updated": "🆙"

@@ -73,10 +73,9 @@ export function renderTokens(cfg) {
   const infoLines = [
     `  --info-emoji: "${ib["emoji"] || "ℹ️"}";`,
     `  --info-emoji-matched: "${ib["emoji-matched"] || "☑️"}";`,
-    `  --info-button-width: ${ib.width || "1.2em"};`,
-    `  --info-button-height: ${ib.height || "1.2em"};`,
-    `  --info-button-font-size: ${ib["font-size"] || "0.75em"};`,
-    `  --info-button-border-radius: ${ib["border-radius"] || "50%"};`,
+    // The glyph scales with the text scale like the other content font-size
+    // tokens (§4.3, deviation 9); the config holds the base size.
+    `  --info-button-font-size: calc(${ib["font-size"] || "0.9rem"} * var(--text-scale));`,
     `  --info-button-margin-left: ${ib["margin-left"] || "0.4rem"};`,
   ].join("\n");
 
@@ -139,6 +138,9 @@ ${markerLines}
   --size-banner: calc(9px * var(--text-scale));
   --size-footnote: calc(0.75rem * var(--text-scale));
   --size-label: calc(0.875rem * var(--text-scale));
+  /* Item left gutter and bullet slot: the one spacing that scales, so the
+     marker glyph never overlaps the item text at 150 % (deviation 9). */
+  --size-bullet-slot: calc(1.25rem * var(--text-scale));
 
   /* §4.4 depth + sticky — static */
   --z-decoration: 10;

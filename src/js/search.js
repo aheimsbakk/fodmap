@@ -332,14 +332,18 @@ export function initSearch(document, debounceMs = 300) {
     });
   }
 
-  // Escape clears the search exactly like the clear control (§7.1), but
-  // only while the input is focused; the input keeps focus so the user
-  // can immediately type a new query.
-  input.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && input.value !== "") {
-      input.value = "";
-      win.clearTimeout(debounceId);
-      run("");
+  // Escape anywhere on the page clears the search exactly like the clear
+  // control and moves focus to the input, so the next keystroke starts a
+  // fresh query no matter where the previous focus was (§7.1). With an
+  // empty query it only moves focus; the page state is left untouched.
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      if (input.value !== "") {
+        input.value = "";
+        win.clearTimeout(debounceId);
+        run("");
+      }
+      input.focus();
     }
   });
 

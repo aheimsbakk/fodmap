@@ -132,7 +132,14 @@ test("default items date from the release that last touched them", () => {
     "unchanged items use their own last-change date",
   );
   assert.equal(
-    (html.match(/title="Dato 2021"/g) || []).length,
+    (
+      html.match(
+        new RegExp(
+          `title="${fillDate(cfg.page.tooltips.default, BASELINE_RELEASE)}"`,
+          "g",
+        ),
+      ) || []
+    ).length,
     510 - 29 - 31 - 1,
     "all 449 unmarked items date from the baseline",
   );
@@ -160,8 +167,13 @@ test("moved items explain the move: from → to, with the catalog date", () => {
   ].map((m) => m[1]);
   assert.equal(moved.length, markerCount("moved"));
   const labels = cfg.groups.map((g) => g.label).join("|");
+  // The moved template is config-owned (§6.7); fill its placeholders with
+  // the group-label alternation so each title must match real group pairs.
   const re = new RegExp(
-    `^Flyttet fra (${labels}) til (${labels}), dato ${NEWEST_RELEASE}$`,
+    `^${cfg.page.tooltips.moved
+      .replaceAll("{{date}}", NEWEST_RELEASE)
+      .replaceAll("{{from}}", `(${labels})`)
+      .replaceAll("{{to}}", `(${labels})`)}$`,
   );
   for (const t of moved) {
     const m = t.match(re);

@@ -331,11 +331,6 @@
 }
 
 .note-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--info-button-width);
-  height: var(--info-button-height);
   margin-left: var(--info-button-margin-left);
   padding: 0;
   line-height: 1;
@@ -343,7 +338,6 @@
   color: var(--color-accent);
   background: none;
   border: none;
-  border-radius: var(--info-button-border-radius);
   cursor: pointer;
   vertical-align: baseline;
 }
@@ -358,8 +352,9 @@
   content: var(--info-emoji-matched);
 }
 
-/* No border or hover ring around the icon (deviation 17); only keyboard
-   focus keeps a visible outline. */
+/* No box, border, or hover ring around the icon (deviation 17): the
+   button is a bare emoji glyph sized like the item markers; only
+   keyboard focus keeps a visible outline. */
 .note-toggle:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 1px;

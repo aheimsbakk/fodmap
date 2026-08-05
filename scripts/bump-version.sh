@@ -1,30 +1,20 @@
 #!/usr/bin/env bash
-# bump-version.sh — bump the version stored in VERSION by one step and sync
-# it into the footer of src/index.html.
+# bump-version.sh — bump the version stored in VERSION by one step.
 #
 # Usage:
 #   ./scripts/bump-version.sh [patch|minor|major]
 #
 # Step defaults to patch. Prints the new version. Creates VERSION with
-# 0.0.0 when it does not exist yet. Replaces the "FODMAP vX.Y.Z" marker in
-# src/index.html with the new version; fails when the marker is absent so
-# VERSION and the page footer can never drift apart silently.
+# 0.0.0 when it does not exist yet.
+#
+# The page footer does not need syncing: index.html is generated, and the
+# build (scripts/build.sh) reads the version from VERSION at build time.
 
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 version_file="$repo_root/VERSION"
-index_file="$repo_root/src/index.html"
 step="${1:-patch}"
-
-# Footer marker: "FODMAP v<semver> // Kilder:". Checked before any write so
-# a missing marker fails atomically: VERSION is never bumped without the
-# footer being updatable, so the two can never drift apart silently.
-marker_pattern='FODMAP v[0-9]+\.[0-9]+\.[0-9]+'
-if ! grep -qE "$marker_pattern" "$index_file"; then
-	echo "error: no \"FODMAP vX.Y.Z\" marker found in $index_file" >&2
-	exit 1
-fi
 
 if [[ ! -f "$version_file" ]]; then
 	echo "0.0.0" >"$version_file"
@@ -51,6 +41,5 @@ esac
 
 new_version="$major.$minor.$patch"
 echo "$new_version" >"$version_file"
-sed -i -E "s/$marker_pattern/FODMAP v$new_version/" "$index_file"
 
 echo "$new_version"

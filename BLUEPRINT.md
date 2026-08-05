@@ -193,9 +193,13 @@ Text scaling (deviation 9, §7.4): the font-size tokens for content text
 (search input, category headings, legend, list items, sub-group titles,
 banners, labels) are defined as `calc(<base> × --text-scale)`, where
 `--text-scale` is 1, 1.25, or 1.5 per the `data-text-scale` attribute on
-the root element. Spacing, borders, search widget height, sticky offsets,
-and the masthead titles are deliberately excluded, so the layout stays
-compact while text grows.
+the root element. The item markers and the note glyph scale the same
+way (§4.6, §4.7). Spacing, borders, search widget height, sticky
+offsets, and the masthead titles are deliberately excluded, so the
+layout stays compact while text grows. One spacing exception: the item's
+left text gutter and its bullet slot (`--size-bullet-slot`) scale with
+the text scale, because at 150 % the marker glyph is wider than a fixed
+slot and would overlap the item text (§5.6).
 
 Other metrics: list items 0.85 rem with 1.2 line-height and 0.25 rem
 bottom margin; sub-group titles 0.8 rem bold; mobile labels 0.875 rem
@@ -231,23 +235,23 @@ below the search widget.
 
 ### 4.6 Note info-button tokens
 
-The note affordance (§7.5) is styled from tokens so the button scales
-with the text scale:
+The note affordance (§7.5) is a bare emoji glyph: the button box, border,
+and corner radius are deprecated and gone (deviation 17). The glyph size
+is `0.9rem × --text-scale` — identical to the item markers (§4.7), so
+the default bullet, the change markers, and the note glyph all render at
+the same size at every scale level (deviation 9):
 
-| Token                         | Default  | Use                                   |
-| ----------------------------- | -------- | ------------------------------------- |
-| `--info-emoji`                | `ℹ️`     | button glyph                          |
-| `--info-emoji-matched`        | `☑️`     | glyph when the note matches the query |
-| `--info-button-width`         | `1.2em`  | button size                           |
-| `--info-button-height`        | `1.2em`  | button size                           |
-| `--info-button-font-size`     | `0.75em` | glyph size                            |
-| `--info-button-border-radius` | `50%`    | round button                          |
-| `--info-button-margin-left`   | `0.4rem` | gap after the item text               |
+| Token                       | Default                       | Use                                   |
+| --------------------------- | ----------------------------- | ------------------------------------- |
+| `--info-emoji`              | `ℹ️`                          | button glyph                          |
+| `--info-emoji-matched`      | `☑️`                          | glyph when the note matches the query |
+| `--info-button-font-size`   | `calc(0.9rem × --text-scale)` | glyph size — same as the item markers |
+| `--info-button-margin-left` | `0.4rem`                      | gap after the item text               |
 
 The glyph swap is a CSS `::before` content rule toggled by a class; the
 button's live text node never changes, so search restore is unaffected.
-The button renders without a border and without a hover ring; keyboard
-focus keeps a visible outline via `:focus-visible` only (deviation 17).
+The button carries no box and no hover ring; keyboard focus keeps a
+visible outline via `:focus-visible` only (deviation 17).
 
 ### 4.7 Change-marker tokens
 
@@ -325,17 +329,23 @@ Full width, white background, 2 px solid black border, 0.25 rem padding,
   - Each column's background carries its role tint (§4.1) at every width.
 - Item list: no list markers; each item prefixed by a default bullet
   (`page.markers.default`, the ❖ U+2756 text glyph unless overridden)
-  positioned at the left edge; items 0.85 rem, line-height 1.2, 0.25 rem
-  bottom margin. Newest-release items replace the bullet with their change
-  marker emoji (§6.6): a `data-change` attribute on the `li` swaps the
-  `::before` content via CSS, so the item text node stays plain and search
-  behavior is unchanged (deviation 3). Every bullet also shows a hover
-  tooltip via an empty `aria-hidden` `span.item-bullet` hotspot (§6.7).
+  centered in a slot at the left edge — the slot (`--size-bullet-slot`)
+  equals the item's text gutter, so the text column aligns at one x
+  position no matter how wide the glyph is; items 0.85 rem, line-height
+  1.2, 0.25 rem bottom margin. The gutter and slot scale with the text
+  scale (the one scaled spacing, deviation 9), so the marker glyph never
+  overlaps the item text at 150 %. Newest-release items replace the
+  bullet with their change marker emoji (§6.6): a `data-change`
+  attribute on the `li` swaps the `::before` content via CSS, so the
+  item text node stays plain and search behavior is unchanged
+  (deviation 3). Every bullet also shows a hover tooltip via an empty
+  `aria-hidden` `span.item-bullet` hotspot that covers the whole bullet
+  slot (§6.7).
 - Item structure: primary text plus optional parenthesized portion note.
   All notes are inline plain text; there is no small-print styling
   (deviation 3).
 - Note affordance: an item may carry a reasoning note (why the item is in
-  its column, a source link, a caveat). It renders as an inline info
+  its column, a source link, a caveat). It renders as a bare-emoji inline
   button with a popover: hover or focus shows the note, a click pins it
   open, and clicking anywhere outside closes it (§4.6, §7.5).
 - Sub-groups: uppercase bold small heading; separated from the preceding
@@ -538,11 +548,12 @@ that release's name (2025-05). Marked items are always in the newest
 release folder, so their date is the newest release by construction.
 
 The current Norwegian templates are frozen in the config: `default`,
-`new`, and `updated` render "Dato <release>" (the item's own last-change
-date), and `moved` renders "Flyttet fra <label> til <label>, dato
-<release>". An item with no marker uses the `default` template; a
-missing template for a marker kind falls back to the `default` template;
-with no `default` template the item renders without a tooltip.
+`new`, and `updated` render "Kildedato <release>" (the item's own
+last-change date), and `moved` renders "Flyttet fra <label> til <label>,
+kildedato <release>". An item with no marker uses the `default`
+template; a missing template for a marker kind falls back to the
+`default` template; with no `default` template the item renders without
+a tooltip.
 
 The tooltip is a native browser title on an empty `span.item-bullet`
 hotspot positioned over the bullet glyph — the `::before` bullet cannot
@@ -568,12 +579,14 @@ Transitions (debounced 300 ms after each input change):
 - IDLE → FILTERED: first non-empty query.
 - FILTERED → FILTERED: query changed (recompute).
 - FILTERED → IDLE: query emptied by editing, by the clear control, or by
-  the Escape key while the input is focused. All stored originals restored
+  the Escape key anywhere on the page. All stored originals restored
   exactly.
 
-Clear control activation (button click, or Escape key while the input is
-focused): empty the query, transition to IDLE, keep focus on the input.
-Escape with an empty query and Escape outside the input are no-ops.
+Clear control activation (button click): empty the query, transition to
+IDLE, keep focus on the input. The Escape key clears the same way from
+anywhere on the page — with the input focused or not — and moves focus
+to the input, so the next keystroke starts a fresh query. Escape with an
+empty query moves focus to the input and changes nothing else.
 
 On load the input value is always cleared and boot renders from IDLE
 unconditionally: browsers restore typed form values on reload, but the
@@ -686,7 +699,8 @@ input change ──> debounce 300 ms ──> normalize (lowercase + trim)
       ──> derive visibility plan
       ──> apply plan (hide/show + highlight) ──> toggle clear control
 
-clear control or Escape ──> empty input ──> restore originals ──> IDLE
+clear control or Escape (anywhere) ──> empty input ──> restore originals
+      ──> IDLE; Escape also moves focus to the input
 
 toggle ──> next level ──> set data-text-scale on root ──> tokens recompute
       ──> persist level (local storage, failure-safe)
@@ -905,10 +919,12 @@ notes record the decision and its rationale.
 9. A text-size toggle cycles the content text through 100 % / 125 % /
    150 %. Scaling applies to the content font-size tokens only
    (`calc` on `--text-scale`); masthead titles, spacing, borders, widget
-   height, and sticky offsets stay fixed. Items declare
-   `overflow-wrap: anywhere` so unbreakable tokens
-   ("Maltodextrin/maltose/maltekstrakt") wrap instead of pushing the
-   column track wider at 150 %. The level persists in local storage
+   height, and sticky offsets stay fixed. One spacing exception: the
+   item's left text gutter and its bullet slot (`--size-bullet-slot`)
+   scale too, so the marker glyph cannot overlap the item text at
+   150 % (§5.6). Items declare `overflow-wrap: anywhere` so unbreakable
+   tokens ("Maltodextrin/maltose/maltekstrakt") wrap instead of pushing
+   the column track wider at 150 %. The level persists in local storage
    (key `fodmap-text-scale`, §10) and degrades to session-only on
    failure; the toggle lives in its own module and state machine, outside
    the search engine (§4.3, §5.3, §7.4).
@@ -947,13 +963,17 @@ notes record the decision and its rationale.
     stay hand-authored. The generated artifacts are written into the site
     directory and committed, so the deployed site needs no build step;
     the hand-authored document is retired (§8, §14).
-17. The note info button renders without a border and without a hover
-    ring — the resting border and the hover outline were read as red
-    rings around the icon; keyboard focus keeps a visible outline via
-    `:focus-visible` only (§4.6). A search that matches the reasoning
-    note bolds the matched terms inside the popover, restoring the plain
-    text on IDLE; the matched glyph and the popover's open/pinned state
-    are untouched (§7.5).
+17. The note info button is a bare emoji glyph: no box, border, or corner
+    radius — the resting border, the hover outline, and the round hit-box
+    were read as red rings around the icon; keyboard focus keeps a
+    visible outline via `:focus-visible` only (§4.6). Its glyph size
+    equals the item marker size, and both scale with the text scale like
+    the other content text (deviation 9), so the default bullet, the
+    change markers, and the note glyph stay identical at every level. A
+    search that
+    matches the reasoning note bolds the matched terms inside the
+    popover, restoring the plain text on IDLE; the matched glyph and the
+    popover's open/pinned state are untouched (§7.5).
 18. Newest-release items replace the default bullet with a change-marker
     emoji — 🆕 new, 🔄 moved, 🆙 updated in place (§4.7, §6.6). A change
     in an earlier delta is history, not a marker; the 2025-05 release
