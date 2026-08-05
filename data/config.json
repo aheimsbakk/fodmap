@@ -91,9 +91,9 @@
     },
     "tooltips": {
       "default": "Kildedato {{date}}",
-      "new": "Kildedato {{date}}",
+      "new": "Ny, kildedato {{date}}",
       "moved": "Flyttet fra {{from}} til {{to}}, kildedato {{date}}",
-      "updated": "Kildedato {{date}}"
+      "updated": "Oppdatert, kildedato {{date}}"
     }
   },
   "sections": [

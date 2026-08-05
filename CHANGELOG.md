@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.12.4] - 2026-08-05
+
+- **why:** Label new and updated items in the bullet tooltip so the distinction is clear at a glance
+- **model:** kompis/qwen-3.6-think-coding-mtp
+- **tags:** content, tooltips, config, norwegian
+
+### Changed
+
+- `data/config.json`: the `new` tooltip now reads "Ny, kildedato {{date}}" and the `updated` tooltip now reads "Oppdatert, kildedato {{date}}" (the `default` tooltip stays "Kildedato {{date}}")
+
 ## [0.12.3] - 2026-08-05
 
 - **why:** Correct the Norwegian spelling of "BEGRENS" (the imperative form used in the app)
