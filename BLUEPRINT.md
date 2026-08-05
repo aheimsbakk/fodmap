@@ -1,12 +1,12 @@
 # BLUEPRINT.md — FODMAP Overview App
 
-> This document is the language-agnostic architecture for the app. It is
-> authoritative for the page structure, behavior, and design; the content
-> data model (§6) is the specification of the content pipeline. The
-> concrete Norwegian content lives as data under `data/` (physical mapping
-> in `CODEBASE.md`), and a developer-time build step turns that data into
-> the static page. The generated page and the automated tests are the
-> implementation of this document.
+> Language-agnostic architecture for the app: authoritative for the page
+> structure, behavior, and design. The content data model (§6) is the
+> specification of the content pipeline. The concrete Norwegian content
+> lives as data under `data/` (physical mapping in `CODEBASE.md`), and a
+> developer-time build step turns that data into the static page. The
+> generated page and the automated tests are the implementation of this
+> document.
 
 ## 1. System Goals
 
@@ -40,7 +40,7 @@ Provide a static, dependency-free single-page app that:
 - Note affordance: an item may carry a reasoning note, revealed by an
   inline info button and popover; the note is searchable (§7.5).
 - Text-size toggle: a control in the search widget that cycles the content
-  text size through 100 % / 125 % / 150 % (see §12.2 deviation 9).
+  text size through 100 % / 125 % / 150 % (§12.2 deviation 9).
 - Content pipeline: release data under `data/` (config + item files),
   the oldest→newest merge rules (§6.3), the derived change markers for
   items present in the newest release (§6.6), and the developer-time build
@@ -118,10 +118,10 @@ Category color sets (heading background only):
 | Krydder og urter                     | `#b5c7b3`  |
 | Smakstilsetning, saus, dressing      | `#d97744`  |
 
-Column tints are role-based, per user request (2026-08-01, deviation 13):
-each column carries the color of its role, so the column ↔ role
-correspondence is visible at a glance (matching the legend and the mobile
-labels). Values are the role backgrounds at low opacity:
+Column tints are role-based (deviation 13): each column carries the
+color of its role, so the column ↔ role correspondence is visible at a
+glance (matching the legend and the mobile labels). Values are the role
+backgrounds at low opacity:
 
 | Role     | Tint                        |
 | -------- | --------------------------- |
@@ -130,7 +130,7 @@ labels). Values are the role backgrounds at low opacity:
 | UNNGÅ    | `rgba(209, 93, 93, 0.15)`   |
 
 Empty placeholder columns carry the role of their position and get the
-corresponding tint (deviation 13).
+corresponding tint (deviation 13, §5.7).
 
 Support colors:
 
@@ -161,7 +161,7 @@ renders identically offline. Requested weights map to the installed faces
 of the platform; missing faces are synthesized. Oswald's condensed look is
 approximated by bold weight plus the existing uppercase and letter-spacing
 rules; Bebas Neue's narrow display face cannot be reproduced with system
-fonts, so the masthead title renders wider (deliberate deviation 5, §12.2).
+fonts, so the masthead title renders wider (deviation 5).
 
 Letter spacing: main title +2 px, sub-title `tracking-widest`, labels and
 banners `tracking-wider`. Search input text: uppercase, `tracking-wider`.
@@ -185,11 +185,11 @@ four 1 px directional black shadows (creates a black outline).
 | Info banner          | 9 px      | 10 px     | 10 px     | 10 px     |
 | Footnote banner      | 0.75 rem  | 0.875 rem | 0.875 rem | 0.875 rem |
 
-The sub-title deviates from the narrow step below 640 px to keep the
-tagline on one line (deviation 8): ≤ 457 px → 1 rem, ≤ 372 px →
-0.875 rem, ≤ 329 px → 0.8125 rem.
+Below 640 px the sub-title steps down to keep the tagline on one line
+(deviation 8): ≤ 457 px → 1 rem, ≤ 372 px → 0.875 rem, ≤ 329 px →
+0.8125 rem.
 
-Text scaling (§7.2, deviation 9): the font-size tokens for content text
+Text scaling (deviation 9, §7.4): the font-size tokens for content text
 (search input, category headings, legend, list items, sub-group titles,
 banners, labels) are defined as `calc(<base> × --text-scale)`, where
 `--text-scale` is 1, 1.25, or 1.5 per the `data-text-scale` attribute on
@@ -197,14 +197,13 @@ the root element. Spacing, borders, search widget height, sticky offsets,
 and the masthead titles are deliberately excluded, so the layout stays
 compact while text grows.
 
-Other metrics: list items 0.85 rem with 1.2 line-height and 0.25 rem bottom
-margin; sub-group titles 0.8 rem bold; mobile labels 0.875 rem bold;
-columns 0.75 rem padding; heading border 2 px solid black; grid border
-2 px solid black (left, right, bottom); dashed separators 1 px.
-
-List text is 0.85 rem at every width. Sub-group titles are 0.8 rem on
-narrow and 0.875 rem from 640 px. These values are fixed and do not
-follow the responsive size steps of the other content text.
+Other metrics: list items 0.85 rem with 1.2 line-height and 0.25 rem
+bottom margin; sub-group titles 0.8 rem bold; mobile labels 0.875 rem
+bold; columns 0.75 rem padding; heading border 2 px solid black; grid
+border 2 px solid black (left, right, bottom); dashed separators 1 px.
+List text (0.85 rem) and sub-group titles (0.8 → 0.875 rem from 640 px)
+are fixed and do not follow the responsive size steps of the other
+content text.
 
 ### 4.4 Depth and sticky offsets
 
@@ -280,9 +279,9 @@ Centered, bottom margin 1.5 rem, top margin 0.5 rem. Sub-title above main
 title; emoji clusters flank the sub-title text with 0.5 rem horizontal
 margin. The sub-title is guaranteed to render on a single line at every
 viewport width: `white-space: nowrap`, with the size stepping down on
-narrow viewports so the line never overflows (see §12.2 deviation 8).
-Main title uses the display typeface at 2.25–6 rem, tight leading,
-negative top margin 5 px, bottom margin 1 rem.
+narrow viewports so the line never overflows (deviation 8). Main title
+uses the display typeface at 2.25–6 rem, tight leading, negative top
+margin 5 px, bottom margin 1 rem.
 
 ### 5.3 Search widget
 
@@ -291,7 +290,7 @@ horizontal padding 0.5 rem, flex row with 0.5 rem gap, heights per
 section 4.3. Children: search icon (emoji), text input (flex-grow, full
 height, transparent background, no border, no focus outline, uppercase),
 clear control (`×`, 1.875 rem, hidden by default, red on hover),
-text-size toggle (`Aa`, see §7.2 and §12.2 deviation 9).
+text-size toggle (`Aa`, see §7.4 and deviation 9).
 
 ### 5.4 Column legend
 
@@ -310,34 +309,31 @@ Full width, white background, 2 px solid black border, 0.25 rem padding,
 - Sections separated by 1 rem bottom margin.
 - Category heading: sticky, centered, uppercase, bold, 2 px solid black
   border, icon + title, small shadow. Background per category set.
-- Content grid: single column on narrow; 3 equal columns wide+.
-- Grid borders: 2 px solid black on left, right, bottom — except sections
+- Content grid: single column on narrow; 3 equal columns wide+. Grid
+  borders: 2 px solid black on left, right, bottom — except sections
   with a footnote banner, where the grid drops its bottom border and the
   banner supplies it (continuous box, horizontal seam between grid and
   banner).
 - Columns:
-  - Narrow: stacked. Column separators: 1 px dashed bottom line on all but
-    the last column, plus a 1 px light top line on columns 2 and 3.
-    Each column shows its role as a mobile label (colored badge with icon)
+  - Narrow: stacked. Separators: 1 px dashed bottom line on all but the
+    last column, plus a 1 px light top line on columns 2 and 3. Each
+    column shows its role as a mobile label (colored badge with icon)
     above the list content.
-  - Wide+: side by side. Column separators: 1 px dashed right line on all
-    but the last column. Mobile labels hidden. Legend above the grid carries
-    the role names.
+  - Wide+: side by side. Separators: 1 px dashed right line on all but
+    the last column. Mobile labels hidden; the legend above the grid
+    carries the role names.
   - Each column's background carries its role tint (§4.1) at every width.
 - Item list: no list markers; each item prefixed by a default bullet
   (`page.markers.default`, the ❖ U+2756 text glyph unless overridden)
   positioned at the left edge; items 0.85 rem, line-height 1.2, 0.25 rem
-  bottom margin. Items merged from the newest release replace the bullet
-  with their change marker emoji (§6.6, §4.7): a `data-change` attribute
-  on the `li` swaps the `::before` content via CSS, so the item text node
-  stays plain and search behavior is unchanged (deviation 3). Every
-  bullet also shows a hover tooltip: an empty `span.item-bullet` hotspot
-  over the bullet carries a native browser title with config-driven text
-  (§6.7), so the `::before` glyph, the plain item text, and search are
-  untouched.
+  bottom margin. Newest-release items replace the bullet with their change
+  marker emoji (§6.6): a `data-change` attribute on the `li` swaps the
+  `::before` content via CSS, so the item text node stays plain and search
+  behavior is unchanged (deviation 3). Every bullet also shows a hover
+  tooltip via an empty `aria-hidden` `span.item-bullet` hotspot (§6.7).
 - Item structure: primary text plus optional parenthesized portion note.
   All notes are inline plain text; there is no small-print styling
-  (see §12.2 deviation 3).
+  (deviation 3).
 - Note affordance: an item may carry a reasoning note (why the item is in
   its column, a source link, a caveat). It renders as an inline info
   button with a popover: hover or focus shows the note, a click pins it
@@ -346,40 +342,33 @@ Full width, white background, 2 px solid black border, 0.25 rem padding,
   block by margin only (0.75 rem top margin). No separator line at any
   width or search state (deviation 11).
 - Footnote banner: white background, 2 px solid black border (top edge
-  open), centered bold text, warning icon, small shadow. Wording and icon
-  per section: VIKTIG and TIPS notes use the warning emoji; the MARINADER
-  note has no icon.
+  open), centered bold text, warning icon, small shadow. VIKTIG and TIPS
+  notes use the warning emoji; the MARINADER note has no icon.
 
 ### 5.7 Empty placeholder columns
 
-Four sections reserve empty columns to keep the 3-column rhythm:
+Four sections reserve empty columns to keep the 3-column rhythm: Nøtter
+og frø column 2, Kjøtt, egg, fisk columns 2 and 3, Pålegg column 2, and
+Krydder og urter column 2 — all rendered wide+ only.
 
-- Nøtter og frø: column 2 (BEGRENSE) is empty, rendered wide+ only.
-- Kjøtt, egg, fisk: columns 2 and 3 are empty, rendered wide+ only.
-- Pålegg: column 2 is empty, rendered wide+ only.
-- Krydder og urter: column 2 is empty, rendered wide+ only.
-
-Empty columns carry the role of their position (BEGRENSE or UNNGÅ,
-§6.2) and receive that role's tint, so the color rhythm of the section
-stays complete. They participate in the grid, carry no mobile label, and
-are excluded from filtering. A `data-placeholder` attribute marks them
-for the wide-only rendering rule.
+An empty column carries the role of its position (BEGRENSE or UNNGÅ,
+§6.2) and receives that role's tint, so the color rhythm of the section
+stays complete. It participates in the grid, carries no mobile label, and
+is excluded from filtering. A `data-placeholder` attribute marks it for
+the wide-only rendering rule.
 
 ### 5.8 Footer
 
-Top border 2 px solid black, centered, small text. Line 1: bold gray
-disclaimer text. Line 2: "FODMAP v<version> // Kilder:" followed by
-two external source links (underlined, red on hover, open in a new
-tab): Norsk Helseinformatikk (NHI.no) and NKFM – Lav FODMAP-mat ved
-IBS. The version text follows the `VERSION` file. Line 3: gray credit
-line "Utviklet av Arnulf Heimsbakk // Kildekode på
-github.com/aheimsbakk/fodmap // Lisens MIT" where the repository name
-is a link to `https://github.com/aheimsbakk/fodmap/` (open in a new
-tab). Only the disclaimer line is bold; the source and credit lines
-are regular weight. The three lines are separated by equal 0.5 rem
-gaps. The source line is a user-requested addition (see §12.2 deviation 6),
-and the credit line is a user-requested addition (2026-07-31; see §12.2
-deviation 10).
+Top border 2 px solid black, centered, small text, three lines with equal
+0.5 rem gaps. Line 1: bold gray disclaimer. Line 2: "FODMAP v<version> //
+Kilder:" followed by two external source links (underlined, red on hover,
+open in a new tab): Norsk Helseinformatikk (NHI.no) and NKFM – Lav
+FODMAP-mat ved IBS; the version text follows the `VERSION` file. Line 3:
+gray credit line "Utviklet av Arnulf Heimsbakk // Kildekode på
+github.com/aheimsbakk/fodmap // Lisens MIT" where the repository name is
+a link to `https://github.com/aheimsbakk/fodmap/` (open in a new tab).
+Only the disclaimer line is bold; the source and credit lines are regular
+weight (deviations 6 and 10).
 
 ## 6. Content Data Model
 
@@ -470,7 +459,7 @@ placeholder (§5.7).
 
 Counts are item totals per column (main list + sub-groups), and sub-group
 count per column. These are frozen parity assertions, verified against the
-merged data and the generated page (§13.2).
+merged data and the generated page (§13).
 
 | #   | Section                              | Icon        | Columns (SPIS / BEGRENSE / UNNGÅ)          | Footnotes |
 | --- | ------------------------------------ | ----------- | ------------------------------------------ | --------- |
@@ -500,10 +489,10 @@ An item whose file is present in the **newest** release folder carries a
 change marker: a config-driven emoji that replaces the item's default
 bullet (rendering in §5.6, tokens in §4.7, config in the `data/config.json`
 `page.markers` block; the block also sets the default bullet itself).
-Items absent from the newest folder — including a
-change made in an earlier delta that the newest release left alone — are
-never marked: the marker answers "what did the latest release change?",
-not "what changed over all of history".
+Items absent from the newest folder — including a change made in an
+earlier delta that the newest release left alone — are never marked: the
+marker answers "what did the latest release change?", not "what changed
+over all of history".
 
 Classification compares the item's state after the second-to-last release
 with its state after the newest release:
@@ -516,14 +505,14 @@ with its state after the newest release:
 | absent    | the item's file is not in the newest release, or the newest file changes nothing                            |
 
 Only one marker applies per item; the priority is `new` > `moved` >
-`updated`. The marker is build-time derived state (BLUEPRINT §6.3 rule 6)
-and lives on the item object, never in the data files.
-A data tree with a single release folder (a baseline with no delta) has
-no earlier state to compare against, so it renders **no** markers: there
-is nothing for the "newest release" to have changed relative to.
+`updated`. The marker is build-time derived state (rule 6 above) and
+lives on the item object, never in the data files. A data tree with a
+single release folder (a baseline with no delta) has no earlier state to
+compare against, so it renders **no** markers: there is nothing for the
+"newest release" to have changed relative to.
 
 The 2025-05 release yields 29 `new`, 31 `moved`, and 1 `updated` marker
-on the rendered page; the content tests assert these counts (§13.4).
+on the rendered page; the content tests assert these counts (§13).
 
 For `moved` items the merge also records `changedFrom` — the group id the
 item had before the newest release — which feeds the bullet tooltip
@@ -678,9 +667,10 @@ Transitions:
   (native button semantics).
 - Search interacts with the popover through the glyph and the popover
   content: a query that matches the note text toggles the matched glyph
-  on the button and bolds the matched terms inside the popover (§7.2.3,
-  deviation 17). It never opens or closes a popover and never touches its
-  open/pinned state. Every interactive affordance is inert without scripts.
+  on the button and bolds the matched terms inside the popover (§7.2 rule
+  3, deviation 17). It never opens or closes a popover and never touches
+  its open/pinned state. Every interactive affordance is inert without
+  scripts.
 
 ## 8. Data Flow
 
@@ -727,7 +717,7 @@ config in, document strings out, written by a thin CLI.
 
 ### 9.1 Entry point
 
-A single document (`src/index.html` per user requirement). It must:
+A single document (`src/index.html`). It must:
 
 - Declare Norwegian language, UTF-8, and the responsive viewport meta.
 - Render the full page content with scripts disabled (search and the
@@ -746,7 +736,7 @@ A single document (`src/index.html` per user requirement). It must:
 ### 9.2 Icon set
 
 Emoji glyphs from the system font replace a runtime icon library
-(§12.2 deviation 2). No icon library is loaded.
+(deviation 2). No icon library is loaded.
 
 | Origin icon (FA 6)   | Replacement emoji | Used in                         |
 | -------------------- | ----------------- | ------------------------------- |
@@ -849,11 +839,10 @@ files under `data/` hold it, the generated page renders it, and the
 automated tests assert it — all verbatim. Item counts per column must
 match section 6.5 exactly.
 
-The canonical spellings below were set on 2026-07-31 to correct known
-typos in the source material. The data must use exactly these strings,
-and the content tests assert them. The reviewed spellings
-`Nøtte` (§8), `Banos` (§8), and `Lollosalat` (§2) look like typos but
-are intentional and must stay unchanged.
+The canonical spellings below correct known typos in the source material;
+the data must use exactly these strings. The reviewed spellings `Nøtte`
+(§8), `Banos` (§8), and `Lollosalat` (§2) look like typos but are
+intentional and must stay unchanged.
 
 | Location    | Canonical spelling                                                 |
 | ----------- | ------------------------------------------------------------------ |
@@ -886,142 +875,96 @@ longer carry an amount.
 
 ### 12.2 Design decisions and behavior notes
 
+The normative rules for each decision live in the sections cited; these
+notes record the decision and its rationale.
+
 1. Semantics: stylesheet classes are semantic and hand-written; no utility
-   class framework is used. Visual output follows §4–§11.
-2. Icons: emoji glyphs from the system font replace an icon library.
-   Emoji are system-rendered and vary by platform, so the icon area looks
-   different per platform — the same variability already accepted for the
-   masthead's emoji.
-3. Item small-print notes are merged into the item text as plain
-   parenthesized notes. There is no separate small-print styling; the
-   styling applies consistently at all times and under every search state.
-4. The clear control is a button with an explicit `type="button"`
-   (non-visual).
-5. Typography uses the platform's native system font stack (user decision,
-   2026-07-31: no third-party font dependency). Rendering varies by
-   platform and by installed faces. Condensed heading faces are
-   approximated by bold weight with the existing uppercase and
-   letter-spacing rules; the narrow display face used by the original
-   masthead is not reproducible with system fonts, so the masthead title
-   renders wider. This is the same platform-variability trade-off already
-   accepted for emoji (deviation 2).
+   class framework is used (§4–§11).
+2. Icons: emoji glyphs from the system font replace an icon library
+   (§9.2). Emoji are system-rendered and vary per platform — the same
+   variability already accepted for the masthead's emoji.
+3. Item small-print notes are plain parenthesized text inside the item
+   text; no separate small-print styling, in any state (§5.6).
+4. The clear control is a button with an explicit `type="button"` (§5.3).
+5. Typography uses the platform's native system font stack — no
+   third-party fonts (§4.2). Condensed heading faces are approximated by
+   bold weight plus the existing uppercase and letter-spacing rules; the
+   narrow display face of the original masthead is not reproducible, so
+   the masthead title renders wider — the same platform-variability
+   trade-off as deviation 2.
 6. The footer source line reads "FODMAP v<version> // Kilder:" with two
    links (NHI.no and NKFM – Lav FODMAP-mat ved IBS); the version text
-   must track the `VERSION` file. The disclaimer line below it is bold;
-   the source and credit lines are regular weight (§5.8).
-7. The Smakstilsetning, saus, dressing category heading color is a
-   sauce-red terracotta (`#d97744` / `217, 119, 68`), chosen for its
-   content association (tomato-based sauces) and its distance from the
-   pink/red family already used by Frukt, Kjøtt, and Sukker. Applies to
-   the heading background only (column tints are role-based, deviation 13).
-8. The masthead sub-title never wraps (user requirement, 2026-07-31):
-   `white-space: nowrap` keeps the tagline on one line, and the size steps
-   down at ≤ 457 px (1 rem), ≤ 372 px (0.875 rem), and ≤ 329 px
-   (0.8125 rem) so the single line fits without horizontal overflow at
-   every width down to 320 px.
-9. A text-size toggle is added per user request (2026-07-31): a cycling
-   `Aa` button in the search widget raises content text through
-   100 % / 125 % / 150 %. Scaling applies to the content font-size tokens
-   only (`calc` on `--text-scale`); the masthead titles, spacing, borders,
-   search widget height, and sticky offsets stay fixed so the view remains
-   compact. Items declare `overflow-wrap: anywhere` so unbreakable tokens
+   must track the `VERSION` file (§5.8).
+7. The Smakstilsetning, saus, dressing heading color is a sauce-red
+   terracotta (`#d97744` / `217, 119, 68`), chosen for its content
+   association (tomato-based sauces) and its distance from the pink/red
+   family used by Frukt, Kjøtt, and Sukker. Heading background only
+   (§4.1).
+8. The masthead sub-title never wraps; narrow-viewport size steps keep
+   the single line fitting at every width down to 320 px (§4.3).
+9. A text-size toggle cycles the content text through 100 % / 125 % /
+   150 %. Scaling applies to the content font-size tokens only
+   (`calc` on `--text-scale`); masthead titles, spacing, borders, widget
+   height, and sticky offsets stay fixed. Items declare
+   `overflow-wrap: anywhere` so unbreakable tokens
    ("Maltodextrin/maltose/maltekstrakt") wrap instead of pushing the
-   column track wider at 150 %. The level is persisted in local storage
-   (key `fodmap-text-scale`) — the one storage exception to §10 — and
-   degrades to session-only when storage is unavailable. The toggle is not
-   part of the search engine module; it lives in its own module and state
-   machine (§7.4).
-10. The footer includes a credit line (user request, 2026-07-31):
-    "Utviklet av Arnulf Heimsbakk // Kildekode på
-    github.com/aheimsbakk/fodmap // Lisens MIT" with the repository name
-    linked to `https://github.com/aheimsbakk/fodmap/` (new tab). The
-    footer renders three text lines — disclaimer, source line, credit
-    line — with equal 0.5 rem gaps between them and no separator. Only the
-    disclaimer line is bold. The credit line sits in the footer's small
-    gray secondary style below the source line (§5.8).
-11. Sub-group headings have no separator line (user request, 2026-08-01).
-    In the FILTERED state a visible sub-group heading can sit below
-    hidden items, so a line above it would float detached. Separation
-    from the preceding block is margin-only (0.75 rem top margin); the
-    `--color-subgroup-line` token is gone, and no media query
-    special-cases first sub-groups — the heading renders identically at
-    every width and in both search states.
-12. Every category has its own heading color set. Nøtter og frø uses a
-    walnut brown (`#a9744f` / `169, 116, 79`), and Pålegg uses a beige
-    (`#d1bfae` / `209, 191, 174`); both are distinct from the Brød set
-    they initially shared, matching the one-set-per-category pattern of
-    the other categories. Applies to the heading background only (column
-    tints are role-based, deviation 13).
-13. Column tints are role-based per user request (2026-08-01): each
-    column carries the color of its role (SPIS / BEGRENSE / UNNGÅ, §4.1)
-    so the column ↔ role correspondence is visible at a glance, matching
-    the legend and the mobile labels. Category colors apply to the heading
-    background only. Empty placeholder columns carry the role of their
-    position and get the corresponding tint (2026-08-01): leaving them
-    white broke the color rhythm of the section next to their tinted
-    neighbors. They are marked `data-placeholder`, render wide+ only, and
-    stay excluded from filtering.
-14. On narrow viewports, columns left without visible content by a search
-    are hidden entirely (user request, 2026-08-01): the collapse shrinks
-    the stacked narrow layout and saves vertical space. The collapse is a
-    mobile-scoped CSS utility class (`.col-empty-mobile`, display none
-    below 768 px only) toggled by the search executor from a per-column
-    flag in the matcher plan (§7.2.5). Every re-render recomputes the
-    flag, so a column reappears as soon as any item or sub-group heading
-    in it matches again, or the category heading matches; every IDLE
-    render removes the class. From 768 px up the class is inert: the
-    tinted cell stays for the 3-column rhythm and the legend/column
-    correspondence. Placeholder columns are unaffected — the matcher
-    never marks them, and they are already wide-only (§5.7).
+   column track wider at 150 %. The level persists in local storage
+   (key `fodmap-text-scale`, §10) and degrades to session-only on
+   failure; the toggle lives in its own module and state machine, outside
+   the search engine (§4.3, §5.3, §7.4).
+10. The footer includes a credit line with the repository name linked to
+    the GitHub repository (new tab); three lines, equal 0.5 rem gaps, no
+    separator, only the disclaimer bold (§5.8).
+11. Sub-group headings have no separator line: under a FILTERED search a
+    visible heading can sit below hidden items, so a line above it would
+    float detached. Separation is margin-only (0.75 rem top margin), at
+    every width and in both search states; the `--color-subgroup-line`
+    token is gone (§5.6).
+12. Every category has its own heading color set; Nøtter og frø (walnut
+    brown `#a9744f` / `169, 116, 79`) and Pålegg (beige `#d1bfae` /
+    `209, 191, 174`) were split from the Brød set they initially shared.
+    Heading background only (§4.1).
+13. Column tints are role-based so the column ↔ role correspondence
+    matches the legend and the mobile labels at a glance; category colors
+    apply to the heading background only. Empty placeholder columns carry
+    the role of their position and get the corresponding tint, keeping
+    the section's color rhythm complete (§4.1, §5.7).
+14. Narrow viewports hide columns left without visible content by a
+    search; wide+ keeps the tinted cells for the 3-column rhythm. A
+    mobile-scoped utility class (`.col-empty-mobile`, below 768 px only),
+    toggled from a per-column matcher flag, drives the collapse; every
+    re-render recomputes the flag, so a column returns as soon as it
+    matches again (§5.6, §7.2 rule 5).
 15. Items may carry a reasoning note (why the item is in its column, a
-    source link, a caveat), stored in the item's data body (§6.2). The
-    page renders it as an inline info button with a popover: hover to
-    view, click to pin, click outside to close (§7.5). Search indexes the
-    note text; a query that matches only the note reveals the item and
-    flips the button glyph to the matched state (`☑️`, §4.6) instead of
-    highlighting text, because the popover is never re-rendered by the
-    filter.
-16. The page is generated from data at build time (2026-08-05): the
-    document, the color token layer, and the role/section CSS are build
-    artifacts rendered from the config file and the merged release data
-    (§6, §14). Hand-authored markup is replaced by generated markup; the
+    source link, a caveat), stored in the item's data body (§6.2) and
+    rendered as an inline info button + popover (§4.6, §5.6, §7.5).
+    Search indexes the note text; a note-only match reveals the item and
+    flips the button glyph to the matched state instead of highlighting
+    item text (§7.2 rule 3).
+16. The page is generated from data at build time: the document, the
+    color token layer, and the role/section CSS are build artifacts; the
     base, layout, and component CSS layers and the three script modules
-    stay hand-authored. The runtime page remains plain static files — the
-    build step is developer-time only (§1, §8). The generated artifacts
-    are written directly into the site directory and committed, so the
-    deployed site needs no build step; the hand-authored document is
-    retired.
+    stay hand-authored. The generated artifacts are written into the site
+    directory and committed, so the deployed site needs no build step;
+    the hand-authored document is retired (§8, §14).
 17. The note info button renders without a border and without a hover
-    ring (user request, 2026-08-05): the resting 1 px accent border and
-    the 2 px hover outline were read as red rings around the icon, so
-    both are removed; keyboard focus keeps a visible outline via
+    ring — the resting border and the hover outline were read as red
+    rings around the icon; keyboard focus keeps a visible outline via
     `:focus-visible` only (§4.6). A search that matches the reasoning
-    note now bolds the matched terms inside the popover, restoring the
-    plain text on IDLE; the matched glyph (§4.6) and the popover's
-    open/pinned state are untouched (§7.5).
-18. Items merged from the newest release carry a change marker bullet
-    (user request, 2026-08-05): the default bullet is replaced by a
-    config-driven emoji — 🆕 for items new in the newest release, 🔄 for
-    items moved to a new group, 🆙 for items updated in place. The glyphs
-    are configurable in `data/config.json` (`page.markers`) and written
-    into the token layer (§4.7). The marker applies only to items whose
-    file is present in the newest release folder; a change in an earlier
-    delta is history, not a marker (§6.6). Detection is derived at build
-    time; rendering is a `::before` swap driven by a `data-change`
-    attribute, so the item text node stays plain and search behaves
-    exactly as before (deviation 3). For the 2025-05 release this marks
-    29 new, 31 moved, and 1 updated item (§6.5).
-19. Item bullets carry a hover tooltip (user request, 2026-08-05): an
-    empty `span.item-bullet` hotspot over the bullet shows a native
-    browser tooltip with the config-driven text of `page.tooltips`
-    (§6.7) — the date of the release that last touched the item for
-    unchanged items ("Dato 2021" for items untouched since the
-    baseline), the newest release date for new and updated items, and
-    "Flyttet fra <forrige gruppe> til <gruppe>, dato <dato>" for moved
-    items. Native titles keep the page dependency-free and script-free;
-    the strings are editable in `config.json`, like the marker glyphs
-    (§4.7). The hotspot is empty and `aria-hidden`, so the item text
-    stays plain and search behavior is unchanged (deviation 3).
+    note bolds the matched terms inside the popover, restoring the plain
+    text on IDLE; the matched glyph and the popover's open/pinned state
+    are untouched (§7.5).
+18. Newest-release items replace the default bullet with a change-marker
+    emoji — 🆕 new, 🔄 moved, 🆙 updated in place (§4.7, §6.6). A change
+    in an earlier delta is history, not a marker; the 2025-05 release
+    marks 29 new, 31 moved, and 1 updated item (§6.5).
+19. Item bullets carry a hover tooltip: a native browser title on an
+    empty `aria-hidden` `span.item-bullet` hotspot, built from the
+    config-driven `page.tooltips` templates — the release date that last
+    touched the item, with the from→to group labels for moved items.
+    Native titles keep the page dependency-free and script-free; the
+    strings are editable in `config.json`, like the marker glyphs
+    (§6.7).
 
 ### 12.3 Negative contracts
 
@@ -1035,91 +978,26 @@ longer carry an amount.
 
 ## 13. Verification
 
-### 13.1 Functional tests (automated)
+The automated suites run with `npm test` (Node's built-in `node --test`).
+The table lists the contract each test file guards; the concrete cases
+live in `CODEBASE.md` §5.4 and in the test files themselves.
 
-Cover the search engine:
+| Test file                  | Contract level                                                                                                                                                                                                |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tests/search.test.js`     | search engine (§7.1–§7.3, §7.5): normalization, matching (article + note), highlighting, visibility transitions, narrow empty-column collapse, note-button matched state, clear/Escape, debounce, scroll blur |
+| `tests/text-scale.test.js` | text-size toggle (§7.4): cycle, attribute application, persistence and fallbacks, independence from search                                                                                                    |
+| `tests/content.test.js`    | content inventory (§6.5, §12.1): 11 sections in order, per-column counts (total 510), canonical spellings verbatim                                                                                            |
+| `tests/build.test.js`      | build pipeline (§6, §14): generated inventory, change-marker counts (29 new, 31 moved, 1 updated), stylesheet/script references, note-button contract (§4.6), bullet tooltips (§6.7)                          |
+| `tests/merge.test.js`      | release merge and markers (§6.3, §6.6, §6.7): release ordering, inheritance and clears, `visible`, note prepend, marker classification, `changedFrom`, `releaseDate`                                          |
+| `tests/styles.test.js`     | stylesheet contracts (§4.1, §4.3, §5.6, §7.4): sub-title one-line rule and narrow steps, text-scale tokens, no sub-group separators, role-tint ownership, empty-column collapse scoping, marker tokens        |
 
-- Normalization: lowercase, trim, empty query.
-- Matching: case-insensitivity, portion note participation, reasoning
-  note participation (a note-only match reveals the item), heading match
-  reveals whole section, sub-group heading match reveals its whole list,
-  no diacritic folding.
-- Highlight: single/multiple occurrences, emphasis marker in headings
-  (category and sub-group) excluding icon markup, item emphasis, restore on
-  clear.
-- Visibility transitions: item, sub-group, mobile label, section.
-- Empty-column collapse (deviation 14): below 768 px a column with no
-  visible content is marked for hiding; it returns when an item or
-  sub-group heading in it matches, or the category heading matches;
-  placeholder columns are never marked; clearing the query removes the
-  marker.
-- Note-button state: a note-only match toggles the matched glyph and
-  bolds the matched terms inside the popover; every other state (article
-  match, no match, IDLE) restores the plain glyph and the plain popover
-  text; the popover's open/pinned state survives search runs untouched.
-- Special inputs: regex metacharacters, spaces, uppercase.
-- Clear control: hides/shows, restores originals, returns focus.
-- Escape key: clears an active search exactly like the clear control while
-  the input is focused; empty query and unfocused input are no-ops.
-- Debounce: coalesces rapid input.
-- Scroll blur rule.
-
-Text-size toggle (§7.4):
-
-- Cycling: each activation advances S100 → S125 → S150 → S100.
-- Application: the `data-text-scale` attribute moves with the level; the
-  computed content font sizes scale, the masthead and spacing do not.
-- Persistence: the level survives reload via local storage; invalid,
-  missing, or unreadable stored values fall back to S100.
-- Independence: toggling the scale never disturbs an active search
-  (matches, highlights, and visibility stay intact), and clearing a
-  search never resets the level.
-
-### 13.2 Content inventory tests (automated)
-
-- Section count (11), heading order, and heading text equal to the
-  canonical inventory in §6.5 and §12.1.
-- Per-column item counts equal to §6.5 (total 510).
-- The canonical spellings in §12.1 are present verbatim in the data files
-  and in the generated markup.
-
-### 13.3 Visual and behavioral verification (full-browser)
-
-Run in a real browser (Playwright, available in this environment): render
-the page at 375 px, 768 px, 1024 px, and 1280 px widths and verify the
-responsive contract — masthead, sticky offsets, grid columns, mobile
-labels vs legend, banner seams, and footer. Run live search flows (typing,
-highlighting, clear, section hiding, scroll blur) and verify the resulting
-document state. Spot-check the FILTERED state at the same widths,
-including the narrow empty-column collapse (deviation 14) at 375 px: an
-emptied column must be gone below 768 px and present as a tinted cell
-from 768 px up.
-
-### 13.4 Data and build pipeline tests (automated)
-
-Cover the merge and render pipeline:
-
-- Merge: baseline + deltas produce the expected per-item state; absent
-  fields inherit, explicit empty clears, `visible: false` removes,
-  `visible: true` restores, notes prepend oldest → newest (§6.3).
-- Change markers (§6.6): an item present in the newest release classifies
-  as `new` / `moved` / `updated`; a change in an earlier delta is not
-  marked when the item is absent from the newest release; the rendered
-  page carries 29 `new`, 31 `moved`, and 1 `updated` marker, and the
-  token layer reproduces the config `page.markers` glyphs (§4.7).
-- Render: the generated document contains exactly the sections, columns,
-  items, and footnote banners of §6.5, the config-driven legend, and the
-  three module scripts; the generated token and role CSS reproduce the
-  config colors (§4, §14).
-- Config integrity: every section folder, item `group`, `subgroup`, and
-  `footnote.type` reference resolves to a config id or key (§4 of
-  `docs/config-format.md`).
-- Bullet tooltips (§6.7): every rendered item carries a title built from
-  the config templates — the date of the release that last touched the
-  item for default items ("Dato 2021" for the current baseline items),
-  the newest release date for new and updated items, and
-  "Flyttet fra <label> til <label>, dato <release>" for moved items,
-  whose `changedFrom` holds the previous group id.
+Full-browser verification runs with Playwright (available in this
+environment): render `src/index.html` at 375 / 768 / 1024 / 1280 px and
+verify the responsive contract (masthead, sticky offsets, grid columns,
+mobile labels vs legend, banner seams, footer); run live search flows
+(typing, highlighting, clear, section hiding, scroll blur) and verify the
+resulting document state, including the narrow empty-column collapse at
+375 px.
 
 ## 14. Stylesheet Architecture
 

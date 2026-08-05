@@ -128,7 +128,7 @@ Semantic hooks used by the script (data attributes, set at load time):
 The reasoning note text is read live from the static `.note-popover`
 sibling at capture time; its original string is stored on the capture item
 (`noteHtml`) so a note-only match can bold the matched terms inside the
-popover and IDLE can restore the exact plain text (BLUEPRINT §7.2.3,
+popover and IDLE can restore the exact plain text (BLUEPRINT §7.2 rule 3,
 deviation 17). No origin attribute is needed: the popover's open/pinned
 state lives on the button and the element itself is never replaced.
 Element IDs: `search-input`, `clear-search`,
@@ -160,7 +160,7 @@ the end of the body.
 
 | Export                                   | Responsibility                                                                                                                                                                                                                                                                                                               | BLUEPRINT § |
 | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| `normalizeQuery(value)`                  | lowercase + trim                                                                                                                                                                                                                                                                                                             | §7.2.1      |
+| `normalizeQuery(value)`                  | lowercase + trim                                                                                                                                                                                                                                                                                                             | §7.2 rule 1 |
 | `buildMatcher()`                         | pure matcher: query + captured content → visibility/highlight plan for items, category/sub-group headings, and a per-column empty flag (narrow collapse, deviation 14). Items match on article text or note text; a note-only match flags the note button as matched and bolds the matched terms in the popover (`noteHtml`) | §8          |
 | `applyPlan(document, plan)`              | executor: applies the plan to the DOM (re-renders each item's `.item-text` span and the `.note-popover` content, toggles `.col-empty-mobile` on columns and `.is-match` on note buttons; the popover element itself and its open/pinned state are never touched)                                                             | §8          |
 | `initSearch(document, debounceMs = 300)` | boot: clear any browser-restored input value, then load-time capture (`data-orig-*` + note text + placeholder flag); event wiring (input debounce 300 ms, Escape key clears like the clear control, clear control, passive scroll-blur > 50 px with a 200 ms grace window after each filter run), IDLE restore               | §7, §9.5    |
@@ -223,235 +223,180 @@ pair. The three modules share no state and boot independently.
 ### 5.1 Build step and data
 
 - **Data-driven content without a runtime dependency.** The Norwegian
-  text lives as Markdown items with YAML frontmatter plus one JSON
-  config (`data/`), per the specs in `docs/data-format.md` and
-  `docs/config-format.md`. A build step turns that data into plain
-  static files before deploy; the browser still receives only markup,
-  CSS, and vanilla scripts (BLUEPRINT goal 4, §12.2 deviation 16).
+  text lives as Markdown items with YAML frontmatter plus one JSON config
+  (`data/`), per `docs/data-format.md` and `docs/config-format.md`; the
+  browser still receives only static files (deviation 16).
 - **Merge is a separate pure module.** `lib/merge.js` lists every
   `data/<release>/` folder (date-shaped names only, oldest → newest via
-  `listReleases`), reads the item files, and merges per item (slug within
-  section folder) with `Object.assign`, which matches the spec's
-  field-level inheritance (BLUEPRINT §6.3). Notes accumulate newest-on-top
-  (§6.3 rule 5). The module also derives the `change` marker — `new` /
-  `moved` / `updated`, or none — for items present in the newest release
-  by comparing the state before and after that release (§6.6); a data tree
-  with a single release derives no markers. The render half is equally
-  pure: `lib/render-html.js` takes merged items + config and returns
-  document strings, so both halves are testable without a DOM or a server.
+  `listReleases`) and merges per item (slug within section folder) with
+  `Object.assign` field-level inheritance (§6.3); notes accumulate
+  newest-on-top. It derives `change` (`new` / `moved` / `updated`, or
+  none) for items present in the newest release by comparing state
+  before/after it (§6.6); a single release folder derives no markers. An
+  empty-valued frontmatter key followed by indented `- ` lines parses as
+  a YAML list (the list form of `attribution`).
+- **One renderer per output.** `lib/render-html.js` (merged items +
+  config → document strings), `lib/render-tokens.js`, and
+  `lib/render-css.js` each own exactly one generated artifact; all are
+  pure, so the pipeline is testable without a DOM (RULES §9, §17).
 - **Change markers are declarative, not hand-authored.** The item `li`
-  carries `data-change` (set by the merge), and the CSS swaps the default
-  bullet for the matching `--marker-*` emoji token. The default bullet
-  and the marker glyphs are all written into the token layer from
-  `page.markers` in the config, so the maintainer restyles them without
-  touching CSS or markup — the same pattern as the note-button glyph
-  (§4.6). Item text nodes stay plain, so search capture and restore are
-  unaffected (BLUEPRINT §6.6, §4.7, deviation 18).
+  carries `data-change`; the CSS swaps the default bullet for the
+  matching `--marker-*` emoji token, with glyphs from `page.markers` in
+  the config — restyled in config only, and item text nodes stay plain
+  so search is unaffected (deviation 18).
 - **Bullet tooltips are derived from config templates.** `merge.js`
-  records the pre-move group id (`changedFrom`) on moved items and the
-  item's own release date (`releaseDate` — the folder of its newest
-  file), and `render-html.js` builds each item's native `title` from
-  `page.tooltips` (BLUEPRINT §6.7): `{{date}}` ← the item's release
-  date (the baseline for untouched items), `{{from}}` / `{{to}}` ← the
-  config group labels. The strings live only in the config, like the
-  marker glyphs; a missing template falls back to `default`. The title
-  sits on an empty `aria-hidden` `span.item-bullet` hotspot over the
-  `::before` bullet (which cannot carry a title), so the marker swap,
-  the item text, and search stay untouched.
-- **Generated layers, hand-authored layers.** Only the files that vary
-  with the data are generated: the document, the color token layer, and
-  the per-role/per-section rules (`roles.css`). This keeps an arbitrary
-  number of groups and sections working with zero new stylesheet code,
-  while the layout and component rules stay hand-authored, reviewed CSS.
-  No hand-authored layer restates a color that config owns.
-- **One renderer per output.** `render-html.js`, `render-tokens.js`,
-  and `render-css.js` each own exactly one generated artifact, keeping
-  every file small and single-responsibility (RULES §9, §17).
-- **Generated files are committed in the site.** The CLI writes directly
-  into `src/`, and the three generated artifacts are committed with the
-  code, so the deployed site (which the Pages workflow uploads as-is,
-  without a build step) is always complete. Regenerate with
-  `node scripts/build/build.mjs src` and format the output with
-  `npm run format` before committing (BLUEPRINT §12.2 deviation 16).
+  records `changedFrom` (pre-move group id) and `releaseDate` (folder of
+  the item's newest file); `render-html.js` builds each item's native
+  `title` from `page.tooltips` (§6.7): `{{date}}`, `{{from}}` / `{{to}}`
+  ← config group labels, missing template falls back to `default`. The
+  title sits on an empty `aria-hidden` `span.item-bullet` hotspot over
+  the `::before` bullet (which cannot carry a title).
+- **Generated layers, hand-authored layers.** Only the document, the
+  color token layer, and `roles.css` vary with the data; layout and
+  component rules stay hand-authored and never restate a config-owned
+  color, so extra groups/sections need zero new stylesheet code.
+- **Generated files are committed in the site.** `build.mjs` writes
+  directly into `src/` and the three artifacts are committed, so the
+  deployed site (uploaded as-is by the Pages workflow) needs no build
+  step. Regenerate with `node scripts/build/build.mjs src` and format
+  with `npm run format` before committing.
 
 ### 5.2 JavaScript
 
-- **ES modules without a bundler.** The environment has no build step
-  for the browser, and modern browsers load modules natively. One module
-  per concern (BLUEPRINT goal 3): `search.js` stays under the 300-line
-  limit, the text-size toggle gets its own `text-scale.js`, and the note
-  affordance gets its own `note-popover.js` instead of growing the search
-  module (RULES §17). The three modules share no state.
+- **ES modules without a bundler**, one module per concern (BLUEPRINT
+  goal 3): `search.js` under the 300-line limit, plus `text-scale.js` and
+  `note-popover.js`; the three share no state and boot independently
+  (RULES §17).
 - **The storage adapter is a parameter, not a global.** `initTextScale`
   accepts a `{ getItem, setItem }` object; the browser path defaults to
-  `localStorage` behind a try/catch. Tests inject an in-memory store and
-  can simulate blocked storage, which keeps the persistence cases
-  deterministic in jsdom.
+  `localStorage` behind a try/catch, and tests inject an in-memory store
+  to simulate blocked storage deterministically.
 - **Matcher/executor split is the testing strategy.** The matcher is pure
-  (strings in, plan out), so `node --test` covers it without a browser.
-  The executor and `initSearch` are integration-tested through jsdom with
-  the real `src/index.html`, which also exercises the element identity
-  contract (BLUEPRINT §9.3).
-- **The article span keeps search surgical.** Generated items carry
-  `span.item-text` plus static siblings (note button + popover). Search
-  re-renders only the article span and toggles classes on the button and
-  column; it never rebuilds a note, so the popover's open state survives
-  filtering and restore stays trivial (BLUEPRINT §7.2.3, §7.5).
+  (strings in, plan out), so `node --test` covers it without a browser;
+  the executor and `initSearch` are integration-tested through jsdom
+  against the real generated `src/index.html`, which also exercises the
+  element identity contract (§9.3).
+- **The article span keeps search surgical.** Search re-renders only
+  `span.item-text` and toggles classes on the button and column; it never
+  rebuilds a note, so the popover's open state survives filtering
+  (§7.2 rule 3, §7.5).
 - **Notes are searchable through their static text.** The matcher reads
-  the note text from the `.note-popover` sibling at capture time and
-  matches against it; a note-only match flips the button's `.is-match`
-  class (which swaps the `::before` glyph via CSS, BLUEPRINT §4.6) and
-  rewrites the popover's innerHTML with the matched terms bolded
-  (`<b class="item-highlight">`). The original popover string is captured
-  once (`noteHtml`) and restored on every non-matching render, so IDLE
-  returns the exact plain text (deviation 17).
+  the note text from the `.note-popover` sibling at capture time; a
+  note-only match flips `.is-match` (swapping the `::before` glyph, §4.6)
+  and bolds the matched terms in the popover, with the original string
+  captured once (`noteHtml`) and restored on every non-matching render
+  (deviation 17).
 - **Boot clears any restored input value in JS, not just via markup.**
-  `autocomplete="off"` is advisory and can race the deferred module's
-  execution, so `initSearch` also sets `input.value = ""` on boot as the
-  deterministic source of truth. This holds the invariant that boot always
-  renders from IDLE, never a filled field over a fully visible page (§7.1).
+  `autocomplete="off"` can race the deferred module's execution, so
+  `initSearch` also sets `input.value = ""` on boot — the deterministic
+  source of truth for the "boot always renders from IDLE" invariant
+  (§7.1).
 - **The narrow empty-column collapse is plan data, not CSS hacks.**
-  The matcher marks each column `empty` when it has no visible content
-  and the category heading does not match; the executor toggles the
-  `.col-empty-mobile` class from that flag (deviation 14). Because every
-  re-render recomputes the flag and the IDLE plan clears it, a column
-  returns exactly as soon as the query leaves content in it again.
-  Placeholder columns are marked in the capture and never flagged.
+  The matcher sets a per-column empty flag; the executor toggles
+  `.col-empty-mobile` from it. Every re-render recomputes the flag and
+  the IDLE plan clears it; placeholder columns are never flagged
+  (deviation 14).
 
 ### 5.3 CSS
 
-- **Custom properties as the token layer** give the category color sets
-  (heading background) a single source of truth — now written by the
-  build from config: `--color-brod`, `--color-gronn`, `--color-frukt`,
-  `--color-melk`, `--color-drikke`, `--color-kjott`, plus per-section
-  headings set via `[data-category="..."]` selectors in the generated
-  `roles.css`. This replaces utility classes with semantic selectors
-  (deviation 1).
-- **Column tints are role-based** (BLUEPRINT §12.2 deviation 13): three
-  tokens (`--tint-spis`, `--tint-begrens`, `--tint-unnga`) hold the role
-  backgrounds at low opacity, and `.content-col[data-role="..."]`
-  selectors apply them — generated per config group so extra groups need
-  no new stylesheet code. The column ↔ role correspondence matches the
-  legend and the mobile labels at a glance. Empty placeholder columns
-  carry the role of their position and get the corresponding tint;
-  `data-placeholder` marks them for the wide-only rendering rule and
-  keeps them excluded from filtering.
+- **Custom properties as the token layer.** `tokens.css` mixes generated
+  and static parts: the build writes the config colors (page palette,
+  `--role-<id>-bg|ink|tint|border`, `--section-<id>-bg`, `--info-*`,
+  `--marker-*`, plus legacy transliterated section names like
+  `--color-brod`); typography, sizes, z-order, effects, and media steps
+  stay hand-authored literals (§4.2–§4.5).
+- **Column tints are role-based** (deviation 13): the generated
+  `--role-spis-tint` / `--role-begrens-tint` / `--role-unngå-tint` hold
+  the role backgrounds at low opacity, applied by generated
+  `.content-col[data-role="..."]` rules — extra groups need no new
+  stylesheet code. Empty placeholder columns carry their position's role
+  tint and `data-placeholder` (wide-only, excluded from filtering).
+- **Section heading colors are generated.** `roles.css` applies
+  `--section-<id>-bg` via `[data-category="..."]` selectors per config
+  section; the hand-authored `.category-heading` base rule in
+  `components.css` keeps `--color-brod` as its fallback background, which
+  the generated rules always override for the 11 real sections.
 - **Breakpoints** are authored mobile-first: base (< 640 px), `sm`
-  (≥ 640 px), `md` (≥ 768 px) — the grid and legend flip happens at `md`.
-  No `lg`-specific rules are needed beyond the body padding step
-  (≥ 1024 px), which reuses the `sm`/`md` rule cascade.
+  (≥ 640 px), `md` (≥ 768 px) — the grid and legend flip happens at
+  `md`; `lg` (≥ 1024 px) only adds the body padding step.
 - **The empty-column collapse is a max-width media rule**
-  (`@media (max-width: 767.98px) { .col-empty-mobile { display: none } }`),
-  unlike the other responsive utilities which follow the base +
-  min-width pattern. A min-width override could not restore a column
-  that its own component rule displays as a grid item; scoping the
-  `display: none` to narrow keeps the wide+ grid and the
-  `[data-placeholder]` wide-only rules untouched (deviation 14).
-- **Sticky layering** follows BLUEPRINT §4.4: z-index 10/20/30/40 and
-  offsets 56 px/64 px implemented as tokens
-  (`--sticky-search-offset`, `--sticky-heading-offset`).
-- **System font stacks** keep the page dependency-free (BLUEPRINT §12.2
-  deviation 5): the three role tokens (`--font-body`, `--font-heading`,
-  `--font-display`) alias a single `--font-system` custom property
-  (`system-ui` + generic fallback). Reintroducing webfonts later is a
-  one-token change; layout and letter-spacing rules are unaffected.
+  (`@media (max-width: 767.98px)`), unlike the other min-width-based
+  utilities: a min-width override could not restore a column that its own
+  component rule displays as a grid item (deviation 14).
+- **Sticky layering** follows §4.4: z-index 10/20/30/40 and 56/64 px
+  offsets as tokens (`--sticky-search-offset`, `--sticky-heading-offset`).
+- **System font stacks** keep the page dependency-free (deviation 5):
+  `--font-body` / `--font-heading` / `--font-display` alias a single
+  `--font-system` custom property, so reintroducing webfonts later is a
+  one-token change.
 - **Text scaling is a token multiplier, not a root font-size.** The
-  `--text-scale` custom property (1 / 1.25 / 1.5) is set by the
-  `data-text-scale` attribute on the root element, and the content
-  font-size tokens are defined as `calc(<base> * var(--text-scale))`.
-  The `html[data-text-scale="..."]` selectors outrank `:root` by
-  specificity, so one attribute flips every scaled token. Spacing,
-  borders, the search widget height, the sticky offsets, and the
-  masthead tokens are defined without the multiplier and stay fixed,
-  which is what keeps the layout compact (deviation 9).
-- **The note button scales and swaps glyphs via tokens.** The
-  `--info-*` tokens (BLUEPRINT §4.6) size the button in `em`, so it
-  grows with the text scale, and the `::before` content swap
-  (config-driven `--info-emoji` / `--info-emoji-matched`, currently
-  `ℹ️` → `☑️`) is driven by the `.is-match` class, so the button's DOM
-  text never changes and search restore is unaffected. The button is
-  borderless with no hover ring — only keyboard focus shows an outline
-  (deviation 17) — so the icon reads as a plain glyph, not a ringed badge.
-- **`overflow-wrap: anywhere` on `li.item`** (not `break-word`): long
-  unbreakable tokens ("Maltodextrin/maltose/maltekstrakt") exceed the
-  column track at the 150 % scale on narrow viewports. `anywhere`
-  participates in min-content sizing, so the grid track shrinks with
-  the wrap; `break-word` would not and the column would overflow.
-- **The canonical content** (BLUEPRINT §12.1) lives in the data files
-  under `data/`, and the generated document renders it. `tests/content.test.js`
-  verifies the rendered page against the frozen inventory: section order,
-  per-column counts (§6.5), and the canonical spellings — a data change
-  to any frozen string fails the suite.
+  `--text-scale` property (1 / 1.25 / 1.5) is set by the
+  `data-text-scale` attribute on the root; content font-size tokens are
+  `calc(<base> * var(--text-scale))`, and the
+  `html[data-text-scale="..."]` selectors outrank `:root` by specificity,
+  while spacing, borders, widget height, sticky offsets, and masthead
+  tokens stay unscaled (deviation 9).
+- **The note button scales and swaps glyphs via tokens.** The `--info-*`
+  tokens (§4.6) size the button in `em` (grows with the text scale); the
+  `::before` content swap (`ℹ️` → `☑️`) is driven by `.is-match`, so the
+  button's DOM text never changes; borderless, no hover ring — keyboard
+  focus only (deviation 17).
+- **`overflow-wrap: anywhere` on `li.item`** (not `break-word`):
+  `anywhere` participates in min-content sizing, so the grid track
+  shrinks with the wrap at 150 % scale instead of overflowing
+  (deviation 9).
+- **The canonical content** (§12.1) lives in the data files; the
+  generated document renders it, and `tests/content.test.js` fails on any
+  change to a frozen string or count.
 
 ### 5.4 Testing
 
-- The jsdom suites (`content.test.js`, `search.test.js`, `text-scale.test.js`)
-  run against the **generated page** — each imports `build()` and uses its
-  `html` — because the generated output is the canonical artifact; the
-  hand-authored document was retired when the migration completed
-  (BLUEPRINT §12.2 deviation 16).
-- `tests/build.test.js` covers the data and build pipeline (BLUEPRINT §13.4):
-  it runs `build()` and asserts the generated document reproduces the §6.5
-  inventory (11 sections, 510 items), the change-marker counts of the
-  newest release (29 new, 31 moved, 1 updated), references all six
-  stylesheet layers and three module scripts, and renders the note
-  affordance per §4.6 — the button is empty (glyph from the
-  `--info-emoji` / `--info-emoji-matched` tokens, never a live text node)
-  with `aria-label="Mer informasjon"` — and that the generated token layer
-  carries the info glyphs and the marker glyphs (§4.7), and that every
-  item renders the §6.7 bullet tooltip: one hotspot per item, the item's
-  own last-change date for default items ("Dato 2021" for the 449
-  baseline items) and the newest release date for new and updated items,
-  plus the from→to text for moved items.
-- `tests/content.test.js` loads the generated page in jsdom and asserts: 11
-  sections in the canonical order (§6.5), per-column `li` counts matching
-  BLUEPRINT §6.5 (total 510), and the canonical spellings from §12.1 present
-  verbatim in the markup.
-- `tests/search.test.js` covers BLUEPRINT §13.1: normalization, matching
-  (case-insensitivity, note participation — article and reasoning note,
-  header match, sub-group header match revealing its whole list, no
-  diacritic folding), highlighting (marker vs item emphasis, no matches
-  inside icon markup), visibility transitions (item, sub-group, mobile
-  label, section, empty columns untouched), the narrow empty-column
-  collapse (deviation 14), the note-button matched glyph state with the
-  matched terms bolded inside the popover and the plain popover text
-  restored on clear, the popover's open/pinned state surviving search
-  runs, special
-  inputs, clear/restore, boot clearing of a browser-restored input value,
-  debounce coalescing, and the scroll-blur rule (simulated via
-  `window.scrollY`).
-- `tests/styles.test.js` guards the stylesheet contracts: the masthead
-  sub-title single-line rule and narrow size steps (deviation 8), the
-  text-scale token contract (§4.3, §7.4), the line-free sub-group
-  headings (deviation 11), and the mobile-scoped empty-column collapse
-  (deviation 14). jsdom cannot measure layout, so the guards assert the
-  stylesheet declarations directly; the browser-level fit is verified
-  with Playwright at 320–640 px widths.
-- `tests/text-scale.test.js` covers BLUEPRINT §13.1 (text-size toggle):
-  the default S100 state, the 100 → 125 → 150 → 100 cycle, storage
-  write and restore, invalid and blocked storage fallbacks, the
-  independence of scaling and an active search, and the missing-button
-  inert path (§9.3).
-- **Data and build pipeline tests (BLUEPRINT §13.4)** cover the merge
-  (inheritance, explicit-empty clears, `visible` removal/restore, note
-  prepend) and the render output against the frozen inventory; they are
-  added together with the build integration.
-- `tests/merge.test.js` covers the release merge and change markers
-  (BLUEPRINT §6.3, §6.6; docs/data-format.md §7): `listReleases` ordering
-  and date-shaped filtering, field inheritance and explicit-empty clears,
-  `visible` removal, note prepend, and the `new` / `moved` / `updated`
-  classification including the only-newest-release and the single-release
-  (no markers) rules, plus the `changedFrom` previous-group id and the
-  `releaseDate` of the item's newest file that moved items carry for the
-  bullet tooltip (§6.7). Fixtures are built in a temp directory at
-  runtime, so the repository holds no test data.
-- **Full-browser verification (Playwright).** Beyond the Node unit tests,
-  the environment provides the `playwright-cli` skill for real-browser
-  testing. Use it for BLUEPRINT §13.3 visual and behavioral verification:
-  render `src/index.html` at 375 / 768 / 1024 / 1280 px widths; check the
-  responsive contract (grid columns, mobile labels vs legend, sticky
-  offsets, halftone decorations); run live search flows (typing,
-  highlighting, clear control, section hiding, scroll blur) and verify the
-  resulting document state.
+- The jsdom suites (`content.test.js`, `search.test.js`,
+  `text-scale.test.js`) run against the **generated page** — each imports
+  `build()` and uses its `html` — because the generated output is the
+  canonical artifact; the hand-authored document was retired (deviation 16).
+- `tests/build.test.js` (BLUEPRINT §13): asserts the §6.5 inventory
+  (11 sections, 510 items), the marker counts (29 new, 31 moved, 1
+  updated), all six stylesheet layers and three module scripts, the note
+  affordance per §4.6 (empty button, glyph from the `--info-*` tokens,
+  `aria-label="Mer informasjon"`), the marker glyphs (§4.7), and the §6.7
+  bullet tooltips (hotspot per item; "Dato 2021" for the 449 baseline
+  items; newest release date for new/updated; from→to for moved).
+- `tests/content.test.js` (BLUEPRINT §13): 11 sections in canonical
+  order, per-column `li` counts matching §6.5 (total 510), and the §12.1
+  canonical spellings verbatim.
+- `tests/search.test.js` (BLUEPRINT §13): normalization; matching
+  (case-insensitivity, article + reasoning-note participation, category
+  and sub-group heading matches, no diacritic folding); highlighting
+  (marker vs item emphasis, none inside icon markup); visibility
+  transitions; the narrow empty-column collapse (deviation 14); the
+  note-button matched glyph with bolded popover terms and plain-text
+  restore on clear; popover open/pinned state surviving search runs;
+  special inputs; clear/restore; boot clearing of a browser-restored
+  value; debounce coalescing; the scroll-blur rule (via `window.scrollY`).
+- `tests/styles.test.js` guards stylesheet declarations directly (jsdom
+  cannot measure layout): sub-title single-line rule (deviation 8),
+  text-scale tokens (§4.3, §7.4), line-free sub-group headings (deviation
+  11), role-tint ownership (generated `roles.css` rules + `--role-*-tint`
+  tokens; hand-authored layers restate no role/section colors), the
+  mobile-scoped empty-column collapse (deviation 14), and the marker
+  tokens. Browser-level fit is verified with Playwright at 320–640 px.
+- `tests/text-scale.test.js` (BLUEPRINT §13): S100 default, the
+  100 → 125 → 150 → 100 cycle, storage write and restore, invalid and
+  blocked storage fallbacks, independence from an active search, and the
+  missing-button inert path (§9.3).
+- `tests/merge.test.js` (BLUEPRINT §6.3, §6.6; docs/data-format.md §7):
+  `listReleases` ordering and date-shaped filtering, field inheritance
+  and explicit-empty clears, `visible` removal/restore, note prepend, the
+  `new` / `moved` / `updated` classification (newest-release-only and
+  single-release rules), `changedFrom` and `releaseDate`, and the
+  list-form `attribution` parse. Fixtures are built in a temp directory
+  at runtime, so the repository holds no test data.
+- **Full-browser verification (Playwright):** the `playwright-cli` skill
+  covers BLUEPRINT §13: render `src/index.html` at 375 / 768 / 1024 /
+  1280 px, check the responsive contract (grid columns, mobile labels vs
+  legend, sticky offsets, halftone decorations), and run live search
+  flows (typing, highlighting, clear control, section hiding, scroll
+  blur).
 - TDD applies to bug fixes going forward (RULES §19); initial
   implementation tests are written alongside the module.

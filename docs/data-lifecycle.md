@@ -63,9 +63,15 @@ New notes go on top. Older notes stay below; never edit them.
 
 ### 2.4 Publish
 
-Build the page from the merged data and deploy it (the build step is a
-later concern; see `data-format.md` §10). The release folder stays in the
-repository as history.
+Build the page from the merged data and deploy it:
+
+```bash
+node scripts/build/build.mjs src
+```
+
+The build writes `index.html`, `css/tokens.css`, and `css/roles.css` into
+`src/`; run `npm run format` and commit the regenerated files with the
+data change. The release folder stays in the repository as history.
 
 Everything you changed in the newest release folder is marked
 automatically on the page: new items get a 🆕 marker, items moved to a

@@ -2,8 +2,9 @@
 
 > Defines the file format that stores the FODMAP content: sections, groups,
 > subgroup headings, items, portion amounts, notes, and release history.
-> This document is the specification. It is deliberately independent of any
-> renderer: the format is a proposal and is not yet implemented in the app.
+> This document is the specification. It is independent of any renderer:
+> the merge semantics of §7 are implemented by `scripts/build/lib/merge.js`,
+> which the build step runs over the release folders (§8, `CODEBASE.md` §3).
 
 ## 1. System goals
 
@@ -314,7 +315,7 @@ explain the move in the bullet tooltip (BLUEPRINT §6.7). Every item's
 tooltip date is the folder name of its newest file — the release that
 last touched the item — so an item unchanged since the baseline shows
 the baseline date. The tooltip text itself is configured in
-`page.tooltips` (`config-format.md` §3.1.3).
+`page.tooltips` (`config-format.md` §3.1.4).
 
 ## 8. Release folders and sorting
 

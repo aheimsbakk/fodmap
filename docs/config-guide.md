@@ -14,17 +14,17 @@ the **items**.
 
 The file lives at `data/config.json`, next to the release folders.
 
-Config.json has eight parts:
+Config.json has seven parts:
 
-| Part             | Holds                                                   | Used by                     |
-| ---------------- | ------------------------------------------------------- | --------------------------- |
-| `schema`         | the format version                                      | readers of the file         |
-| `collation`      | the sorting language                                    | alphabetical order          |
-| `page`           | head, search, banner, colors, footer, markers, tooltips | the page shell              |
-| `sections`       | the 11 categories                                       | section headings and icons  |
-| `groups`         | the role columns (e.g. SPIS, BEGRENSE, UNNGÅ)           | role labels, emojis, colors |
-| `subgroups`      | group headings inside columns                           | headings like "Ost"         |
-| `footnote-types` | footnote styles (with or without icon)                  | section footnotes           |
+| Part             | Holds                                                                | Used by                     |
+| ---------------- | -------------------------------------------------------------------- | --------------------------- |
+| `schema`         | the format version                                                   | readers of the file         |
+| `collation`      | the sorting language                                                 | alphabetical order          |
+| `page`           | head, search, banner, colors, footer, info-button, markers, tooltips | the page shell              |
+| `sections`       | the 11 categories                                                    | section headings and icons  |
+| `groups`         | the role columns (e.g. SPIS, BEGRENSE, UNNGÅ)                        | role labels, emojis, colors |
+| `subgroups`      | group headings inside columns                                        | headings like "Ost"         |
+| `footnote-types` | footnote styles (with or without icon)                               | section footnotes           |
 
 ## 2. The golden rule: change values, never ids or keys
 
@@ -70,6 +70,8 @@ Change the head, search, banner, colors, or footer by editing the
   glyph, the `scale` label, and the `marker` highlight colors.
 - `info-banner` — the info emoji, the BEGRENSE explanation text, and
   the `text-color`.
+- `info-button` — the item note button: its two glyphs (resting and
+  search-matched) and its size.
 - `colors` — the page-level color tokens: background, text, heading,
   column separators, and halftone decorations.
 - `footer` — the footer colors and the text `lines` (below).
@@ -109,9 +111,10 @@ page order follows array position.
 
 ### 4.5 Change a group label, emoji, or color
 
-Edit the `label`, `emoji`, `background-color`, `text-color`, or
-`column-color` value of that group entry. The array position controls
-the left-to-right column order.
+Edit the `label`, `emoji`, `background-color`, `text-color`,
+`border-color`, or `column-color` value of that group entry. The array
+position controls the left-to-right column order. `border-color` is the
+label and legend border ink; when it is absent the `text-color` is used.
 
 ```json
 {
@@ -120,6 +123,7 @@ the left-to-right column order.
   "emoji": "👍",
   "background-color": "#a0c49d",
   "text-color": "#1e3a1e",
+  "border-color": "#1e3a1e",
   "column-color": "rgba(160, 196, 157, 0.2)"
 }
 ```

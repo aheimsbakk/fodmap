@@ -57,8 +57,25 @@ entries (label + emoji + colors).
 | `info-banner` | object | yes      | `{ emoji, text, text-color }` BEGRENSE note    |
 | `colors`      | object | yes      | page-level color tokens (below)                |
 | `footer`      | object | yes      | footer colors + lines (below)                  |
+| `info-button` | object | no       | item note-button glyphs and sizing (below)     |
 | `markers`     | object | no       | change-marker emojis (below)                   |
 | `tooltips`    | object | no       | bullet tooltip templates (below)               |
+
+**3.1.1 Note info-button**
+
+`page.info-button` styles the item reasoning-note button (BLUEPRINT §4.6): the
+glyphs it shows and its size. All values are optional; the build falls back
+to the canonical defaults when a key is missing.
+
+| Field           | Type   | Required | Meaning                                              |
+| --------------- | ------ | -------- | ---------------------------------------------------- |
+| `emoji`         | string | no       | resting glyph (default `ℹ️`)                         |
+| `emoji-matched` | string | no       | glyph when the note matches the query (default `☑️`) |
+| `width`         | string | no       | button width (default `1.2em`)                       |
+| `height`        | string | no       | button height (default `1.2em`)                      |
+| `font-size`     | string | no       | glyph size (default `0.75em`)                        |
+| `border-radius` | string | no       | button corner radius (default `50%`)                 |
+| `margin-left`   | string | no       | gap after the item text (default `0.4rem`)           |
 
 `head`:
 
@@ -101,9 +118,9 @@ entries (label + emoji + colors).
 | ----------------- | ------ | ----------------------------------- |
 | `secondary-color` | string | secondary text color                |
 | `hover-color`     | string | link hover color                    |
-| `lines`           | array  | ordered footer lines (§3.1.1 below) |
+| `lines`           | array  | ordered footer lines (§3.1.2 below) |
 
-**3.1.1 Footer lines**
+**3.1.2 Footer lines**
 
 `footer.lines` is an ordered array of lines. Every line has the same
 shape — `{ "separator": string, "segments": [ … ] }` — so the generator
@@ -118,7 +135,7 @@ Each `segments` entry is one of:
 Segments are joined with the line's `separator`. A `{{version}}`
 placeholder in any segment is substituted from the `VERSION` file.
 
-**3.1.2 Change markers**
+**3.1.3 Change markers**
 
 `page.markers` holds the item bullet glyphs. `default` is the plain
 bullet every item shows when nothing changed in the newest release.
@@ -136,10 +153,10 @@ missing.
 | `moved`   | string | no       | emoji for items moved to a new group      |
 | `updated` | string | no       | emoji for items updated in place          |
 
-**3.1.3 Bullet tooltips**
+**3.1.4 Bullet tooltips**
 
 `page.tooltips` holds the hover-tooltip templates for the item bullets
-(BLUEPRINT §6.7). The keys match the markers (§3.1.2). The build fills
+(BLUEPRINT §6.7). The keys match the markers (§3.1.3). The build fills
 the placeholders from data: `{{date}}` becomes the folder name of the
 release that last touched the item — the one holding its newest file
 (`YYYY` / `YYYY-MM` / `YYYY-MM-DD`; the newest release for marked
@@ -185,14 +202,15 @@ as in SPIS / BEGRENSE / UNNGÅ). **Groups are arbitrary**: the maintainer
 defines the `id` and may add or remove any number of groups. There is no
 fixed count. **The array position is the left-to-right column order.**
 
-| Field              | Type   | Required | Meaning                                            |
-| ------------------ | ------ | -------- | -------------------------------------------------- |
-| `id`               | string | yes      | unique group key; referenced from item frontmatter |
-| `label`            | string | yes      | displayed badge text                               |
-| `emoji`            | string | yes      | emoji glyph                                        |
-| `background-color` | string | no       | label background color                             |
-| `color`            | string | no       | label text / border ink                            |
-| `column-color`     | string | no       | column background tint (low opacity)               |
+| Field              | Type   | Required | Meaning                                                           |
+| ------------------ | ------ | -------- | ----------------------------------------------------------------- |
+| `id`               | string | yes      | unique group key; referenced from item frontmatter                |
+| `label`            | string | yes      | displayed badge text                                              |
+| `emoji`            | string | yes      | emoji glyph                                                       |
+| `background-color` | string | no       | label background color                                            |
+| `text-color`       | string | no       | label text color                                                  |
+| `border-color`     | string | no       | label / legend border ink; falls back to `text-color` when absent |
+| `column-color`     | string | no       | column background tint (low opacity)                              |
 
 The page column legend and the per-column mobile labels derive from the
 `groups` entries automatically (their `label`, `emoji`, and colors).
