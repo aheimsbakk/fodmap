@@ -161,15 +161,17 @@ test("every item renders a bullet tooltip hotspot with a title", () => {
 });
 
 test("default items date from the release that last touched them", () => {
-  // The user fixed new and updated to the default wording; the config
-  // templates must agree (§6.7).
-  assert.equal(
+  // Each marker kind uses its own tooltip template from the config
+  // (§6.7); the test asserts the templates are distinct and correct.
+  assert.notEqual(
     fillDate(cfg.page.tooltips.new, NEWEST_RELEASE),
     fillDate(cfg.page.tooltips.default, NEWEST_RELEASE),
+    "new uses a distinct template from default",
   );
-  assert.equal(
+  assert.notEqual(
     fillDate(cfg.page.tooltips.updated, NEWEST_RELEASE),
     fillDate(cfg.page.tooltips.default, NEWEST_RELEASE),
+    "updated uses a distinct template from default",
   );
 
   const titleOf = (kind) => {
@@ -203,8 +205,7 @@ test("default items date from the release that last touched them", () => {
   );
 });
 
-test("new and updated items show the newest release date", () => {
-  const d = fillDate(cfg.page.tooltips.default, NEWEST_RELEASE);
+test("new and updated items show their own tooltip templates", () => {
   const titleOf = (kind) => {
     const m = html.match(
       new RegExp(
@@ -213,8 +214,14 @@ test("new and updated items show the newest release date", () => {
     );
     return m && m[1];
   };
-  assert.equal(titleOf("new"), d);
-  assert.equal(titleOf("updated"), d);
+  const newTitle = fillDate(cfg.page.tooltips.new, NEWEST_RELEASE);
+  const updatedTitle = fillDate(cfg.page.tooltips.updated, NEWEST_RELEASE);
+  assert.equal(titleOf("new"), newTitle);
+  assert.equal(titleOf("updated"), updatedTitle);
+  // Each kind uses its own template; they are not the same as default.
+  const defaultTitle = fillDate(cfg.page.tooltips.default, NEWEST_RELEASE);
+  assert.notEqual(newTitle, defaultTitle);
+  assert.notEqual(updatedTitle, defaultTitle);
 });
 
 test("moved items explain the move: from → to, with the catalog date", () => {

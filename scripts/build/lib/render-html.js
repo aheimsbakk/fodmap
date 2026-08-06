@@ -75,7 +75,7 @@ function itemTitle(item, tooltips, labelOf) {
     .replaceAll("{{to}}", labelOf(item.group));
 }
 
-function renderItem(it) {
+function renderItem(it, page) {
   const text = itemText(it);
   // data-change selects the marker bullet (§6.6): the emoji lives in the CSS
   // tokens (--marker-*), so the live text node stays plain and search is
@@ -93,19 +93,20 @@ function renderItem(it) {
   html += `<span class="item-bullet" aria-hidden="true"${title}></span>`;
   html += `<span class="item-text">${esc(text)}</span>`;
   if (it.note) {
-    html += ` <button type="button" class="note-toggle" aria-label="Mer informasjon"></button>`;
+    const ariaLabel = page["info-button"]["aria-label"] || "Mer informasjon";
+    html += ` <button type="button" class="note-toggle" aria-label="${esc(ariaLabel)}"></button>`;
     html += ` <span class="note-popover" role="tooltip" hidden>${esc(it.note)}</span>`;
   }
   html += `</li>`;
   return html;
 }
 
-function renderList(items) {
-  const lis = items.map((it) => renderItem(it)).join("\n");
+function renderList(items, page) {
+  const lis = items.map((it) => renderItem(it, page)).join("\n");
   return `            <ul class="item-list">\n${lis}\n            </ul>`;
 }
 
-function renderColumns(cols) {
+function renderColumns(cols, page) {
   return cols
     .map((col) => {
       const attrs = col.placeholder ? ` data-placeholder` : "";
@@ -118,12 +119,12 @@ function renderColumns(cols) {
         );
       }
       for (const block of col.blocks) {
-        if (block.bare) inner.push(renderList(block.bare));
+        if (block.bare) inner.push(renderList(block.bare, page));
         else {
           inner.push(
             `            <h4 class="sub-group-title">${esc(block.title)}</h4>`,
           );
-          inner.push(renderList(block.items));
+          inner.push(renderList(block.items, page));
         }
       }
       return (
@@ -135,7 +136,7 @@ function renderColumns(cols) {
     .join("\n");
 }
 
-function renderSection(sectionDef, sectionItems, ctx) {
+function renderSection(sectionDef, sectionItems, ctx, page) {
   const columns = buildColumns(
     sectionItems,
     ctx.groups,
@@ -149,7 +150,7 @@ function renderSection(sectionDef, sectionItems, ctx) {
   out += `          <span class="category-icon" aria-hidden="true">${sectionDef.emoji}</span> ${sectionDef.title}\n`;
   out += `        </h3>\n`;
   out += `        <div class="content-grid${borderClass}">\n`;
-  out += renderColumns(columns);
+  out += renderColumns(columns, page);
   out += `\n        </div>`;
   if (sectionDef.footnote) {
     const type = ctx.footnoteTypes[sectionDef.footnote.type];
@@ -198,7 +199,7 @@ export function renderDocument(cfg, itemsBySection, version) {
 
   const sectionsHtml = cfg.sections
     .filter((s) => itemsBySection.has(s.id))
-    .map((s) => renderSection(s, itemsBySection.get(s.id), ctx))
+    .map((s) => renderSection(s, itemsBySection.get(s.id), ctx, page))
     .join("\n");
 
   const legend = cfg.groups
@@ -250,31 +251,32 @@ export function renderDocument(cfg, itemsBySection, version) {
       </header>
 
       <div class="search-widget">
-        <span class="search-icon" aria-hidden="true">${page.search.emoji}</span>
+        <span class="search-icon" aria-hidden="true">${page["search"]["emoji"]}</span>
         <input
           type="text"
           id="search-input"
           class="search-input"
           autocomplete="off"
-          placeholder="${esc(page.search.placeholder)}"
-          title="Søk etter matvare"
+          placeholder="${esc(page["search"]["placeholder"])}"
+          title="${esc(page["search"]["title"])}"
         />
         <button
           type="button"
           id="clear-search"
           class="clear-search hidden"
-          title="Tøm søk"
+          title="${esc(page["search"]["clear"]["title"])}"
         >
-          &times;
+          ${esc(page["search"]["clear"]["text"])}
         </button>
         <button
           type="button"
           id="text-scale-toggle"
           class="text-scale-toggle"
-          aria-label="Øk tekststørrelsen"
-          title="Tekststørrelse: 100 %"
+          aria-label="${esc(page["search"]["scale"]["aria-label"])}"
+          title="${esc(page["search"]["scale"]["title"].replace("{{level}}", "100"))}"
+          data-scale-title="${esc(page["search"]["scale"]["title"])}"
         >
-          ${esc(page.search.scale)}
+          ${esc(page["search"]["scale"]["text"])}
         </button>
       </div>
 

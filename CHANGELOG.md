@@ -1,5 +1,35 @@
 # Changelog
 
+## [0.12.5] - 2026-08-06
+
+- **why:** Analyze and fix all JavaScript issues: split the 372-line search module into four focused files, add note-popover test coverage, remove hardcoded user-facing strings from the build step, and improve runtime performance and robustness
+- **model:** kompis/qwen-3.6-think-coding-mtp
+- **tags:** javascript, refactoring, tests, config, performance
+
+### Added
+
+- `src/js/search-engine.js`: pure matcher module with regex caching for repeated queries
+- `src/js/search-capture.js`: DOM capture module that extracts content into a plan-ready structure
+- `src/js/search-apply.js`: executor module that applies a matcher plan to the DOM
+- `tests/note-popover.test.js`: 12 tests covering hover, pin, click-outside, and independent toggle behavior
+
+### Changed
+
+- `src/js/search.js`: reduced to 93 lines (boot layer only); imports from the three new modules
+- `src/js/note-popover.js`: exported `initNotePopover(doc)` for testability; uses `WeakSet` for O(1) pinned state tracking; boot guard uses `window.document` to avoid jsdom interference
+- `src/js/pwa.js`: service worker registration uses `document.baseURI` so it works under a project subpath, not just at the site root
+- `src/js/text-scale.js`: title template reads from `data-scale-title` on the button instead of a hardcoded string
+- `scripts/build/lib/render-html.js`: all user-facing strings moved to `data/config.json` (`aria-label`, `title`, `clear` text, `scale` text); the `&times;` entity replaced by the config value `×`
+- `data/config.json`: added `info-button.aria-label`, `search.title`, `search.clear` (object with `text` and `title`), `search.scale` (object with `text`, `aria-label`, and `title` template)
+- `tests/styles.test.js`: checks `search-apply.js` for the `.col-empty-mobile` class instead of `search.js`
+- `CODEBASE.md`: updated file tree, component mapping, entry points, and implementation rationale
+
+### Fixed
+
+- `src/js/search.js`: Escape key handler now checks `event.repeat` so holding the key does not re-run the filter
+- `src/js/search-capture.js`: the `popover` element was missing from the captured item object, causing the executor to skip re-rendering note popovers during search
+- `tests/build.test.js`: tooltip tests now assert that `new` and `updated` use distinct templates from `default`, matching the actual config
+
 ## [0.12.4] - 2026-08-05
 
 - **why:** Label new and updated items in the bullet tooltip so the distinction is clear at a glance

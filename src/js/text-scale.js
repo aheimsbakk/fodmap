@@ -44,9 +44,14 @@ export function initTextScale(document, storage = null) {
   }
 
   const button = document.getElementById("text-scale-toggle");
+  // The title template comes from the build step (data-scale-title), so
+  // the script never hardcodes user-facing text. Fallback to a literal
+  // if the attribute is missing (e.g. hand-authored page).
+  const titleTemplate =
+    button?.dataset.scaleTitle || "Tekststørrelse: {{level}} %";
   function apply(level) {
     document.documentElement.dataset.textScale = level;
-    if (button) button.title = `Tekststørrelse: ${level} %`;
+    if (button) button.title = titleTemplate.replace("{{level}}", level);
   }
 
   let level = restoreLevel();

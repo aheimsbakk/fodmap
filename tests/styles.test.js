@@ -94,6 +94,10 @@ const SEARCH_JS = readFileSync(
   new URL("../src/js/search.js", import.meta.url),
   "utf8",
 );
+const SEARCH_APPLY_JS = readFileSync(
+  new URL("../src/js/search-apply.js", import.meta.url),
+  "utf8",
+);
 
 const LAYOUT_CSS = readFileSync(
   new URL("../src/css/layout.css", import.meta.url),
@@ -416,9 +420,9 @@ test("the empty-column collapse is mobile-scoped and shared with the script", ()
   // The executor toggles the same class name; a rename in one file
   // without the other would silently break the collapse.
   assert.match(
-    SEARCH_JS,
+    SEARCH_APPLY_JS,
     /col-empty-mobile/,
-    "search.js must toggle the .col-empty-mobile class",
+    "search-apply.js must toggle the .col-empty-mobile class",
   );
 });
 
