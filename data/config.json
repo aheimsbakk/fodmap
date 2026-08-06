@@ -15,10 +15,18 @@
     },
     "search": {
       "emoji": "🔍",
+      "title": "Søk etter matvare",
       "placeholder": "SØK ETTER MATVARE (F.EKS. LØK, EPLE)...",
       "placeholder-color": "#9ca3af",
-      "clear": "×",
-      "scale": "Aa",
+      "clear": {
+        "text": "×",
+        "title": "Tøm søk"
+      },
+      "scale": {
+        "text": "Aa",
+        "aria-label": "Øk tekststørrelsen",
+        "title": "Tekststørrelse: {{level}} %"
+      },
       "marker": {
         "background-color": "#ffffff",
         "text-color": "#000000"
@@ -81,7 +89,8 @@
       "emoji": "ℹ️",
       "emoji-matched": "☑️",
       "font-size": "0.9rem",
-      "margin-left": "0.4rem"
+      "margin-left": "0.4rem",
+      "aria-label": "Mer informasjon"
     },
     "markers": {
       "new": "🆕",

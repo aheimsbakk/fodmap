@@ -16,7 +16,7 @@
   border-color: var(--role-spis-border);
 }
 
-/* group: BEGRENSE (begrens) */
+/* group: BEGRENS (begrens) */
 .content-col[data-role="begrens"] {
   background-color: var(--role-begrens-tint);
 }

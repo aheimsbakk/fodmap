@@ -8,7 +8,8 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { JSDOM } from "jsdom";
-import { normalizeQuery, buildMatcher, initSearch } from "../src/js/search.js";
+import { normalizeQuery, buildMatcher } from "../src/js/search-engine.js";
+import { initSearch } from "../src/js/search.js";
 import { build } from "../scripts/build/build.mjs";
 
 // Tests run against the generated page (the canonical artifact); the

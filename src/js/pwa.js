@@ -5,8 +5,11 @@
 // or the page is not a secure context (plain http), where registration
 // would fail anyway. A failed registration is logged and never surfaced
 // to the user: the page stays fully functional without the worker.
+// Uses document.baseURI so the relative path resolves correctly under
+// a project subpath, not just at the site root.
 if ("serviceWorker" in navigator && window.isSecureContext) {
-  navigator.serviceWorker.register("sw.js").catch((error) => {
+  const swUrl = new URL("sw.js", document.baseURI);
+  navigator.serviceWorker.register(swUrl).catch((error) => {
     console.warn(
       "Service worker registration failed; the page keeps working without it.",
       error,

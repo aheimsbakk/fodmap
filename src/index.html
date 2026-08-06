@@ -48,7 +48,7 @@
           class="clear-search hidden"
           title="Tøm søk"
         >
-          &times;
+          ×
         </button>
         <button
           type="button"
@@ -56,6 +56,7 @@
           class="text-scale-toggle"
           aria-label="Øk tekststørrelsen"
           title="Tekststørrelse: 100 %"
+          data-scale-title="Tekststørrelse: {{level}} %"
         >
           Aa
         </button>
@@ -66,7 +67,7 @@
           SPIS <span aria-hidden="true">👍</span>
         </div>
         <div class="legend-item" data-role="begrens">
-          BEGRENSE <span aria-hidden="true">⚖️</span>
+          BEGRENS <span aria-hidden="true">⚖️</span>
         </div>
         <div class="legend-item" data-role="unngå">
           UNNGÅ <span aria-hidden="true">✋</span>
@@ -74,9 +75,9 @@
       </div>
 
       <div class="info-banner">
-        <span aria-hidden="true">ℹ️</span> BEGRENSE: Opp til 1 matvare per
+        <span aria-hidden="true">ℹ️</span> BEGRENS: Opp til 1 matvare per
         måltid. Matvaren har lav FODMAP opp til mengden oppgitt i
-        BEGRENSE-kolonnen.
+        BEGRENS-kolonnen.
       </div>
 
       <section class="category-section" data-category="brød">
@@ -191,7 +192,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Næringsgjær</span>
               </li>
@@ -199,7 +200,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Panko</span>
               </li>
@@ -231,7 +232,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Popcorn (uten krydder)</span>
               </li>
@@ -295,7 +296,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Sorghum</span>
               </li>
@@ -303,7 +304,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Teff</span>
               </li>
@@ -311,7 +312,7 @@
           </div>
           <div class="content-col" data-role="begrens">
             <div class="role-label mobile-only">
-              BEGRENSE <span aria-hidden="true">⚖️</span>
+              BEGRENS <span aria-hidden="true">⚖️</span>
             </div>
             <ul class="item-list">
               <li class="item">
@@ -397,7 +398,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Durumhvete</span>
               </li>
@@ -455,7 +456,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Kokosmel</span>
               </li>
@@ -519,7 +520,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra BEGRENSE til UNNGÅ, kildedato 2025-05"
+                  title="Flyttet fra BEGRENS til UNNGÅ, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Pasta/spagetti av hvete</span>
               </li>
@@ -543,7 +544,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Soyamel</span>
               </li>
@@ -551,7 +552,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Spelt (korn, ikke surdeig)</span>
               </li>
@@ -559,7 +560,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra BEGRENSE til UNNGÅ, kildedato 2025-05"
+                  title="Flyttet fra BEGRENS til UNNGÅ, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Speltpasta</span>
               </li>
@@ -668,7 +669,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Brokkolini (stilker)</span>
               </li>
@@ -796,7 +797,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra BEGRENSE til SPIS, kildedato 2025-05"
+                  title="Flyttet fra BEGRENS til SPIS, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Maiskorn, hermetisert</span>
               </li>
@@ -820,7 +821,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra BEGRENSE til SPIS, kildedato 2025-05"
+                  title="Flyttet fra BEGRENS til SPIS, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Paprika, grønn</span>
               </li>
@@ -884,7 +885,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra BEGRENSE til SPIS, kildedato 2025-05"
+                  title="Flyttet fra BEGRENS til SPIS, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Rødbeter</span>
               </li>
@@ -950,7 +951,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra BEGRENSE til SPIS, kildedato 2025-05"
+                  title="Flyttet fra BEGRENS til SPIS, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Sukkererter</span>
               </li>
@@ -966,7 +967,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra BEGRENSE til SPIS, kildedato 2025-05"
+                  title="Flyttet fra BEGRENS til SPIS, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Søtpotet</span>
               </li>
@@ -985,7 +986,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Edamame/soyabønner</span>
               </li>
@@ -1025,7 +1026,7 @@
           </div>
           <div class="content-col" data-role="begrens">
             <div class="role-label mobile-only">
-              BEGRENSE <span aria-hidden="true">⚖️</span>
+              BEGRENS <span aria-hidden="true">⚖️</span>
             </div>
             <ul class="item-list">
               <li class="item">
@@ -1040,7 +1041,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text"
                   >Butternuttgresskar/flaskegresskar (63 gram)</span
@@ -1094,7 +1095,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra SPIS til BEGRENSE, kildedato 2025-05"
+                  title="Flyttet fra SPIS til BEGRENS, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Tomat (65 gram)</span>
               </li>
@@ -1105,7 +1106,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text"
                   >Kidneybønner, hermetisk (86 gram)</span
@@ -1178,7 +1179,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Brokkolini (topper)</span>
               </li>
@@ -1186,7 +1187,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Cherrytomat</span>
               </li>
@@ -1268,7 +1269,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra BEGRENSE til UNNGÅ, kildedato 2025-05"
+                  title="Flyttet fra BEGRENS til UNNGÅ, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Stangselleri</span>
               </li>
@@ -1295,7 +1296,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra BEGRENSE til UNNGÅ, kildedato 2025-05"
+                  title="Flyttet fra BEGRENS til UNNGÅ, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Bønner, svarte, kokt/hermetisk</span>
               </li>
@@ -1327,7 +1328,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra BEGRENSE til UNNGÅ, kildedato 2025-05"
+                  title="Flyttet fra BEGRENS til UNNGÅ, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Kikerter, hermetisk</span>
               </li>
@@ -1351,7 +1352,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra BEGRENSE til UNNGÅ, kildedato 2025-05"
+                  title="Flyttet fra BEGRENS til UNNGÅ, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Store hvite bønner, hermetiske</span>
               </li>
@@ -1423,7 +1424,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra BEGRENSE til SPIS, kildedato 2025-05"
+                  title="Flyttet fra BEGRENS til SPIS, kildedato 2025-05"
                 ></span
                 ><span class="item-text"
                   >Blåbær, amerikanske og hvite inni</span
@@ -1569,7 +1570,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra BEGRENSE til SPIS, kildedato 2025-05"
+                  title="Flyttet fra BEGRENS til SPIS, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Tranebær</span>
               </li>
@@ -1604,14 +1605,14 @@
           </div>
           <div class="content-col" data-role="begrens">
             <div class="role-label mobile-only">
-              BEGRENSE <span aria-hidden="true">⚖️</span>
+              BEGRENS <span aria-hidden="true">⚖️</span>
             </div>
             <ul class="item-list">
               <li class="item" data-change="moved">
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra UNNGÅ til BEGRENSE, kildedato 2025-05"
+                  title="Flyttet fra UNNGÅ til BEGRENS, kildedato 2025-05"
                 ></span
                 ><span class="item-text"
                   >Aprikos, fersk og hermetisk (67 gram)</span
@@ -1645,7 +1646,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra SPIS til BEGRENSE, kildedato 2025-05"
+                  title="Flyttet fra SPIS til BEGRENS, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Jordbær (65 gram)</span>
               </li>
@@ -1669,7 +1670,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra SPIS til BEGRENSE, kildedato 2025-05"
+                  title="Flyttet fra SPIS til BEGRENS, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Melon, cantaloupe (121 gram)</span>
               </li>
@@ -1716,7 +1717,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra BEGRENSE til UNNGÅ, kildedato 2025-05"
+                  title="Flyttet fra BEGRENS til UNNGÅ, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Eple, Granny smith/Pink lady</span>
               </li>
@@ -1740,7 +1741,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra BEGRENSE til UNNGÅ, kildedato 2025-05"
+                  title="Flyttet fra BEGRENS til UNNGÅ, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Granateple</span>
               </li>
@@ -1748,7 +1749,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Grapefrukt</span>
               </li>
@@ -1764,7 +1765,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra BEGRENSE til UNNGÅ, kildedato 2025-05"
+                  title="Flyttet fra BEGRENS til UNNGÅ, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Mango</span>
               </li>
@@ -1788,7 +1789,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Persimon</span>
               </li>
@@ -1879,7 +1880,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Gojibær (tørket)</span>
               </li>
@@ -1927,7 +1928,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Tranebær (tørket)</span>
               </li>
@@ -1952,7 +1953,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra BEGRENSE til SPIS, kildedato 2025-05"
+                  title="Flyttet fra BEGRENS til SPIS, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Mandelmelk</span>
               </li>
@@ -1960,7 +1961,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra BEGRENSE til SPIS, kildedato 2025-05"
+                  title="Flyttet fra BEGRENS til SPIS, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Rismelk</span>
               </li>
@@ -2059,7 +2060,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Crème fraiche</span>
               </li>
@@ -2091,7 +2092,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra BEGRENSE til SPIS, kildedato 2025-05"
+                  title="Flyttet fra BEGRENS til SPIS, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Haloumi</span>
               </li>
@@ -2163,7 +2164,7 @@
           </div>
           <div class="content-col" data-role="begrens">
             <div class="role-label mobile-only">
-              BEGRENSE <span aria-hidden="true">⚖️</span>
+              BEGRENS <span aria-hidden="true">⚖️</span>
             </div>
             <h4 class="sub-group-title">Alternativ til melk</h4>
             <ul class="item-list">
@@ -2206,7 +2207,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra BEGRENSE til UNNGÅ, kildedato 2025-05"
+                  title="Flyttet fra BEGRENS til UNNGÅ, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Havremelk</span>
               </li>
@@ -2310,7 +2311,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Fløtemysost</span>
               </li>
@@ -2357,7 +2358,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Hampfrø</span>
               </li>
@@ -2389,7 +2390,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Paranøtter</span>
               </li>
@@ -2461,7 +2462,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra BEGRENSE til UNNGÅ, kildedato 2025-05"
+                  title="Flyttet fra BEGRENS til UNNGÅ, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Hasselnøtter</span>
               </li>
@@ -2469,7 +2470,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra BEGRENSE til UNNGÅ, kildedato 2025-05"
+                  title="Flyttet fra BEGRENS til UNNGÅ, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Mandler</span>
               </li>
@@ -2643,7 +2644,7 @@
           </div>
           <div class="content-col" data-role="begrens">
             <div class="role-label mobile-only">
-              BEGRENSE <span aria-hidden="true">⚖️</span>
+              BEGRENS <span aria-hidden="true">⚖️</span>
             </div>
             <ul class="item-list">
               <li class="item">
@@ -3356,7 +3357,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Oppdatert, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Maltodextrin/maltose</span>
               </li>
@@ -3414,7 +3415,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Flyttet fra BEGRENSE til SPIS, kildedato 2025-05"
+                  title="Flyttet fra BEGRENS til SPIS, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Sukker, kokosblomst</span>
               </li>
@@ -3489,7 +3490,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Gjær</span>
               </li>
@@ -3572,7 +3573,7 @@
           </div>
           <div class="content-col" data-role="begrens">
             <div class="role-label mobile-only">
-              BEGRENSE <span aria-hidden="true">⚖️</span>
+              BEGRENS <span aria-hidden="true">⚖️</span>
             </div>
             <ul class="item-list">
               <li class="item">
@@ -3727,7 +3728,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">High-fructose corn syrup (HFCS)</span>
               </li>
@@ -3743,7 +3744,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Maltekstrakt</span>
               </li>
@@ -3751,7 +3752,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Sikorirot</span>
               </li>
@@ -4179,7 +4180,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Hvitløk/hvitløksekstrakt</span>
               </li>
@@ -4205,7 +4206,7 @@
                 <span
                   class="item-bullet"
                   aria-hidden="true"
-                  title="Kildedato 2025-05"
+                  title="Ny, kildedato 2025-05"
                 ></span
                 ><span class="item-text">Løk/løkekstrakt</span>
               </li>
@@ -4505,7 +4506,7 @@
           </div>
           <div class="content-col" data-role="begrens">
             <div class="role-label mobile-only">
-              BEGRENSE <span aria-hidden="true">⚖️</span>
+              BEGRENS <span aria-hidden="true">⚖️</span>
             </div>
             <ul class="item-list">
               <li class="item">
@@ -4652,7 +4653,7 @@
           starter på en eliminasjonsdiett
         </p>
         <p class="footer-source">
-          FODMAP v0.12.0 // Kilder:
+          FODMAP v0.12.5 // Kilder:
           <a
             href="https://nhi.no/kosthold/forebyggende-kost-og-sykdom/dette-er-fodmap-reduserte-matvarer"
             target="_blank"

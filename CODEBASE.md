@@ -51,16 +51,20 @@ work/
 │   │   ├── components.css       # static: masthead, search widget, labels, banners, decorations
 │   │   └── utilities.css        # static: responsive toggles, hidden state, search marker
 │   └── js/
-│       ├── search.js            # search engine: matcher (pure) + executor (DOM)
-│       ├── text-scale.js        # text-size toggle: cycle + persist the level
-│       ├── note-popover.js      # item note affordance: hover/pin popover
-│       └── pwa.js               # registers sw.js, guarded by support + secure context (§9.6)
+│       ├── search-engine.js   # pure matcher: normalizeQuery + buildMatcher (no DOM)
+│       ├── search-capture.js  # DOM capture: captures content into plan-ready structure
+│       ├── search-apply.js    # executor: applies a matcher plan to the DOM
+│       ├── search.js          # boot: wires search interaction (debounce, clear, Escape, scroll-blur)
+│       ├── text-scale.js      # text-size toggle: cycle + persist the level
+│       ├── note-popover.js    # item note affordance: hover/pin popover
+│       └── pwa.js             # registers sw.js, guarded by support + secure context (§9.6)
 ├── tests/
 │   ├── build.test.js            # data and build pipeline: generated page, counts, note-button + marker contracts, installability (§9.6)
 │   ├── content.test.js          # canonical inventory: section order, counts, spellings
 │   ├── merge.test.js            # release merge + change markers (listReleases, inheritance, marker classes)
 │   ├── search.test.js           # functional tests of the search engine
 │   ├── text-scale.test.js       # functional tests of the text-size toggle
+│   ├── note-popover.test.js     # functional tests of the note popover affordance
 │   └── styles.test.js           # stylesheet contract guards (single-line sub-title)
 ├── scripts/
 │   ├── build/
@@ -168,14 +172,30 @@ continuing.
 One ES module per concern (BLUEPRINT goal 3, §9.1), loaded in order at
 the end of the body.
 
-`src/js/search.js` — the search engine:
+`src/js/search-engine.js` — pure matcher:
 
-| Export                                   | Responsibility                                                                                                                                                                                                                                                                                                                                            | BLUEPRINT § |
-| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| `normalizeQuery(value)`                  | lowercase + trim                                                                                                                                                                                                                                                                                                                                          | §7.2 rule 1 |
-| `buildMatcher()`                         | pure matcher: query + captured content → visibility/highlight plan for items, category/sub-group headings, and a per-column empty flag (narrow collapse, deviation 14). Items match on article text or note text; a note-only match flags the note button as matched and bolds the matched terms in the popover (`noteHtml`)                              | §8          |
-| `applyPlan(document, plan)`              | executor: applies the plan to the DOM (re-renders each item's `.item-text` span and the `.note-popover` content, toggles `.col-empty-mobile` on columns and `.is-match` on note buttons; the popover element itself and its open/pinned state are never touched)                                                                                          | §8          |
-| `initSearch(document, debounceMs = 300)` | boot: clear any browser-restored input value, then load-time capture (`data-orig-*` + note text + placeholder flag); event wiring (input debounce 300 ms, Escape key clears the search and moves focus to the input from anywhere on the page, clear control, passive scroll-blur > 50 px with a 200 ms grace window after each filter run), IDLE restore | §7, §9.5    |
+| Export                  | Responsibility                                                                                                                                                                                                                                                                                                               | BLUEPRINT § |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `normalizeQuery(value)` | lowercase + trim                                                                                                                                                                                                                                                                                                             | §7.2 rule 1 |
+| `buildMatcher()`        | pure matcher: query + captured content → visibility/highlight plan for items, category/sub-group headings, and a per-column empty flag (narrow collapse, deviation 14). Items match on article text or note text; a note-only match flags the note button as matched and bolds the matched terms in the popover (`noteHtml`) | §8          |
+
+`src/js/search-capture.js` — DOM capture:
+
+| Export                | Responsibility                                                                                                                      | BLUEPRINT § |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `captureContent(doc)` | traverses the document, captures article text, note text, heading markup, and element references into a plan-ready structure (§7.3) | §7.3        |
+
+`src/js/search-apply.js` — executor:
+
+| Export                 | Responsibility                                                                                                                                                                                                                                                  | BLUEPRINT § |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `applyPlan(doc, plan)` | applies the matcher plan to the DOM (re-renders each item's `.item-text` span and the `.note-popover` content, toggles `.col-empty-mobile` on columns and `.is-match` on note buttons; the popover element itself and its open/pinned state are never replaced) | §8          |
+
+`src/js/search.js` — boot layer:
+
+| Export                                   | Responsibility                                                                                                                                                                                                                                                                                             | BLUEPRINT § |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `initSearch(document, debounceMs = 300)` | boot: clear any browser-restored input value, then load-time capture; event wiring (input debounce 300 ms, Escape key clears the search and moves focus to the input from anywhere on the page, clear control, passive scroll-blur > 50 px with a 200 ms grace window after each filter run), IDLE restore | §7, §9.5    |
 
 `src/js/text-scale.js` — the text-size toggle:
 
@@ -225,16 +245,16 @@ pair. The four modules share no state and boot independently.
 
 ## 4. Entry Points
 
-| Purpose              | Path                                                                                                  |
-| -------------------- | ----------------------------------------------------------------------------------------------------- |
-| Application entry    | `src/index.html` (generated by the build; served statically, e.g. `python3 -m http.server`)           |
-| Build entry          | `scripts/build.sh` (convenience wrapper; default out-dir `src`) → `scripts/build/build.mjs <out-dir>` |
-| Content source       | `data/config.json` + `data/<release>/` folders                                                        |
-| Search engine module | `src/js/search.js`                                                                                    |
-| Text-scale module    | `src/js/text-scale.js`                                                                                |
-| Note popover module  | `src/js/note-popover.js`                                                                              |
-| Test suite           | `tests/` via `npm test`                                                                               |
-| Sync verification    | `scripts/verify_codebase_sync.sh`                                                                     |
+| Purpose              | Path                                                                                                                 |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Application entry    | `src/index.html` (generated by the build; served statically, e.g. `python3 -m http.server`)                          |
+| Build entry          | `scripts/build.sh` (convenience wrapper; default out-dir `src`) → `scripts/build/build.mjs <out-dir>`                |
+| Content source       | `data/config.json` + `data/<release>/` folders                                                                       |
+| Search engine module | `src/js/search-engine.js` (pure) + `src/js/search-capture.js` + `src/js/search-apply.js` + `src/js/search.js` (boot) |
+| Text-scale module    | `src/js/text-scale.js`                                                                                               |
+| Note popover module  | `src/js/note-popover.js`                                                                                             |
+| Test suite           | `tests/` via `npm test`                                                                                              |
+| Sync verification    | `scripts/verify_codebase_sync.sh`                                                                                    |
 
 ## 5. Implementation Rationale (language/framework mapping)
 
@@ -285,17 +305,19 @@ pair. The four modules share no state and boot independently.
 
 ### 5.2 JavaScript
 
-- **ES modules without a bundler**, one module per concern (BLUEPRINT
-  goal 3): `search.js` under the 300-line limit, plus `text-scale.js` and
-  `note-popover.js`; the three share no state and boot independently
-  (RULES §17).
+- **Four modules, one responsibility each**, without a bundler (BLUEPRINT
+  goal 3): `search-engine.js` (pure matcher), `search-capture.js` (DOM
+  capture), `search-apply.js` (executor), `search.js` (boot); plus
+  `text-scale.js` and `note-popover.js`; the six share no state and boot
+  independently (RULES §17). Each file stays well under the 300-line
+  limit.
 - **The storage adapter is a parameter, not a global.** `initTextScale`
   accepts a `{ getItem, setItem }` object; the browser path defaults to
   `localStorage` behind a try/catch, and tests inject an in-memory store
   to simulate blocked storage deterministically.
-- **Matcher/executor split is the testing strategy.** The matcher is pure
-  (strings in, plan out), so `node --test` covers it without a browser;
-  the executor and `initSearch` are integration-tested through jsdom
+- **Matcher/capture/executor split is the testing strategy.** The matcher
+  is pure (strings in, plan out), so `node --test` covers it without a
+  browser; the capture and executor are integration-tested through jsdom
   against the real generated `src/index.html`, which also exercises the
   element identity contract (§9.3).
 - **The article span keeps search surgical.** Search re-renders only
@@ -319,10 +341,18 @@ pair. The four modules share no state and boot independently.
   the IDLE plan clears it; placeholder columns are never flagged
   (deviation 14).
 - **Installability is a registration, not a cache.** `pwa.js` registers
-  `sw.js` under a support + secure-context guard, and the worker's fetch
-  handler never calls `respondWith` — every request goes to the network,
-  so the page behaves identically with or without the worker and no
-  cache system can accumulate stale content (deviation 20, §9.6).
+  `sw.js` relative to `document.baseURI` (works under a project subpath,
+  not just at the site root), under a support + secure-context guard, and
+  the worker's fetch handler never calls `respondWith` — every request
+  goes to the network, so the page behaves identically with or without
+  the worker and no cache system can accumulate stale content (deviation
+  20, §9.6).
+- **Escape key handler guards against repeat events.** `event.repeat` is
+  checked so that holding down the Escape key does not re-run the filter
+  repeatedly.
+- **Note popover uses WeakSet for pinned state.** A `WeakSet` tracks
+  pinned buttons so the global click listener checks pinned state in O(1)
+  without re-querying the DOM.
 
 ### 5.3 CSS
 
@@ -420,6 +450,10 @@ pair. The four modules share no state and boot independently.
   100 → 125 → 150 → 100 cycle, storage write and restore, invalid and
   blocked storage fallbacks, independence from an active search, and the
   missing-button inert path (§9.3).
+- `tests/note-popover.test.js` (BLUEPRINT §7.5): hover open/close,
+  popover hover keeps it open, pin/unpin, hover does not close pinned,
+  click-outside closes pinned, clicking inside pinned keeps it,
+  independent toggles, and no-note items unaffected.
 - `tests/merge.test.js` (BLUEPRINT §6.3, §6.6; docs/data-format.md §7):
   `listReleases` ordering and date-shaped filtering, field inheritance
   and explicit-empty clears, `visible` removal/restore, note prepend, the
