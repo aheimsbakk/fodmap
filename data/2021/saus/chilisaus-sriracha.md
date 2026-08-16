@@ -1,6 +1,6 @@
 ---
 name: Chilisaus, sriracha
-group: spis
+group: begrens
 amount: inntil 3 ts
 attribution:
   - https://nhi.no/kosthold/forebyggende-kost-og-sykdom/dette-er-fodmap-reduserte-matvarer

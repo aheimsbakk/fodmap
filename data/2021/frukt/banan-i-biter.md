@@ -1,6 +1,6 @@
 ---
 name: Banan i biter
-group: spis
+group: begrens
 subgroup: tørket-frukt
 amount: 15 stk
 attribution:

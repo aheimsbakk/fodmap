@@ -1,6 +1,6 @@
 ---
 name: Sirup, Kokos/treacle
-group: spis
+group: begrens
 amount: 1 ss
 attribution:
   - https://nhi.no/kosthold/forebyggende-kost-og-sykdom/dette-er-fodmap-reduserte-matvarer

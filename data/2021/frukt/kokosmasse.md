@@ -1,6 +1,6 @@
 ---
 name: Kokosmasse
-group: spis
+group: begrens
 subgroup: tørket-frukt
 amount: 30 gram
 attribution:
