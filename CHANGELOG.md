@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.12.6] - 2026-08-16
+
+- **why:** 11 items moved from SPIS to BEGRENSE because they carry portion amounts
+- **model:** kompis/qwen-3.6-think-coding
+- **tags:** content, columns, amounts, begrens
+
+### Changed
+
+- `data/2021/`: moved 11 items from `group: spis` to `group: begrens` (banan i biter, banan moden, kokosmasse, kinakål, ricotta, chiafrø, mandelsmør, nutella, chilisaus sriracha, sirup kokos/treacle, sirup lønne)
+- Regenerated `src/index.html` and `src/css/roles.css`
+- `BLUEPRINT.md` §6.5: updated inventory for 7 sections (2, 3, 4, 5, 8, 9, 11)
+- `tests/content.test.js`: updated `EXPECTED_COUNTS` for the affected sections
+- `tests/search.test.js`: fixed sub-group heading match test and placeholder column count
+
 ## [0.12.5] - 2026-08-06
 
 - **why:** Analyze and fix all JavaScript issues: split the 372-line search module into four focused files, add note-popover test coverage, remove hardcoded user-facing strings from the build step, and improve runtime performance and robustness

@@ -1,6 +1,6 @@
 ---
 name: Ricotta
-group: spis
+group: begrens
 subgroup: ost
 amount: 120 gram
 attribution:

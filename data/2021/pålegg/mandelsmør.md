@@ -1,6 +1,6 @@
 ---
 name: Mandelsmør
-group: spis
+group: begrens
 subgroup: annet
 amount: 1,5 ss
 attribution:

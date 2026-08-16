@@ -1,6 +1,6 @@
 ---
 name: Banan, moden
-group: spis
+group: begrens
 amount: kun 30 gram
 attribution:
   - https://nhi.no/kosthold/forebyggende-kost-og-sykdom/dette-er-fodmap-reduserte-matvarer

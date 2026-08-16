@@ -303,14 +303,15 @@ test("a sub-group heading match reveals its list and highlights the heading", as
   }
 
   // Both columns with a match keep their labels (SPIS via the heading
-  // match, UNNGÅ via its own item match), and neither cell collapses on
-  // narrow (deviation 14); the placeholder column is never marked.
+  // match, UNNGÅ via its own item match). The BEGRENSE column collapses
+  // on narrow because no item or heading in it matches "sjømat" (the two
+  // items — mandelsmør, nutella — contain neither the term nor a matching
+  // sub-group heading). The placeholder column is never marked.
   const cols = section.querySelectorAll(".content-col");
   assert.ok(!cols[0].querySelector(".role-label").classList.contains("hidden"));
+  assert.ok(cols[1].classList.contains("col-empty-mobile")); // no match in BEGRENSE
   assert.ok(!cols[2].querySelector(".role-label").classList.contains("hidden"));
-  for (const col of cols) {
-    assert.ok(!col.classList.contains("col-empty-mobile"));
-  }
+  assert.equal(visibleItems(dom).length, 9);
 
   // Restore on clear returns the exact original heading markup.
   clearButton(dom).click();
@@ -425,9 +426,10 @@ test("empty placeholder columns are never touched", async () => {
   const emptyCols = dom.window.document.querySelectorAll(
     ".content-col[data-placeholder]",
   );
-  // Kjøtt (2), Pålegg (1), Krydder (1), and Nøtter (1, empty after the
-  // 2025-05 moves) §5.7.
-  assert.equal(emptyCols.length, 5);
+  // Kjøtt (2) and Krydder (1) §5.7. Nøtter column 2 is no longer a
+  // placeholder after chiafrø moved from SPIS to BEGRENSE in the 2025-05
+  // release.
+  assert.equal(emptyCols.length, 3);
   for (const col of emptyCols) {
     // Placeholders carry the positional role (for the tint) but never
     // search state: no hidden toggle, no items, no mobile label, and no

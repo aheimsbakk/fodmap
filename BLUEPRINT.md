@@ -477,16 +477,16 @@ merged data and the generated page (§13).
 | #   | Section                              | Icon        | Columns (SPIS / BEGRENSE / UNNGÅ)          | Footnotes |
 | --- | ------------------------------------ | ----------- | ------------------------------------------ | --------- |
 | 1   | Brød, ris og pasta                   | wheat       | 25 / 5 / 25                                | VIKTIG    |
-| 2   | Grønnsaker og belgfrukter            | carrot      | 49+5 sub (1) / 8+4 sub (1) / 17+11 sub (1) | —         |
-| 3   | Frukt, tørket frukt og bær           | apple       | 24+2 sub (1) / 9 / 18+12 sub (1)           | —         |
-| 4   | Melk, meieriprodukter & alternativer | cow         | 0+25 sub (3) / 0+3 sub (2) / 0+14 sub (3)  | —         |
-| 5   | Nøtter og frø                        | seedling    | 13 / empty / 5                             | —         |
+| 2   | Grønnsaker og belgfrukter            | carrot      | 48+5 sub (1) / 9+4 sub (1) / 17+11 sub (1) | —         |
+| 3   | Frukt, tørket frukt og bær           | apple       | 21+2 sub (1) / 12 / 18+12 sub (1)          | —         |
+| 4   | Melk, meieriprodukter & alternativer | cow         | 0+24 sub (3) / 4 / 0+14 sub (3)            | —         |
+| 5   | Nøtter og frø                        | seedling    | 12 / 1 / 5                                 | —         |
 | 6   | Drikke                               | mug         | 16 / 5 / 12                                | —         |
 | 7   | Kjøtt, egg, fisk                     | drumstick   | 9 / empty / empty                          | MARINADER |
-| 8   | Pålegg                               | bread slice | 0+35 sub (6) / empty / 11                  | —         |
-| 9   | Sukker, søtning og annet             | cubes       | 12+16 sub (2) / 2 / 10+17 sub (2)          | TIPS      |
+| 8   | Pålegg                               | bread slice | 0+33 sub (6) / 2 / 11                      | —         |
+| 9   | Sukker, søtning og annet             | cubes       | 10+16 sub (2) / 4 / 10+17 sub (2)          | TIPS      |
 | 10  | Krydder og urter                     | pepper      | 0+37 sub (2) / empty / 10                  | TIPS      |
-| 11  | Smakstilsetning, saus, dressing      | droplet     | 29 / 6 / 9                                 | —         |
+| 11  | Smakstilsetning, saus, dressing      | droplet     | 28 / 7 / 9                                 | —         |
 
 The "bare+sub (N)" notation reads "x items without a subgroup, y items
 inside the N sub-group headings shown". Counts include the 2025-05

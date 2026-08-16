@@ -1,6 +1,6 @@
 ---
 name: Kinakål
-group: spis
+group: begrens
 amount: 75 gram
 attribution:
   - https://nhi.no/kosthold/forebyggende-kost-og-sykdom/dette-er-fodmap-reduserte-matvarer

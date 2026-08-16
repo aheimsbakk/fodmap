@@ -1,6 +1,6 @@
 ---
 name: Sirup, lønne
-group: spis
+group: begrens
 amount: 2 ss
 attribution:
   - https://nhi.no/kosthold/forebyggende-kost-og-sykdom/dette-er-fodmap-reduserte-matvarer

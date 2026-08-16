@@ -33,16 +33,16 @@ const EXPECTED_SECTIONS = [
  *  merged state, baseline + 2025-05 delta. */
 const EXPECTED_COUNTS = [
   [25, 5, 25], // 1 Brød, ris og pasta
-  [54, 12, 28], // 2 Grønnsaker og belgfrukter
-  [26, 9, 30], // 3 Frukt, tørket frukt og bær
-  [25, 3, 14], // 4 Melk, meieriprodukter & alternativer
-  [13, 0, 5], // 5 Nøtter og frø
+  [53, 13, 28], // 2 Grønnsaker og belgfrukter
+  [23, 12, 30], // 3 Frukt, tørket frukt og bær
+  [24, 4, 14], // 4 Melk, meieriprodukter & alternativer
+  [12, 1, 5], // 5 Nøtter og frø
   [16, 5, 12], // 6 Drikke
   [9, 0, 0], // 7 Kjøtt, egg, fisk
-  [35, 0, 11], // 8 Pålegg
-  [28, 2, 27], // 9 Sukker, søtning og annet
+  [33, 2, 11], // 8 Pålegg
+  [26, 4, 27], // 9 Sukker, søtning og annet
   [37, 0, 10], // 10 Krydder og urter
-  [29, 6, 9], // 11 Smakstilsetning, saus, dressing
+  [28, 7, 9], // 11 Smakstilsetning, saus, dressing
 ];
 
 const TOTAL_ITEMS = EXPECTED_COUNTS.flat().reduce((sum, n) => sum + n, 0);
